@@ -17,7 +17,7 @@ Soonbward is a student project that aims to create a soundboard application. The
 - Ability to upload and manage sound clips
 - Categorization of sound clips for easy access
 - Responsive design for various screen sizes
-- Cross-platform support (iOS and Android)
+- Cross-platform support (Web browser, Windows and Android)
 
 ## Technologies Used
 - **Frontend:** React Native
@@ -36,10 +36,10 @@ To get a local copy up and running, follow these simple steps.
 ### Installation
 
 1. **Clone the repository:**
-   ```sh
-   git clone https://github.com/yourusername/soonbward.git
-   cd soonbward
-   ```
+```sh
+git clone https://github.com/yourusername/soonbward.git
+cd soonbward
+```
 2. Install frontend dependencies:
 ```sh
 cd frontend
