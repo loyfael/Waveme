@@ -17,7 +17,7 @@ Soonbward is a student project that aims to create a soundboard application. The
 - Ability to upload and manage sound clips
 - Categorization of sound clips for easy access
 - Responsive design for various screen sizes
-- Cross-platform support (iOS and Android)
+- Cross-platform support (Windows and Android)
 
 ## Technologies Used
 - **Frontend:** React Native
