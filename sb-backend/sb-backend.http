@@ -1,0 +1,6 @@
+@sb_backend_HostAddress = http://localhost:5012
+
+GET {{sb_backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
