@@ -163,6 +163,9 @@ csx/
 ecf/
 rcf/
 AppPackages/
+pgdata
+package-lock.json
+docker-compose.yml
 BundleArtifacts/
 Package.StoreAssociation.xml
 _pkginfo.txt
