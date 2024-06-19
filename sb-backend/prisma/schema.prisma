@@ -14,8 +14,26 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  userName String @unique
-  email    String @unique
-  password String
+  id              Int        @id @default(autoincrement())
+  userName        String     @unique
+  email           String     @unique
+  password        String
+  soundCategories Category[]
+}
+
+model Category {
+  id             Int     @id @default(autoincrement())
+  userCategoryId Int     @unique
+  user           User    @relation(fields: [userCategoryId], references: [id])
+  sounds         Sound[]
+}
+
+model Sound {
+  id         Int      @id @default(autoincrement())
+  categoryId Int      @unique
+  category   Category @relation(fields: [categoryId], references: [userCategoryId])
+  name       String
+  fileName   String
+  imgName    String?
+  isShared   Boolean
 }
