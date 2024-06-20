@@ -21,8 +21,8 @@ Soonbward is a student project that aims to create a soundboard application. The
 
 ## Technologies Used
 - **Frontend:** React Native
-- **Backend:** .NET
-- **Database:** SQLite (or your preferred database)
+- **Backend:** Typescript
+- **Database:** Postgresql
 - **API:** RESTful services
 
 ## Getting Started

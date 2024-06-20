@@ -248,3 +248,5 @@ FodyWeavers.xsd
 *.sln.iml
 !**/Messages/Debug
 .env
+src/generated
+dist

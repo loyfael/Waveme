@@ -1,0 +1,21 @@
+type Query
+type Mutation
+
+type UserInfo {
+    userName: String!
+    email: String!
+}
+
+input UserCreationInput {
+    userName: String!
+    email: String!
+    password: String!
+}
+
+extend type Mutation {
+  createUser(userInput: UserCreationInput!): Boolean
+}
+
+extend type Query {
+    getUser(userId: Int!): UserInfo
+}

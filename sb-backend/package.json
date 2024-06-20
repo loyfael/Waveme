@@ -4,15 +4,29 @@
   "description": "soonbward backend",
   "main": "index.js",
   "scripts": {
+    "compile": "tsc",
+    "start": "npm run compile && node ./dist/index.js",
     "migrate": "npx prisma migrate dev",
-    "deploy": "npx prisma migrate deploy"
+    "deploy": "npx prisma migrate deploy",
+    "generate": "graphql-codegen --config codegen.ts"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "prisma": "^5.15.1"
+    "@graphql-codegen/cli": "5.0.2",
+    "@graphql-codegen/introspection": "4.0.3",
+    "@graphql-codegen/typescript": "4.0.7",
+    "@graphql-codegen/typescript-resolvers": "4.1.0",
+    "@types/node": "^20.14.6",
+    "prisma": "^5.15.1",
+    "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@prisma/client": "^5.15.1"
-  }
+    "@apollo/server": "^4.10.4",
+    "@eddeee888/gcg-typescript-resolver-files": "^0.9.4",
+    "@prisma/client": "^5.15.1",
+    "dotenv": "^16.4.5",
+    "graphql": "^16.8.2"
+  },
+  "type": "module"
 }
