@@ -1,4 +1,5 @@
 import { Resolvers } from "../generated/graphql";
+import { UserManagement } from "./resolvers/UserManagement";
 
 /**
  * ResolverLinker
@@ -12,6 +13,6 @@ export const resolverLinker: Resolvers = {
     // },
 
     Mutation: {
-
+        createUser: UserManagement.createUser,
     }
 }
