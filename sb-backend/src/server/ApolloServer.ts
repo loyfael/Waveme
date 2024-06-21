@@ -1,7 +1,7 @@
 import path from 'path';
 import { loadSchemaSync } from '@graphql-tools/load';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
-import { prisma } from '../database/PrismaClient';
+import { db } from '../database/PrismaClient';
 import { ApolloServer } from '@apollo/server';
 import { resolverLinker } from '../processing/ResolverLinker';
 const express = require('express');
@@ -19,7 +19,7 @@ const typeDefs = loadSchemaSync(
 
 async function testDatabaseConnection() {
   try {
-    await prisma.$connect()
+    await db.$connect()
     console.log('✅ Database connection successful')
   } catch (error) {
     console.error('❌ Database connection failed.', error)
