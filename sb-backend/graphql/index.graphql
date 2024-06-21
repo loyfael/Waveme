@@ -1,21 +1,43 @@
 type Query
 type Mutation
 
+#####################################
+#                TYPES
+#####################################
 type UserInfo {
     userName: String!
     email: String!
 }
+type UserAuth {
+    userId: Int!
+}
 
+type AuthPayload {
+    success: Boolean!
+    token: String
+    user: UserAuth
+}
+
+#####################################
+#                INPUTS
+#####################################
 input UserCreationInput {
     userName: String!
     email: String!
     password: String!
 }
 
+#####################################
+#                MUTATIONS
+#####################################
 extend type Mutation {
   createUser(userInput: UserCreationInput!): Boolean
+  userLogin(email: String!, password: String!): AuthPayload
 }
 
+#####################################
+#                QUERIES
+#####################################
 extend type Query {
     getUser(userId: Int!): UserInfo
 }
