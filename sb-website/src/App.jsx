@@ -1,11 +1,15 @@
-import './App.css'
+import React from 'react';
+import HamburgerMenu from './component/HamburgerMenu/HamburgerMenu';
+import Logo from "./component/Logo/Logo"
+import './App.css';
 
 function App() {
   return (
     <>
-      Test
+      <HamburgerMenu initialOpen={false} />
+      <Logo />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
