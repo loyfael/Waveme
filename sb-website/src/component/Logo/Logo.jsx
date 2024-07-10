@@ -1,7 +1,9 @@
-import "../../assets/logo.webp"
+import logo from "../../assets/logo.webp"
 
 const Logo = () => {
-    <img src="../asset/logo.webp"></img>
+    return (
+        <img src={logo}></img>
+    )
 }
 
 export default Logo
