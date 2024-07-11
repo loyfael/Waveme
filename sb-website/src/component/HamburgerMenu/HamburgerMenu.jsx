@@ -49,7 +49,7 @@ const HamburgerMenu = ({ initialOpen = false }) => {
 
     return (
         <div className="hamburger-menu">
-            <div ref={buttonRef} className="menu-icon" onClick={toggleMenu}>
+            <div ref={buttonRef} className="menu-icon border-r-red-700" onClick={toggleMenu}>
                 <FaBars />
             </div>
             {(isOpen || hasStarted) && (

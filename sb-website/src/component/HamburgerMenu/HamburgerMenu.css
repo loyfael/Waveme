@@ -1,13 +1,14 @@
 .hamburger-menu {
-    position: absolute;
+    position: fixed;
     top: 10px;
-    right: -156px;
-    z-index: 20; /* Ensure the container is on top */
+    right: 10px;
+    z-index: 30; /* Ensure the container is on top */
+    font-size: 20px;
 }
 
 .menu-icon {
     cursor: pointer;
-    font-size: 40px;
+    font-size: 60px;
     position: relative;
     z-index: 30; /* Ensure the icon is on top of the menu */
 }
@@ -34,7 +35,7 @@
 .menu {
     background-color: rgba(0, 0, 0, 0.75);
     border: 1px solid rgba(58, 58, 58, 0.75);
-    height: 50vh;
+    height: 75vh;
     overflow: hidden;
     position: fixed;
     width: 100%;
@@ -45,13 +46,47 @@
 }
 
 .menu.open {
-    top: 0; /* Slide in from the top for mobile */
+    top: 0; /* Slide in from the top */
     transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
 }
 
 .menu.close {
-    top: -100vh; /* Slide out to the top for mobile */
+    top: -100vh; /* Slide out to the top */
     transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+
+@media (max-width: 768px) {
+    .menu {
+        width: 100%;
+        height: 40vh; /* Adjust height as needed for mobile */
+        top: -75vh; /* Initial position off-screen for mobile */
+        right: 0;
+    }
+
+    .menu.open {
+        top: 0; /* Slide in from the top for mobile */
+        transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    .menu.close {
+        top: -76vh; /* Slide out to the top for mobile */
+        transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    .hamburger-menu {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 30; /* Ensure the container is on top */
+        font-size: 20px;
+    }
+
+    .menu-icon {
+        cursor: pointer;
+        font-size: 60px;
+        position: relative;
+        z-index: 30; /* Ensure the icon is on top of the menu */
+    }
 }
 
 @media (min-width: 768px) {
@@ -73,10 +108,18 @@
     }
 
     .hamburger-menu {
-        position: absolute;
+        position: fixed;
         top: 10px;
         right: 10px;
-        z-index: 20; /* Ensure the container is on top */
+        z-index: 30; /* Ensure the container is on top */
+        font-size: 20px;
+    }
+
+    .menu-icon {
+        cursor: pointer;
+        font-size: 60px;
+        position: relative;
+        z-index: 30; /* Ensure the icon is on top of the menu */
     }
 }
 

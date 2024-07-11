@@ -1,10 +1,12 @@
-import Logo from "../Logo/Logo"
+import banner from "../../assets/banner.png"
+import './Banner.css'
 
 const Banner = () => {
     return (
         <>
-            <h1>SoonBward</h1>
-            <Logo />
+            <main>
+                <img src={banner}></img>
+            </main>
         </>
     )
 }
