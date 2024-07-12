@@ -10,6 +10,7 @@ const Banner = () => {
                     <source srcSet={largeBanner} media="(min-width: 768px)" />
                     <img src={smallBanner} alt="Banner" />
                 </picture>
+                <h1>Press to impress, sound like a mess!</h1>
             </main>
         </>
     )
