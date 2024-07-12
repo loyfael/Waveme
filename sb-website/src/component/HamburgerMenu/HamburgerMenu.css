@@ -83,7 +83,7 @@
 
     .menu-icon {
         cursor: pointer;
-        font-size: 60px;
+        font-size: 70px;
         position: relative;
         z-index: 30; /* Ensure the icon is on top of the menu */
     }

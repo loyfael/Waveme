@@ -1,5 +1,5 @@
 import largeBanner from "../../assets/banner-large.webp"
-import smallBanner from "../../assets/banner-small.webp"
+import smallBanner from "../../assets/banner-small.png"
 import './Banner.css'
 
 const Banner = () => {

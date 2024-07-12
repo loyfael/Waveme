@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaBars } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import './HamburgerMenu.css';
 
 const HamburgerMenu = ({ initialOpen = false }) => {
@@ -49,20 +50,20 @@ const HamburgerMenu = ({ initialOpen = false }) => {
 
     return (
         <div className="hamburger-menu">
-            <div ref={buttonRef} className="menu-icon border-r-red-700" onClick={toggleMenu}>
-                <FaBars />
+            <div ref={buttonRef} onClick={toggleMenu}>
+                <FaBars className="menu-icon"/>
             </div>
             {(isOpen || hasStarted) && (
                 <div ref={overlayRef} className={`overlay ${isOpen ? 'open' : 'close'}`} />
             )}
             <nav ref={menuRef} className={`menu ${isOpen ? 'open' : 'close'}`}>
                 <ul>
-                    <li><a href="#home" onClick={closeMenu}>Home</a></li>
-                    <li><a href="#about" onClick={closeMenu}>About</a></li>
-                    <li><a href="#services" onClick={closeMenu}>Soundspack</a></li>
-                    <li><a href="#contact" onClick={closeMenu}>Download</a></li>
+                    <li><Link to="/" onClick={closeMenu}>Home</Link></li>
+                    <li><Link to="/about" onClick={closeMenu}>About</Link></li>
+                    <li><Link to="/services" onClick={closeMenu}>Soundspack</Link></li>
+                    <li><Link to="/download" onClick={closeMenu}>Download</Link></li>
                     <hr />
-                    <li><a href="#contact" onClick={closeMenu}>Sign up</a></li>
+                    <li><Link to="/signup" onClick={closeMenu}>Sign up</Link></li>
                 </ul>
             </nav>
         </div>
