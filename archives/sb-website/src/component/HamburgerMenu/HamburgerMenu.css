@@ -1,0 +1,142 @@
+.hamburger-menu {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 30; /* Ensure the container is on top */
+    font-size: 20px;
+}
+
+.menu-icon {
+    cursor: pointer;
+    font-size: 60px;
+    position: relative;
+    z-index: 30; /* Ensure the icon is on top of the menu */
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0);
+    transition: background-color 1.5s;
+}
+
+.overlay.open {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.overlay.close {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.menu {
+    background-color: rgba(0, 0, 0, 0.75);
+    border: 1px solid rgba(58, 58, 58, 0.75);
+    height: 75vh;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    top: -100vh; /* Initial position off-screen for mobile */
+    right: 0;
+    transition: top 0.3s ease-in-out, right 0.3s ease-in-out;
+    z-index: 20; /* Ensure the menu is below the icon but above the overlay */
+}
+
+.menu.open {
+    top: 0; /* Slide in from the top */
+    transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+
+.menu.close {
+    top: -100vh; /* Slide out to the top */
+    transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+
+@media (max-width: 768px) {
+    .menu {
+        width: 100%;
+        height: 40vh; /* Adjust height as needed for mobile */
+        top: -75vh; /* Initial position off-screen for mobile */
+        right: 0;
+    }
+
+    .menu.open {
+        top: 0; /* Slide in from the top for mobile */
+        transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    .menu.close {
+        top: -76vh; /* Slide out to the top for mobile */
+        transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    .hamburger-menu {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 30; /* Ensure the container is on top */
+        font-size: 20px;
+    }
+
+    .menu-icon {
+        cursor: pointer;
+        font-size: 70px;
+        position: relative;
+        z-index: 30; /* Ensure the icon is on top of the menu */
+    }
+}
+
+@media (min-width: 768px) {
+    .menu {
+        width: 300px; /* Adjust width as needed for desktop */
+        height: 100vh;
+        top: 0;
+        right: -310px; /* Initial position off-screen for desktop */
+    }
+
+    .menu.open {
+        right: 0; /* Slide in from the right for desktop */
+        top: 0;
+    }
+
+    .menu.close {
+        right: -310px; /* Slide out to the right for desktop */
+        top: 0;
+    }
+
+    .hamburger-menu {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 30; /* Ensure the container is on top */
+        font-size: 20px;
+    }
+
+    .menu-icon {
+        cursor: pointer;
+        font-size: 60px;
+        position: relative;
+        z-index: 30; /* Ensure the icon is on top of the menu */
+    }
+}
+
+.menu ul {
+    margin-top: 50px;
+    list-style: none;
+    padding: 20px;
+}
+
+.menu li a {
+    color: #ffffff;
+    display: block;
+    padding: 10px;
+    transition: background-color 0.3s;
+}
+
+.menu li a:hover {
+    background-color: #8012ff;
+    transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
