@@ -1,0 +1,58 @@
+services:
+  backend:
+    build:
+      context: ./waveme-backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/waveme
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD='AfccYiSyD5g#ap!ysbXo@tD4!rhYyhkg$m6zGE7d'
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./waveme-app
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "19000:19000"
+      - "19001:19001"
+      - "19002:19002"
+    healthcheck:
+      disable: true
+    volumes:
+      - ./waveme-app:/app
+    depends_on:
+      - backend
+
+  postgres:
+    container_name: waveme-postgres
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 'AfccYiSyD5g#ap!ysbXo@tD4!rhYyhkg$m6zGE7d'
+      POSTGRES_DB: waveme
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    container_name: waveme-pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@waveme.com
+      PGADMIN_DEFAULT_PASSWORD: 'c@9@@RqMBArXsnKrzQm46FHd!zq&P!r8Hk84XJ47'
+    ports:
+      - '5050:80'
+    depends_on:
+      - postgres
+
+volumes:
+  db-data:
