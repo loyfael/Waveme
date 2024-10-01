@@ -12,6 +12,9 @@ Soonbward is a student project that aims to create a soundboard application. The
 - [License](#license)
 - [Contact](#contact)
 
+# External resources
+- UML: https://app.diagrams.net/#Hloisdps%2FWaveme%2Fmain%2FDiagramme%20sans%20nom.drawio#%7B%22pageId%22%3A%22rnB9Sl1U5kSS0szywcif%22%7D
+
 ## Features
 - User-friendly interface for playing sound clips
 - Ability to upload and manage sound clips

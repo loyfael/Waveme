@@ -1,10 +1,10 @@
-package com.waveme.app;
+package com.alpineblue.waveme_backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AppApplicationTests {
+class WavemeBackendApplicationTests {
 
 	@Test
 	void contextLoads() {
