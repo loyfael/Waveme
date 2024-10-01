@@ -1,52 +1,53 @@
+import { useState, useEffect } from 'react'
 import { Image, StyleSheet, Platform } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
+type Post = {
+  title: string | null,
+  memeId: number,
+  userName: string,
+  userPfpId: number | null,
+}
+
 export default function HomeScreen() {
+  // this type hinting is so stupid
+  const [posts, setPosts] = useState<Post[]>([])
+  const [memeIds, setMemeIds] = useState<number[]>([])
+  const [userPfpIds, setUserPfpIds] = useState<number[]>([])
+
+  useEffect(() => {
+    setPosts([{
+      title: 'Hilarant.',
+      memeId: '@/assets/images/meme.png',
+      userName: 'Beiten34',
+      userPfpId: '@/assets/images/pfp.png',
+    }])
+  }, [])
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <>
+      {posts.map((post: Post, index: number) => (
+        <ThemedView key={index}>
+          <ThemedView>
+            {post.userPfp ? (
+              <Image source={require('@/assets/images/pfp.png')} />
+            ) : (
+              <MaterialIcons name="account-circle" size={70} color="gray" />
+            )}
+            <ThemedView>
+              <ThemedText>{post.userName}</ThemedText>
+              {post.title ? (
+                <ThemedText>{post.title}</ThemedText>
+              ) : ''}
+            </ThemedView>
+          </ThemedView>
+          <Image source={require('@/assets/images/meme.png')} />
+        </ThemedView>
+      ))}
+    </>
   );
 }
 

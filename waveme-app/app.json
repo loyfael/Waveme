@@ -1,5 +1,8 @@
 {
   "expo": {
+    "assetBundlePatterns": [
+      "assets/*"
+    ],
     "name": "waveme-app",
     "slug": "waveme-app",
     "version": "1.0.0",
@@ -17,14 +20,14 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/waveme.png",
+        "backgroundColor": "#222F3F"
       }
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/waveme.png"
     },
     "plugins": [
       "expo-router"
