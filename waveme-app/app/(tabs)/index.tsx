@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Image, StyleSheet, Platform } from 'react-native';
+import { Image, StyleSheet, Platform, Text } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -13,43 +13,37 @@ type Post = {
 }
 
 export default function HomeScreen() {
-  // this type hinting is so stupid
-  const [posts, setPosts] = useState<Post[]>([])
-  const [memeIds, setMemeIds] = useState<number[]>([])
-  const [userPfpIds, setUserPfpIds] = useState<number[]>([])
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [memeIds, setMemeIds] = useState<number[]>([]);
+  const [userPfpIds, setUserPfpIds] = useState<number[]>([]);
 
   useEffect(() => {
     setPosts([{
       title: 'Hilarant.',
-      memeId: '@/assets/images/meme.png',
+      memeId: require('@/assets/images/meme.png'), 
       userName: 'Beiten34',
-      userPfpId: '@/assets/images/pfp.png',
-    }])
-  }, [])
+      userPfpId: require('@/assets/images/pfp.png'),
+    }]);
+  }, []);
 
   return (
     <>
       {posts.map((post: Post, index: number) => (
         <ThemedView key={index}>
           <ThemedView>
-            {post.userPfp ? (
-              <Image source={require('@/assets/images/pfp.png')} />
-            ) : (
-              <MaterialIcons name="account-circle" size={70} color="gray" />
-            )}
-            <ThemedView>
-              <ThemedText>{post.userName}</ThemedText>
-              {post.title ? (
-                <ThemedText>{post.title}</ThemedText>
-              ) : ''}
-            </ThemedView>
+            <ThemedText>{post.userName}</ThemedText>
+            {post.userPfpId ? (
+              <Image source={post.userPfpId} />
+            ) : null}
+            {post.memeId ? (
+              <Image source={post.memeId} />
+            ) : null}
           </ThemedView>
-          <Image source={require('@/assets/images/meme.png')} />
         </ThemedView>
       ))}
     </>
   );
-}
+} 
 
 const styles = StyleSheet.create({
   titleContainer: {
