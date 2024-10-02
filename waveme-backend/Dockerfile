@@ -22,12 +22,7 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
 # Exposer le port de l'application
-EXPOSE 8080
-
-# Définir les variables d'environnement pour la base de données
-ENV SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/waveme
-ENV SPRING_DATASOURCE_USERNAME=admin
-ENV SPRING_DATASOURCE_PASSWORD=AfccYiSyD5g#ap!ysbXo@tD4!rhYyhkg$m6zGE7d
+EXPOSE 9080
 
 # Commande pour exécuter l'application
 ENTRYPOINT ["java", "-jar", "app.jar"]
