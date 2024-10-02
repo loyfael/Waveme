@@ -5,7 +5,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 'AfccYiSyD5g#ap!ysbXo@tD4!rhYyhkg$m6zGE7d'
+      POSTGRES_PASSWORD: mypassword
       POSTGRES_DB: waveme
     volumes:
       - db-data:/var/lib/postgresql/data
@@ -18,12 +18,12 @@ services:
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@waveme.com
-      PGADMIN_DEFAULT_PASSWORD: 'c@9@@RqMBArXsnKrzQm46FHd!zq&P!r8Hk84XJ47'
+      PGADMIN_DEFAULT_PASSWORD: mypassword
     ports:
       - '5050:80'
     depends_on:
       - postgres
-      
+
   backend:
     build:
       context: ./waveme-backend
@@ -33,7 +33,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/waveme
       - SPRING_DATASOURCE_USERNAME=admin
-      - SPRING_DATASOURCE_PASSWORD='AfccYiSyD5g#ap!ysbXo@tD4!rhYyhkg$m6zGE7d'
+      - SPRING_DATASOURCE_PASSWORD=mypassword
     depends_on:
       - postgres
 
