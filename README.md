@@ -2,6 +2,9 @@
 
 Waveme est une application de réseau social axée sur le partage de memes. Elle se compose d'un frontend React Native utilisant Expo et d'un backend Java Spring Boot avec PostgreSQL comme base de données. Le projet est conteneurisé à l'aide de Docker et orchestré avec Docker Compose.
 
+## LIENS UTILES
+- [FIGMA](https://www.figma.com/design/Y2lEnBAA5OJLVWoeQz6Ptd/Waveme?node-id=0-1&node-type=canvas&t=GhNvvwdEAVWkzJTs-0)
+
 ## Architecture
 ### `archives`
 Contient les archives du projet précédent (à retirer prochainement)
