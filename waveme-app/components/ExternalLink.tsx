@@ -1,5 +1,6 @@
 import { Link } from 'expo-router';
 import { openBrowserAsync } from 'expo-web-browser';
+import React from 'react';
 import { ComponentProps } from 'react';
 import { Platform, Text, TouchableOpacity } from 'react-native';
 import { isWebUri } from 'valid-url';
