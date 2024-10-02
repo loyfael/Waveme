@@ -25,6 +25,8 @@ Contient les commandes shells utile du projet.
 les différents identifiants présents à l'intérieur.
 3. Une fois que docker et docker-compose sont installés sur votre machine, allez au path du dossier `command` et exécutez `./restart.sh`.
 Le script va build l'ensemble des conteneurs. Si besoin plus tard vous pouvez utiliser `clean.sh` pour reset le projet.
+> [!NOTE]
+> Pour l'application frontend, le build peut être long. Veuillez patienter ~ 5 minutes.
 4. Une fois que tout à été build, connectez vous à pgadmin à http://localhost:5050 avec les identifiants que vous avez fourni.
 Créez une base de données en appuyant sur "add new server".
 - Nommez la bdd exactement pareil que vous l'avez nommé dans le docker-compose.yml
