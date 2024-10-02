@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Définir le répertoire de travail
+COPY . /app
 WORKDIR /app
 
 # Copier les fichiers package.json et package-lock.json
@@ -14,9 +15,7 @@ COPY package*.json ./
 
 # Installer les dépendances
 RUN npm install
-
-# Copier le reste de l'application
-COPY . .
+RUN npx tsc
 
 # Exposer les ports utilisés par Expo
 EXPOSE 19000 19001 19002
@@ -25,4 +24,4 @@ EXPOSE 19000 19001 19002
 ENV EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
 
 # Démarrer le serveur Expo en utilisant npm start
-CMD ["npm", "start"]
+RUN npm start
