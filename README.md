@@ -1,75 +1,39 @@
-# Soonbward
+# Waveme Project
 
-Soonbward is a student project that aims to create a soundboard application. The project utilizes React Native for the frontend and .NET for the API backend. This README provides an overview of the project, its setup, and instructions on how to contribute.
+Waveme est une application de réseau social axée sur le partage de memes. Elle se compose d'un frontend React Native utilisant Expo et d'un backend Java Spring Boot avec PostgreSQL comme base de données. Le projet est conteneurisé à l'aide de Docker et orchestré avec Docker Compose.
 
-## Table of Contents
-- [Features](#features)
-- [Technologies Used](#technologies-used)
-- [Getting Started](#getting-started)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+## LIENS UTILES
+- [FIGMA](https://www.figma.com/design/Y2lEnBAA5OJLVWoeQz6Ptd/Waveme?node-id=0-1&node-type=canvas&t=GhNvvwdEAVWkzJTs-0)
 
-# External resources
-- UML: https://app.diagrams.net/#Hloisdps%2FWaveme%2Fmain%2FDiagramme%20sans%20nom.drawio#%7B%22pageId%22%3A%22rnB9Sl1U5kSS0szywcif%22%7D
+## Architecture
+### `archives`
+Contient les archives du projet précédent (à retirer prochainement)
+### `waveme-app`
+Contient l'application frontend du projet en React Native x Expo.
+### `waveme-backend`
+Contient l'application backend du projet en Java 21 & Spring Boot.
+### `command`
+Contient les commandes shells utile du projet.
+- `clean.sh` Permet d'entièrement reset le projet sur docker.
+-  `restart.sh` Permet de redémarrer le projet.
 
-## Features
-- User-friendly interface for playing sound clips
-- Ability to upload and manage sound clips
-- Categorization of sound clips for easy access
-- Responsive design for various screen sizes
-- Cross-platform support (Web browser, Windows and Android)
+## Prérequis
+- [Docker](https://www.docker.com/get-started) installé sur votre machine.
+- [Docker Compose](https://docs.docker.com/compose/install/) installé sur votre machine.
+- [Git](https://git-scm.com/downloads) installé sur votre machine.
 
-## Technologies Used
-- **Frontend:** React Native
-- **Backend:** .NET
-- **Database:** SQLite (or your preferred database)
-- **API:** RESTful services
+## Get started !
+1. (Demandez l'accès) Clonez le projet `git clone https://github.com/loisdps/Waveme.git`
+2. Une fois que c'est fait, à l'aide du docker-compose.template effectuez votre docker-compose.yml et remplissez
+les différents identifiants présents à l'intérieur.
+3. Une fois que docker et docker-compose sont installés sur votre machine, allez au path du dossier `command` et exécutez `./restart.sh`.
+Le script va build l'ensemble des conteneurs. Si besoin plus tard vous pouvez utiliser `clean.sh` pour reset le projet.
+> [!NOTE]
+> Pour l'application frontend, le build peut être long. Veuillez patienter ~ 5 minutes.
+4. Une fois que tout à été build, connectez vous à pgadmin à http://localhost:5050 avec les identifiants que vous avez fourni.
+Créez une base de données en appuyant sur "add new server".
+- Nommez la bdd exactement pareil que vous l'avez nommé dans le docker-compose.yml
+- Pour le host, mettez le nom du conteneur `postgres`. Docker prendra directement l'adresse ip de Postgres.
+*Documentation à finir.*
 
-## Getting Started
-To get a local copy up and running, follow these simple steps.
-
-### Prerequisites
-- Node.js
-- npm or yarn
-- .NET SDK
-
-### Installation
-
-1. **Clone the repository:**
-```sh
-git clone https://github.com/yourusername/soonbward.git
-cd soonbward
-```
-2. Install frontend dependencies:
-```sh
-cd frontend
-npm install
-```
-
-3. Install backend dependencies:
-```sh
-cd backend
-dotnet restore
-```
-## Usage
-### Running the frontend
-Navigate to the frontend directory and start the React Native development server:
-```sh
-cd frontend
-npm start
-```
-
-### Running the backend
-Navigate to the backend directory and start the .NET API server:
-
-```sh
-cd backend
-dotnet run
-```
-The React Native app should now be running on your simulator or device, and the .NET API should be running locally.
-
-## Contributing
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
+### Vous êtes désormais prêt(e) !
