@@ -1,14 +1,33 @@
-# Utiliser l'image openjdk:22 comme base
-FROM openjdk:22-jdk
+# Étape 1 : Construire l'application
+FROM maven:3.9.5-eclipse-temurin-21 AS build
 
-# Définir le répertoire de travail
-WORKDIR /waveme-backend
+WORKDIR /app
 
-# Copier le fichier JAR de l'application dans le conteneur
-COPY target/myapp.jar /app/myapp.jar
+# Copier le fichier pom.xml et télécharger les dépendances
+COPY pom.xml .
+RUN mvn dependency:go-offline
+
+# Copier le code source
+COPY src ./src
+
+# Construire l'application
+RUN mvn clean package -DskipTests
+
+# Étape 2 : Exécuter l'application
+FROM eclipse-temurin:21-jdk
+
+WORKDIR /app
+
+# Copier le JAR depuis l'étape de construction
+COPY --from=build /app/target/*.jar app.jar
 
 # Exposer le port de l'application
 EXPOSE 8080
 
+# Définir les variables d'environnement pour la base de données
+ENV SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/waveme
+ENV SPRING_DATASOURCE_USERNAME=admin
+ENV SPRING_DATASOURCE_PASSWORD=AfccYiSyD5g#ap!ysbXo@tD4!rhYyhkg$m6zGE7d
+
 # Commande pour exécuter l'application
-CMD ["java", "-jar", "/app/waveme.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
