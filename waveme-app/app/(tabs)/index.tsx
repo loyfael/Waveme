@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Image, StyleSheet, Platform, Text } from 'react-native';
+import { useState, useEffect, useMemo } from 'react'
+import { Image, StyleSheet, Platform, Text, ImageSourcePropType } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -7,9 +7,9 @@ import { ThemedView } from '@/components/ThemedView';
 
 type Post = {
   title: string | null,
-  memeId: number,
+  meme: ImageSourcePropType,
   userName: string,
-  userPfpId: number | null,
+  userPfp: ImageSourcePropType | null,
 }
 
 export default function HomeScreen() {
@@ -20,46 +20,83 @@ export default function HomeScreen() {
   useEffect(() => {
     setPosts([{
       title: 'Hilarant.',
-      memeId: require('@/assets/images/meme.png'), 
+      meme: require('@/assets/images/meme.png'),
       userName: 'Beiten34',
-      userPfpId: require('@/assets/images/pfp.png'),
+      userPfp: require('@/assets/images/pfp.png'),
+    },
+    {
+      title: 'Repost si tu trouves ça hilarant hahaha trodrol quoi terrible quest-ce que je fais de ma vie jecris littéralement un gros texte pour tester ce que ça donne avec un gros texte et jai la flemme de mettre des backslash du coup je mets juste pas dapostrophe et jai limpression de pas savoir écrire lolool',
+      meme: require('@/assets/images/meme.png'),
+      userName: 'Beiten34',
+      userPfp: require('@/assets/images/pfp.png'),
+    },
+    {
+      title: 'Hilarant.',
+      meme: require('@/assets/images/meme.png'),
+      userName: 'Beiten34',
+      userPfp: require('@/assets/images/pfp.png'),
     }]);
   }, []);
 
   return (
     <>
       {posts.map((post: Post, index: number) => (
-        <ThemedView key={index}>
-          <ThemedView>
-            <ThemedText>{post.userName}</ThemedText>
-            {post.userPfpId ? (
-              <Image source={post.userPfpId} />
+        <ThemedView key={index} style={styles.postWrapper}>
+          <ThemedView style={styles.postProfile}>
+            {post.userPfp ? (
+              <Image source={post.userPfp} style={styles.profilePicture} />
             ) : null}
-            {post.memeId ? (
-              <Image source={post.memeId} />
-            ) : null}
+            <ThemedView style={styles.profileText}>
+              <ThemedText type="defaultSemiBold">{post.userName}</ThemedText>
+              {post.title ? (
+                <ThemedText>{post.title}</ThemedText>
+              ) : ''}
+            </ThemedView>
+          </ThemedView>
+          <ThemedView style={styles.postMeme}>
+            <Image source={post.meme} style={styles.memeImage} />
           </ThemedView>
         </ThemedView>
       ))}
     </>
   );
-} 
+}
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  postWrapper: {
+    flexDirection: 'column',
+    marginTop: 50,
+  },
+
+  postProfile: {
     flexDirection: 'row',
+  },
+
+  profilePicture: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginEnd: 5,
+  },
+
+  profileText: {
+    flexDirection: 'column',
+    flex: 1,
+    flexWrap: 'wrap',
+  },
+
+  postMeme: {
+
+  },
+
+  memeImage: {
     alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+    minHeight: 150,
+    maxHeight: 600,
+    resizeMode: 'contain',
+    marginTop: 10,
+    borderRadius: 10,
+    overflow: 'hidden',
   },
 });
