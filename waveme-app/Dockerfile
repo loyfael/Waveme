@@ -6,22 +6,23 @@ RUN apt-get update && apt-get install -y \
     watchman \
     && rm -rf /var/lib/apt/lists/*
 
-# Définir le répertoire de travail
-COPY . /app
+# Étape 3 : Installer Expo CLI globalement
+RUN npm install -g expo-cli
+
+# Étape 4 : Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copier les fichiers package.json et package-lock.json
+# Étape 5 : Copier les fichiers package.json et package-lock.json dans le conteneur
 COPY package*.json ./
 
-# Installer les dépendances
+# Étape 6 : Installer les dépendances du projet
 RUN npm install
-RUN npx tsc
 
-# Exposer les ports utilisés par Expo
+# Étape 7 : Copier le reste de l'application dans le conteneur
+COPY . .
+
+# Étape 8 : Exposer le port utilisé par Expo (par défaut 19000, 19001, et 19002)
 EXPOSE 19000 19001 19002
 
-# Définir les variables d'environnement nécessaires
-ENV EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
-
-# Démarrer le serveur Expo en utilisant npm start
-RUN npm start
+# Étape 9 : Lancer l'application Expo
+CMD ["npm", "start"]
