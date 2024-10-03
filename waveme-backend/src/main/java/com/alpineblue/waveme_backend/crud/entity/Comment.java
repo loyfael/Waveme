@@ -29,7 +29,7 @@ public class Comment {
     private Integer downVote;
 
     @Column(name = "description")
-    private Integer description;
+    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")
