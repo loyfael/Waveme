@@ -39,5 +39,5 @@ public class User {
     private String profileImg;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Post> posts = new HashSet<>();
+    private Set<Post> post = new HashSet<>();
 }
