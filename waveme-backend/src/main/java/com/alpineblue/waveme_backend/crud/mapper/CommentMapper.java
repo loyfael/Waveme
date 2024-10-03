@@ -5,7 +5,7 @@ import com.alpineblue.waveme_backend.crud.dto.CommentDto;
 import com.alpineblue.waveme_backend.crud.entity.Comment;
 
 public class CommentMapper {
-    public static CommentDto mapToEmployeeDto(Comment comment) {
+    public static CommentDto mapToCommentDto(Comment comment) {
         return new CommentDto(
                 comment.getId(),
                 comment.getUserId(),
