@@ -4,7 +4,7 @@ import com.alpineblue.waveme_backend.crud.dto.PostDto;
 import com.alpineblue.waveme_backend.crud.entity.Post;
 
 public class PostMapper {
-    public static PostDto mapToEmployeeDto(Post post) {
+    public static PostDto mapToPostDto(Post post) {
         return new PostDto(
                 post.getId(),
                 post.getUserId(),
