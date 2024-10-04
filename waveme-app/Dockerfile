@@ -1,28 +1,37 @@
 # Utiliser l'image Node.js appropriée
-FROM node:20-bullseye
+FROM node:20.11-slim
+
+# Définir des variables d'environnement pour le développement
+ENV NODE_ENV=development
+ENV EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+ENV REACT_NATIVE_PACKAGER_HOSTNAME=0.0.0.0
+ENV WATCHPACK_POLLING=true
+ENV PORT=3000
 
 # Installer les dépendances système nécessaires
 RUN apt-get update && apt-get install -y \
     watchman \
+    curl \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Étape 3 : Installer Expo CLI globalement
-RUN npm install -g expo-cli
-
-# Étape 4 : Définir le répertoire de travail dans le conteneur
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Étape 5 : Copier les fichiers package.json et package-lock.json dans le conteneur
+# Copier les fichiers de dépendances
 COPY package*.json ./
+COPY tsconfig.json ./
 
-# Étape 6 : Installer les dépendances du projet
+# Installer toutes les dépendances, y compris devDependencies
 RUN npm install
+RUN npm i --unsafe-perm -g npm expo-cli
 
-# Étape 7 : Copier le reste de l'application dans le conteneur
-COPY . .
+# Installer toutes les dépendances, y compris devDependencies
+RUN npm install
+RUN yarn install
 
-# Étape 8 : Exposer le port utilisé par Expo (par défaut 19000, 19001, et 19002)
-EXPOSE 19000 19001 19002
+# Exposer les ports nécessaires
+EXPOSE 3000
 
-# Étape 9 : Lancer l'application Expo
+# Commande pour démarrer l'application
 CMD ["npm", "start"]
