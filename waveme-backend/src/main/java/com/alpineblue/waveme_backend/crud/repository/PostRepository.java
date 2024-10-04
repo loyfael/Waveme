@@ -1,0 +1,7 @@
+package com.alpineblue.waveme_backend.crud.repository;
+
+import com.alpineblue.waveme_backend.crud.entity.Post;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PostRepository extends JpaRepository<Post, Long> {
+}

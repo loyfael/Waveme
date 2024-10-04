@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0005',
   },
 
+
   modalCursorOverride: {
     cursor: 'default' as unknown as CursorValue,
   },
