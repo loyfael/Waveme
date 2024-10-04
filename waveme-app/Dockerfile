@@ -24,9 +24,14 @@ COPY tsconfig.json ./
 
 # Installer toutes les dépendances, y compris devDependencies
 RUN npm install
+RUN npm i --unsafe-perm -g npm expo-cli
+
+# Installer toutes les dépendances, y compris devDependencies
+RUN npm install
+RUN yarn install
 
 # Exposer les ports nécessaires
-EXPOSE 3000 19001 19002 8081
+EXPOSE 3000
 
 # Commande pour démarrer l'application
-CMD ["npx", "expo", "start", "--port", "3000"]
+CMD ["npm", "start"]
