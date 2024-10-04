@@ -12,7 +12,7 @@ export const Colors = {
   dark: {
     text: '#9FCBF4',
     background: '#222F3F',
-    memeBackground: '#OCOCOC',
+    memeBackground: '#8F8F8F',
   },
   common: {
     memeActionBar: '#2C2C2C',

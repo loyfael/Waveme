@@ -89,20 +89,20 @@ export default function HomeScreen() {
     <>
       {posts.map((post: Post, index: number) => (
         <ThemedView key={index} style={styles.postWrapper}>
-          <ThemedView style={styles.postProfile}>
+          <View style={styles.postProfile}>
             {post.userPfp ? (
               <Image source={post.userPfp} style={styles.profilePicture} />
             ) : null}
-            <ThemedView style={styles.profileText}>
+            <View style={styles.profileText}>
               <ThemedText type="defaultBold">{post.userName}</ThemedText>
               {post.title ? (
                 <ThemedText>{post.title}</ThemedText>
               ) : ''}
-            </ThemedView>
-          </ThemedView>
-          <ThemedView style={styles.postMeme}>
+            </View>
+          </View>
+          <View style={styles.postMeme}>
             <Image source={post.meme} style={{ ...styles.memeImage, backgroundColor: memeBackgroundColor }} resizeMode='contain' />
-            <ThemedView style={styles.memeActionBar}>
+            <View style={styles.memeActionBar}>
               <View style={styles.barLeft}>
                 <AnimatedButton onPressIn={() => fadeButtonToClicked(animatedButton1)} onPressOut={() => fadeButtonToIdle(animatedButton1)} onPress={() => {/*Logic here*/ }}>
                   <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor1 }}>
@@ -127,8 +127,8 @@ export default function HomeScreen() {
                   </Animated.View>
                 </AnimatedButton>
               </View>
-            </ThemedView>
-          </ThemedView>
+            </View>
+          </View>
         </ThemedView>
       ))}
     </>

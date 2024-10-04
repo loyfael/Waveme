@@ -1,19 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Image, ScrollView, Pressable, Modal, ImageSourcePropType, CursorValue } from 'react-native';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import React, { useContext, useEffect, useState } from 'react';
+import { StyleSheet, Image, ScrollView, Pressable, Modal, ImageSourcePropType, CursorValue, View, Switch, Appearance } from 'react-native';
 import { Slot } from 'expo-router';
 import { ThemedView } from '@/components/theme/ThemedView';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { PencilFill } from 'react-bootstrap-icons';
+import { Colors } from '@/constants/Colors';
+import { ThemedText } from '@/components/theme/ThemedText';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { ThemeContext } from '@/context/ThemeContext';
 
 export default function TabLayout() {
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false)
   const [userPfp, setUserPfp] = useState<ImageSourcePropType | null>(null)
+  const [userName, setUserName] = useState<string | null>(null)
 
-  const colorScheme = useColorScheme();
+  const { isDarkMode, setDarkMode } = useContext(ThemeContext)
+  const theme = useColorScheme()
+  const textColor = useThemeColor({}, 'text')
 
   useEffect(() => {
     setUserPfp(require('@/assets/images/pfp.png'))
+    setUserName('Beuteu34')
   }, [])
 
   return (
@@ -37,14 +45,29 @@ export default function TabLayout() {
         <Pressable style={{ ...styles.centeredModalView, ...styles.modalCursorOverride }} onPress={() => setShowProfileModal(false)}>
           <Pressable style={styles.modalCursorOverride}>
             <ThemedView style={styles.modalView}>
-              <Pressable>
+              <Pressable onPress={() => { }}>
                 {userPfp ? (
                   <Image source={userPfp} style={styles.userPfp} />
                 ) : (
                   <MaterialIcons name="account-circle" size={150} color="black" style={styles.account} />
                 )}
-                <PencilFill style={styles.editPfpIcon} />
+                <View style={styles.editPfpButton}>
+                  <PencilFill color="white" size={12} />
+                </View>
               </Pressable>
+              <ThemedText type='title' style={{ ...styles.userName, borderBottomColor: textColor }}>
+                {userName}
+              </ThemedText>
+              <View style={styles.options}>
+                <ThemedText>Total d'upvotes : 0</ThemedText>
+                <ThemedText>Total de downvotes : 0</ThemedText>
+                <ThemedText>Nombre de posts : 0</ThemedText>
+                <View style={styles.switch}>
+                  <Switch value={isDarkMode} onValueChange={setDarkMode} />
+                  <ThemedText style={styles.switchLabel}>Mode sombre</ThemedText>
+                </View>
+              </View>
+              <View style={styles.connection}></View>
             </ThemedView>
           </Pressable>
         </Pressable>
@@ -102,10 +125,10 @@ const styles = StyleSheet.create({
   },
 
   modalView: {
-    width: 800,
-    height: 700,
+    width: 700,
+    height: 650,
     paddingVertical: 40,
-    paddingHorizontal: 20,
+    paddingHorizontal: 80,
     opacity: 0.97,
     flexDirection: 'column',
     alignItems: 'center',
@@ -118,9 +141,42 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 
-  editPfpIcon: {
+  editPfpButton: {
     position: 'absolute',
-    left: 130,
-    top: 130,
+    left: 128,
+    top: 128,
+    padding: 5,
+    borderRadius: 10,
+    backgroundColor: Colors.common.button,
+  },
+
+  userName: {
+    marginTop: 35,
+    borderBottomWidth: 1,
+    width: 350,
+    textAlign: 'center',
+    paddingBottom: 15,
+  },
+
+  options: {
+    flexDirection: 'column',
+    alignSelf: 'flex-start',
+    alignItems: 'flex-start',
+    marginStart: 90,
+    marginTop: 20,
+  },
+
+  switch: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 5,
+  },
+
+  switchLabel: {
+    marginStart: 8,
+  },
+
+  connection: {
+    
   },
 })
