@@ -1,0 +1,1 @@
+Don't forget to install lombok plugin !
