@@ -14,7 +14,7 @@ export default function Root({ children }: PropsWithChildren) {
   useWebTitle('Waveme')
 
   return (
-    <html lang="en">
+    <html lang="fr">
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />

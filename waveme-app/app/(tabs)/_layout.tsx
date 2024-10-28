@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Image, ScrollView, Pressable, Modal, ImageSourcePropType, CursorValue, View, Switch, Appearance, Animated } from 'react-native';
-import { Slot } from 'expo-router';
+import { Slot, usePathname } from 'expo-router';
 import { ThemedView } from '@/components/theme/ThemedView';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { PencilFill } from 'react-bootstrap-icons';
@@ -18,6 +18,9 @@ export default function TabLayout() {
   const { isDarkMode, setDarkMode } = useContext(ThemeContext)
   const textColor = useThemeColor({}, 'text')
   const backgroundColor = useThemeColor({}, 'background')
+
+  const pathname = usePathname()
+  const connectionRoutes = ['/login', '/signup']
 
   useEffect(() => {
     setUserPfp(require('@/assets/images/pfp.png'))
@@ -48,6 +51,14 @@ export default function TabLayout() {
     }).start()
   }
 
+  if (connectionRoutes.includes(pathname)) {
+    return (
+      <ThemedView style={styles.loginWrapper}>
+        <Image source={require('@/assets/images/waveme.png')} style={styles.loginLogo} />
+        <Slot />
+      </ThemedView>
+    )
+  }
   return (
     <ThemedView style={styles.wrapper}>
       <ThemedView style={styles.leftColumn}>
@@ -117,6 +128,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
+  loginWrapper: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+
   leftColumn: {
     flex: 1,
     marginTop: 50,
@@ -126,6 +143,11 @@ const styles = StyleSheet.create({
   logo: {
     width: 90,
     height: 90,
+  },
+
+  loginLogo: {
+    width: 200,
+    height: 200,
   },
 
   rightColumn: {
