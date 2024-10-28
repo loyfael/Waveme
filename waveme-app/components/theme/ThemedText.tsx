@@ -60,7 +60,6 @@ const styles = StyleSheet.create({
   link: {
     fontFamily: 'Quicksand',
     lineHeight: 30,
-    fontSize: 16,
-    color: '#0a7ea4',
+    fontSize: 14,
   },
 });
