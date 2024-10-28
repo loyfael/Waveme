@@ -1,13 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Image, ScrollView, Pressable, Modal, ImageSourcePropType, CursorValue, View, Switch, Appearance } from 'react-native';
-import { Slot } from 'expo-router';
+import { StyleSheet, Image, ScrollView, Pressable, Modal, ImageSourcePropType, CursorValue, View, Switch } from 'react-native';
+import { Slot, usePathname } from 'expo-router';
 import { ThemedView } from '@/components/theme/ThemedView';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { PencilFill } from 'react-bootstrap-icons';
 import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/theme/ThemedText';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { ThemeContext } from '@/context/ThemeContext';
 
 export default function TabLayout() {
@@ -16,14 +15,23 @@ export default function TabLayout() {
   const [userName, setUserName] = useState<string | null>(null)
 
   const { isDarkMode, setDarkMode } = useContext(ThemeContext)
-  const theme = useColorScheme()
   const textColor = useThemeColor({}, 'text')
+  const pathname = usePathname()
+  const connectionRoutes = ['/login', '/signup']
 
   useEffect(() => {
     setUserPfp(require('@/assets/images/pfp.png'))
     setUserName('Beuteu34')
   }, [])
 
+  if (connectionRoutes.includes(pathname)) {
+    return (
+      <ThemedView style={styles.loginWrapper}>
+        <Image source={require('@/assets/images/waveme.png')} style={styles.loginLogo} />
+        <Slot />
+      </ThemedView>
+    )
+  }
   return (
     <ThemedView style={styles.wrapper}>
       <ThemedView style={styles.leftColumn}>
@@ -83,6 +91,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
+  loginWrapper: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+
   leftColumn: {
     flex: 1,
     marginTop: 50,
@@ -92,6 +106,11 @@ const styles = StyleSheet.create({
   logo: {
     width: 90,
     height: 90,
+  },
+
+  loginLogo: {
+    width: 200,
+    height: 200,
   },
 
   rightColumn: {

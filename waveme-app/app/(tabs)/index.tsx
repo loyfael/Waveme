@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Image, StyleSheet, ImageSourcePropType, View, Pressable, Animated } from 'react-native';
 import Entypo from '@expo/vector-icons/Entypo';
 import { BiSolidUpArrowAlt, BiSolidDownArrowAlt } from 'react-icons/bi'
@@ -45,7 +45,7 @@ export default function HomeScreen() {
     outputRange: [hexToRgbString(Colors.common.barButton), hexToRgbString(Colors.common.downvote)]
   })
 
-  const memeBackgroundColor = useThemeColor({}, 'memeBackground')
+  const areaBackgroundColor = useThemeColor({}, 'areaBackground')
 
   const fadeButtonToClicked = (backgroundToAnimate: Animated.Value) => {
     Animated.timing(backgroundToAnimate, {
@@ -101,7 +101,7 @@ export default function HomeScreen() {
             </View>
           </View>
           <View style={styles.postMeme}>
-            <Image source={post.meme} style={{ ...styles.memeImage, backgroundColor: memeBackgroundColor }} resizeMode='contain' />
+            <Image source={post.meme} style={{ ...styles.memeImage, backgroundColor: areaBackgroundColor }} resizeMode='contain' />
             <View style={styles.memeActionBar}>
               <View style={styles.barLeft}>
                 <AnimatedButton onPressIn={() => fadeButtonToClicked(animatedButton1)} onPressOut={() => fadeButtonToIdle(animatedButton1)} onPress={() => {/*Logic here*/ }}>

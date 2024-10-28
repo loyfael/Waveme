@@ -1,7 +1,5 @@
 import { Colors } from '@/constants/Colors';
 import { ThemeContext } from '@/context/ThemeContext';
-import { getLocalStorage } from '@/utils/localStorage';
-import { log } from 'console';
 import { useState, useEffect, useContext } from 'react'
 
 /**
