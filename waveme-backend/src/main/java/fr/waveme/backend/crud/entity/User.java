@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -38,6 +39,6 @@ public class User {
     @Column(name = "profile_img")
     private String profileImg;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Post> post = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Post> posts;
 }

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -18,5 +19,5 @@ public class UserDto {
     private String pseudo;
     private String email;
     private String profileImg;
-    private Set<Post> post;
+    private List<Post> post;
 }

@@ -11,7 +11,7 @@ public class PostMapper {
                 post.getImageUrl(),
                 post.getUpVote(),
                 post.getDownVote(),
-                post.getComment()
+                post.getComments()
         );
     }
 
@@ -23,7 +23,7 @@ public class PostMapper {
         post.setImageUrl(postDto.getImageUrl());
         post.setUpVote(postDto.getUpVote());
         post.setDownVote(postDto.getDownVote());
-        post.setComment(postDto.getComment());
+        post.setComments(postDto.getComment());
 
         return post;
     }

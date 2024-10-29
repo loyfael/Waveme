@@ -11,7 +11,7 @@ public class UserMapper {
                 user.getPseudo(),
                 user.getEmail(),
                 user.getProfileImg(),
-                user.getPost()
+                user.getPosts()
         );
     }
 
@@ -23,7 +23,7 @@ public class UserMapper {
         user.setPseudo(userDto.getPseudo());
         user.setEmail(userDto.getEmail());
         user.setProfileImg(userDto.getProfileImg());
-        user.setPost(userDto.getPost());
+        user.setPosts(userDto.getPost());
 
         return user;
     }
