@@ -21,6 +21,7 @@ export function ThemedTextInput({
       styles.themedTextInput,
     ]}
     autoCorrect={false}
+    placeholderTextColor="#666"
     {...rest}
     />
   )
@@ -31,5 +32,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 12,
     borderRadius: 15,
+    fontSize: 16,
   },
 })

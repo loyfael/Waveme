@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Image, ScrollView, Pressable, Modal, ImageSourcePropType, CursorValue, View, Switch } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { StyleSheet, Image, ScrollView, Pressable, Modal, ImageSourcePropType, CursorValue, View, Switch, Appearance, Animated } from 'react-native';
 import { Slot, usePathname } from 'expo-router';
 import { ThemedView } from '@/components/theme/ThemedView';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -8,6 +8,7 @@ import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/theme/ThemedText';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { ThemeContext } from '@/context/ThemeContext';
+import { hexToRgbString } from '@/utils/convert';
 
 export default function TabLayout() {
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false)
@@ -16,6 +17,8 @@ export default function TabLayout() {
 
   const { isDarkMode, setDarkMode } = useContext(ThemeContext)
   const textColor = useThemeColor({}, 'text')
+  const backgroundColor = useThemeColor({}, 'background')
+
   const pathname = usePathname()
   const connectionRoutes = ['/login', '/signup']
 
@@ -23,6 +26,30 @@ export default function TabLayout() {
     setUserPfp(require('@/assets/images/pfp.png'))
     setUserName('Beuteu34')
   }, [])
+
+  const AnimatedButton = Animated.createAnimatedComponent(Pressable)
+
+  const logoutButton = useRef(new Animated.Value(0)).current
+  const logoutBackgroundColor = logoutButton.interpolate({
+    inputRange: [0, 1],
+    outputRange: [hexToRgbString(backgroundColor), hexToRgbString(Colors.common.genericButtonPressed)]
+  })
+
+  const fadeButtonToClicked = (backgroundToAnimate: Animated.Value) => {
+    Animated.timing(backgroundToAnimate, {
+      toValue: 1,
+      duration: 0,
+      useNativeDriver: false,
+    }).start()
+  }
+
+  const fadeButtonToIdle = (backgroundToAnimate: Animated.Value) => {
+    Animated.timing(backgroundToAnimate, {
+      toValue: 0,
+      duration: 150,
+      useNativeDriver: false,
+    }).start()
+  }
 
   if (connectionRoutes.includes(pathname)) {
     return (
@@ -49,6 +76,7 @@ export default function TabLayout() {
           )}
         </Pressable>
       </ThemedView>
+      {/* Profile modal */}
       <Modal visible={showProfileModal} transparent={true} animationType='fade' onRequestClose={() => setShowProfileModal(false)}>
         <Pressable style={{ ...styles.centeredModalView, ...styles.modalCursorOverride }} onPress={() => setShowProfileModal(false)}>
           <Pressable style={styles.modalCursorOverride}>
@@ -75,7 +103,16 @@ export default function TabLayout() {
                   <ThemedText style={styles.switchLabel}>Mode sombre</ThemedText>
                 </View>
               </View>
-              <View style={styles.connection}></View>
+              <View style={styles.connection}>
+                {/* TODO: Figure out when and where to display login and signup */}
+              </View>
+              <AnimatedButton
+                onPressIn={() => fadeButtonToClicked(logoutButton)}
+                onPressOut={() => fadeButtonToIdle(logoutButton)}
+                onPress={() => { }}
+                style={{ ...styles.logout, backgroundColor: logoutBackgroundColor }}>
+                <MaterialIcons name="logout" size={36} color={textColor} />
+              </AnimatedButton>
             </ThemedView>
           </Pressable>
         </Pressable>
@@ -111,6 +148,8 @@ const styles = StyleSheet.create({
   loginLogo: {
     width: 200,
     height: 200,
+    marginTop: 80,
+    marginBottom: 50,
   },
 
   rightColumn: {
@@ -152,6 +191,7 @@ const styles = StyleSheet.create({
     opacity: 0.97,
     flexDirection: 'column',
     alignItems: 'center',
+    borderRadius: 20,
   },
 
   userPfp: {
@@ -196,7 +236,14 @@ const styles = StyleSheet.create({
     marginStart: 8,
   },
 
-  connection: {
-    
+  connection: {},
+
+  logout: {
+    alignSelf: 'flex-end',
+    marginTop: 'auto',
+    position: 'relative',
+    left: 40,
+    padding: 5,
+    borderRadius: 26,
   },
 })
