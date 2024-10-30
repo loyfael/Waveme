@@ -1,12 +1,10 @@
 package fr.waveme.backend.crud.dto;
 
-import fr.waveme.backend.crud.entity.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -15,9 +13,9 @@ import java.util.Set;
 @AllArgsConstructor
 public class PostDto {
     private Long id;
-    private String userId;
+    private Long userId;
     private String imageUrl;
     private Integer upVote;
     private Integer downVote;
-    private List<Comment> comment;
+    private Set<Long> commentIds;
 }

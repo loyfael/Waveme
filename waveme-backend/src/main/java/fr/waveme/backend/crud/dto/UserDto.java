@@ -19,5 +19,5 @@ public class UserDto {
     private String pseudo;
     private String email;
     private String profileImg;
-    private List<Post> post;
+    private Set<Post> post;
 }
