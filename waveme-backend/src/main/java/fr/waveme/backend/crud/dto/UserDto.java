@@ -15,9 +15,9 @@ import java.util.Set;
 @AllArgsConstructor
 public class UserDto {
     private Long id;
-    private String userId;
     private String pseudo;
     private String email;
+    private String password;
     private String profileImg;
-    private Set<Post> post;
+    private Set<Post> posts;
 }

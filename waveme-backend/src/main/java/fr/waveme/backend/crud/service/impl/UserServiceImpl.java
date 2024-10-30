@@ -6,12 +6,20 @@ import fr.waveme.backend.crud.exception.ResourceNotFoundException;
 import fr.waveme.backend.crud.mapper.UserMapper;
 import fr.waveme.backend.crud.repository.UserRepository;
 import fr.waveme.backend.crud.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class UserServiceImpl implements UserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public UserDto createUser(UserDto userDto) {
@@ -41,20 +49,22 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUser(Long userId, String pseudo, String email, String password, String profileImg) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee is not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User is not found with id: " + userId));
 
         user.setPseudo(pseudo);
         user.setEmail(email);
         user.setProfileImg(profileImg);
         user.setPassword(password);
 
-        return UserMapper.mapToUserDto(user);
+        User updatedUser = userRepository.save(user);
+
+        return UserMapper.mapToUserDto(updatedUser);
     }
 
     @Override
     public UserDto deleteUser(Long userId) {
-        User user = userRepository.findById(userId).
-                orElseThrow(() -> new ResourceNotFoundException("User is not found with id: " + userId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User is not found with id: " + userId));
 
         userRepository.delete(user);
 
