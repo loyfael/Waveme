@@ -2,16 +2,28 @@ import { ThemedText } from "@/components/theme/ThemedText";
 import { ThemedTextInput } from "@/components/theme/ThemedTextInput";
 import { Colors } from "@/constants/Colors";
 import { useWebTitle } from "@/hooks/useWebTitle";
-import React from "react";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
 export default function Login() {
   useWebTitle('Connexion - Waveme')
 
+  const router = useRouter()
+
+  type LoginCredentials = {
+    username: string,
+    password: string,
+  }
+
+  const [credentials, setCredentials] = useState<LoginCredentials>({ username: '', password: '' })
+
   return (
     <>
       <View style={styles.connectionField}>
         <ThemedTextInput
+          value={credentials.username}
+          onChangeText={(value) => { setCredentials({...credentials, username: value}) }}
           autoComplete="username"
           placeholder="Pseudo"
           autoFocus
@@ -20,13 +32,17 @@ export default function Login() {
       </View>
       <View style={styles.connectionField}>
         <ThemedTextInput
+          value={credentials.password}
+          onChangeText={(value) => { setCredentials({...credentials, password: value}) }}
           autoComplete="password"
           placeholder="Mot de passe"
           secureTextEntry
           style={styles.connectionField}
         />
       </View>
-      <ThemedText type="link">Pas de compte ? Cliquez ici !</ThemedText>
+      <Pressable onPress={() => { router.push('/signup') }}>
+        <ThemedText type="link">Pas de compte ? Cliquez ici !</ThemedText>
+      </Pressable>
       <Pressable style={styles.loginButton}>
         <ThemedText type="defaultBold" style={styles.loginButtonText}>CONNEXION</ThemedText>
       </Pressable>
@@ -37,6 +53,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   connectionField: {
     marginTop: 15,
+    width: 250,
   },
 
   loginButton: {
