@@ -2,7 +2,7 @@ package fr.waveme.backend.crud.mapper;
 
 
 import fr.waveme.backend.crud.dto.CommentDto;
-import fr.waveme.backend.crud.entity.Comment;
+import fr.waveme.backend.crud.models.Comment;
 
 public class CommentMapper {
     public static CommentDto mapToCommentDto(Comment comment) {

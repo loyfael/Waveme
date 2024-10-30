@@ -1,4 +1,4 @@
-package fr.waveme.backend.crud.entity;
+package fr.waveme.backend.crud.models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

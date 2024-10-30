@@ -1,7 +1,7 @@
 package fr.waveme.backend.crud.mapper;
 
 import fr.waveme.backend.crud.dto.UserDto;
-import fr.waveme.backend.crud.entity.User;
+import fr.waveme.backend.crud.models.User;
 
 public class UserMapper {
     public static UserDto mapToUserDto(User user) {

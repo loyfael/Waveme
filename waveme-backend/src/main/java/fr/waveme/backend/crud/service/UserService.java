@@ -1,7 +1,7 @@
 package fr.waveme.backend.crud.service;
 
 import fr.waveme.backend.crud.dto.UserDto;
-import fr.waveme.backend.crud.entity.User;
+import fr.waveme.backend.crud.models.User;
 
 import java.util.List;
 

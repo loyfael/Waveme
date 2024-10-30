@@ -1,8 +1,8 @@
 package fr.waveme.backend.crud.mapper;
 
 import fr.waveme.backend.crud.dto.PostDto;
-import fr.waveme.backend.crud.entity.Comment;
-import fr.waveme.backend.crud.entity.Post;
+import fr.waveme.backend.crud.models.Comment;
+import fr.waveme.backend.crud.models.Post;
 
 import java.util.stream.Collectors;
 

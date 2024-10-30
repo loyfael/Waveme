@@ -1,7 +1,7 @@
 package fr.waveme.backend.controller;
 
 import fr.waveme.backend.crud.dto.UserDto;
-import fr.waveme.backend.crud.entity.User;
+import fr.waveme.backend.crud.models.User;
 import fr.waveme.backend.crud.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;

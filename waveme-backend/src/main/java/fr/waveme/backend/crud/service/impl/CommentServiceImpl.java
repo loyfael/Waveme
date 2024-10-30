@@ -1,7 +1,7 @@
 package fr.waveme.backend.crud.service.impl;
 
 import fr.waveme.backend.crud.dto.CommentDto;
-import fr.waveme.backend.crud.entity.Comment;
+import fr.waveme.backend.crud.models.Comment;
 import fr.waveme.backend.crud.service.CommentService;
 
 import java.util.List;

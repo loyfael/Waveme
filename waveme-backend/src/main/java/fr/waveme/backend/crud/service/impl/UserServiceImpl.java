@@ -1,7 +1,7 @@
 package fr.waveme.backend.crud.service.impl;
 
 import fr.waveme.backend.crud.dto.UserDto;
-import fr.waveme.backend.crud.entity.User;
+import fr.waveme.backend.crud.models.User;
 import fr.waveme.backend.crud.exception.ResourceNotFoundException;
 import fr.waveme.backend.crud.mapper.UserMapper;
 import fr.waveme.backend.crud.repository.UserRepository;
