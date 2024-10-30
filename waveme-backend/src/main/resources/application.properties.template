@@ -1,0 +1,5 @@
+spring.application.name=backend
+spring.datasource.url=jdbc:postgresql://localhost:5432/your-db-name
+spring.datasource.username=your-username
+spring.datasource.password=your-password
+spring.jpa.hibernate.ddl-auto=update
