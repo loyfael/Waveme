@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Image, StyleSheet, ImageSourcePropType, View, Pressable, Animated } from 'react-native';
 import Entypo from '@expo/vector-icons/Entypo';
 import { BiSolidUpArrowAlt, BiSolidDownArrowAlt } from 'react-icons/bi'
@@ -9,6 +9,7 @@ import React from 'react';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Colors } from '@/constants/Colors';
 import { hexToRgbString } from '@/utils/convert';
+import { useWebTitle } from '@/hooks/useWebTitle';
 
 // NOTE: When connection with backend is established, change all ImageSourcePropType to string (URIs)
 type Post = {
@@ -19,6 +20,7 @@ type Post = {
 }
 
 export default function HomeScreen() {
+  useWebTitle('Accueil - Waveme')
   const [posts, setPosts] = useState<Post[]>([]);
 
   const AnimatedButton = Animated.createAnimatedComponent(Pressable)
@@ -45,7 +47,7 @@ export default function HomeScreen() {
     outputRange: [hexToRgbString(Colors.common.barButton), hexToRgbString(Colors.common.downvote)]
   })
 
-  const memeBackgroundColor = useThemeColor({}, 'memeBackground')
+  const areaBackgroundColor = useThemeColor({}, 'areaBackground')
 
   const fadeButtonToClicked = (backgroundToAnimate: Animated.Value) => {
     Animated.timing(backgroundToAnimate, {
@@ -101,27 +103,39 @@ export default function HomeScreen() {
             </View>
           </View>
           <View style={styles.postMeme}>
-            <Image source={post.meme} style={{ ...styles.memeImage, backgroundColor: memeBackgroundColor }} resizeMode='contain' />
+            <Image source={post.meme} style={{ ...styles.memeImage, backgroundColor: areaBackgroundColor }} resizeMode='contain' />
             <View style={styles.memeActionBar}>
               <View style={styles.barLeft}>
-                <AnimatedButton onPressIn={() => fadeButtonToClicked(animatedButton1)} onPressOut={() => fadeButtonToIdle(animatedButton1)} onPress={() => {/*Logic here*/ }}>
+                <AnimatedButton
+                  onPressIn={() => fadeButtonToClicked(animatedButton1)}
+                  onPressOut={() => fadeButtonToIdle(animatedButton1)}
+                  onPress={() => { }}>
                   <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor1 }}>
                     <Entypo name="flag" size={36} color={Colors.common.memeActionBar} />
                   </Animated.View>
                 </AnimatedButton>
               </View>
               <View style={styles.barRight}>
-                <AnimatedButton onPressIn={() => fadeButtonToClicked(animatedButton2)} onPressOut={() => fadeButtonToIdle(animatedButton2)} onPress={() => { }}>
+                <AnimatedButton
+                  onPressIn={() => fadeButtonToClicked(animatedButton2)}
+                  onPressOut={() => fadeButtonToIdle(animatedButton2)}
+                  onPress={() => { }}>
                   <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor2 }}>
                     <ChatDotsFill color={Colors.common.memeActionBar} size={30} />
                   </Animated.View>
                 </AnimatedButton>
-                <AnimatedButton onPressIn={() => fadeButtonToClicked(animatedButton3)} onPressOut={() => fadeButtonToIdle(animatedButton3)} onPress={() => { }}>
+                <AnimatedButton
+                  onPressIn={() => fadeButtonToClicked(animatedButton3)}
+                  onPressOut={() => fadeButtonToIdle(animatedButton3)}
+                  onPress={() => { }}>
                   <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor3 }}>
                     <BiSolidUpArrowAlt color={Colors.common.memeActionBar} size={36} />
                   </Animated.View>
                 </AnimatedButton>
-                <AnimatedButton onPressIn={() => fadeButtonToClicked(animatedButton4)} onPressOut={() => fadeButtonToIdle(animatedButton4)} onPress={() => { }}>
+                <AnimatedButton
+                  onPressIn={() => fadeButtonToClicked(animatedButton4)}
+                  onPressOut={() => fadeButtonToIdle(animatedButton4)}
+                  onPress={() => { }}>
                   <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor4 }}>
                     <BiSolidDownArrowAlt color={Colors.common.memeActionBar} size={36} />
                   </Animated.View>
