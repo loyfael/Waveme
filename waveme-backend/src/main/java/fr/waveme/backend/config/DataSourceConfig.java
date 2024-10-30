@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import javax.swing.*;
+import java.awt.*;
+
 @Component
 public class DataSourceConfig implements CommandLineRunner {
 
@@ -18,9 +21,9 @@ public class DataSourceConfig implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        System.out.println("----------Waveme backend démarré avec succès----------");
         System.out.println("URL de la datasource : " + datasourceUrl);
         System.out.println("Nom d'utilisateur de la datasource : " + datasourceUsername);
-        // Pour des raisons de sécurité, évitez d'afficher le mot de passe en production
         System.out.println("Mot de passe de la datasource : " + datasourcePassword);
     }
 }
