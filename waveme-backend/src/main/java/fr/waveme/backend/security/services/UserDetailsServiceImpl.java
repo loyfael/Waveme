@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
  * des détails de l'utilisateur à partir de la base de données en utilisant le `pseudo`.
  * Elle est utilisée par Spring Security pour authentifier l'utilisateur et charger ses détails.
  */
+@Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     // Références du dépôt `UserRepository` pour accéder aux données utilisateur
