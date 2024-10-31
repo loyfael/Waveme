@@ -18,10 +18,13 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
-// Indique a Spring quelle classe appliquer à la sécu
+/**
+ * Configuration de sécurité de l'application avec Spring Security.
+ * Cette classe configure l'authentification, la gestion des sessions, les politiques CORS,
+ * et définit un filtre pour gérer les jetons JWT.
+ */
 @Configuration
-// permet d'autoriser les méthodes @PreAuthorize, @PostAuthorize, @Secured et @RolesAllowed.
-@EnableMethodSecurity
+@EnableMethodSecurity // Active les annotations de sécurité sur les méthodes, comme @PreAuthorize
 public class WebSecurityConfig {
 
     @Autowired
@@ -30,58 +33,83 @@ public class WebSecurityConfig {
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
 
+    /**
+     * Bean pour créer un filtre JWT personnalisé qui sera exécuté sur chaque requête.
+     *
+     * @return Instance d'`AuthTokenFilter`
+     */
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
     }
 
-    // On construit une autentification des users en base de données.
-    // Quel service le fourni?
-    // Quel hasher utilisé?
+    /**
+     * Fournisseur d'authentification basé sur la base de données, qui utilise le `UserDetailsServiceImpl`
+     * pour charger les utilisateurs et `BCryptPasswordEncoder` pour encoder les mots de passe.
+     *
+     * @return Instance de `DaoAuthenticationProvider` configurée
+     */
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-
+        authProvider.setUserDetailsService(userDetailsService); // Utilise le service de gestion d'utilisateurs
+        authProvider.setPasswordEncoder(passwordEncoder()); // Utilise BCrypt pour encoder les mots de passe
         return authProvider;
     }
 
-    // permet d'activer l'utilisation simplifié de l'autentification
+    /**
+     * Fournit un `AuthenticationManager`, utilisé par Spring Security pour la gestion des authentifications.
+     *
+     * @param authConfig Configuration d'authentification injectée
+     * @return Instance d'`AuthenticationManager`
+     * @throws Exception En cas de problème de configuration
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
-    // défini le hasher de psw par défaut.
+    /**
+     * Déclare l'encodeur de mot de passe à utiliser, ici `BCryptPasswordEncoder`.
+     *
+     * @return Instance de `PasswordEncoder` configurée
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // on indique comment les CORS sont gérés
-    // Quel gestionnaire gère les exceptions d'accès
-    // La politique de session
-    // Les autorisations globales sur certaines URI
-    // On lui dit qu'elle fournisseur d'auth utiliser
-    // on ajoute un fitlre qui va verifier si un token est présent dans la requête avant que la requête arrive sur le controleur.
+    /**
+     * Configure la chaîne de filtres de sécurité avec les règles de gestion des sessions,
+     * des CORS, des autorisations et des gestionnaires d'exception.
+     *
+     * @param http Objet de configuration `HttpSecurity`
+     * @return Instance de `SecurityFilterChain`
+     * @throws Exception En cas de problème de configuration
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
+        http.csrf(AbstractHttpConfigurer::disable) // Désactive la protection CSRF pour simplifier les requêtes API
+
+                // Gestion des exceptions : utilise `AuthEntryPointJwt` pour gérer les accès non autorisés
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+
+                // Politique de session : défini comme sans état (STATELESS) pour les APIs REST
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Configuration des autorisations d'accès aux routes
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/api/auth/**").permitAll()
-                                .requestMatchers("/api/test/**").permitAll()
-                                .anyRequest().authenticated()
+                        auth.requestMatchers("/api/auth/**").permitAll() // Autorise les routes d'authentification
+                                .requestMatchers("/api/test/**").permitAll() // Autorise les routes de test
+                                .anyRequest().authenticated() // Nécessite une authentification pour toutes les autres routes
                 );
 
+        // Associe le fournisseur d'authentification à Spring Security
         http.authenticationProvider(authenticationProvider());
 
+        // Ajoute le filtre JWT pour vérifier la présence d'un jeton avant que la requête atteigne les contrôleurs
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
 }
