@@ -7,11 +7,13 @@ export const Colors = {
     text: '#0E5865',
     background: '#F7F7F7',
     areaBackground: '#DADADA',
+    tooltipBackground: '#CACACA',
   },
   dark: {
     text: '#9FCBF4',
     background: '#222F3F',
     areaBackground: '#BFBFBF',
+    tooltipBackground: '#CFCFCF',
   },
   common: {
     memeActionBar: '#2C2C2C',

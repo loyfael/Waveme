@@ -9,6 +9,8 @@ import { ThemedText } from '@/components/theme/ThemedText';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { ThemeContext } from '@/context/ThemeContext';
 import { hexToRgbString } from '@/utils/convert';
+import { fadeButtonToClicked, fadeButtonToIdle } from '@/utils/animateButton';
+import { useAnimatedButton } from '@/hooks/useAnimatedButton';
 
 export default function TabLayout() {
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false)
@@ -29,27 +31,10 @@ export default function TabLayout() {
 
   const AnimatedButton = Animated.createAnimatedComponent(Pressable)
 
-  const logoutButton = useRef(new Animated.Value(0)).current
-  const logoutBackgroundColor = logoutButton.interpolate({
-    inputRange: [0, 1],
-    outputRange: [hexToRgbString(backgroundColor), hexToRgbString(Colors.common.genericButtonPressed)]
+  const { animatedButton: logoutButton,  backgroundColor: logoutBackgroundColor } = useAnimatedButton({
+    idleColor: hexToRgbString(backgroundColor),
+    clickedColor: hexToRgbString(Colors.common.genericButtonPressed)
   })
-
-  const fadeButtonToClicked = (backgroundToAnimate: Animated.Value) => {
-    Animated.timing(backgroundToAnimate, {
-      toValue: 1,
-      duration: 0,
-      useNativeDriver: false,
-    }).start()
-  }
-
-  const fadeButtonToIdle = (backgroundToAnimate: Animated.Value) => {
-    Animated.timing(backgroundToAnimate, {
-      toValue: 0,
-      duration: 150,
-      useNativeDriver: false,
-    }).start()
-  }
 
   if (connectionRoutes.includes(pathname)) {
     return (
@@ -108,7 +93,7 @@ export default function TabLayout() {
               </View>
               <AnimatedButton
                 onPressIn={() => fadeButtonToClicked(logoutButton)}
-                onPressOut={() => fadeButtonToIdle(logoutButton)}
+                onPressOut={() => fadeButtonToIdle(logoutButton, 250)}
                 onPress={() => { }}
                 style={{ ...styles.logout, backgroundColor: logoutBackgroundColor }}>
                 <MaterialIcons name="logout" size={36} color={textColor} />
