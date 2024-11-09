@@ -99,8 +99,7 @@ public class WebSecurityConfig {
 
                 // Configuration des autorisations d'accès aux routes
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/api/auth/**").permitAll() // Autorise les routes d'authentification
-                                .requestMatchers("/api/test/**").permitAll() // Autorise les routes de test
+                        auth.requestMatchers("/api/auth/register").permitAll() // Autorise l'accès à /register
                                 .anyRequest().authenticated() // Nécessite une authentification pour toutes les autres routes
                 );
 
