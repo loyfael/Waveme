@@ -42,66 +42,72 @@ export default function Signup() {
       console.log(missingFields);
       setInvalidTooltip({ display: true, field: missingFields[0], message: 'Vous devez remplir ce champ.' })
       return
-      // TODO: display something on each field
     }
     if (!validate(credentials.email)) {
       console.log('Invalid email');
       setInvalidTooltip({ display: true, field: 'email', message: 'Adresse email non valide.' })
       return
-      // TODO: display
     }
     if (credentials.password !== credentials.confirmPassword) {
       console.log('Password confirm invalid');
       setInvalidTooltip({ display: true, field: 'confirmPassword', message: 'Le mot de passe n\'est pas identique.' })
-      // TODO: display
+      return
     }
+
+    // TODO: Request to back
   }
+
+  const handleSignup = () => { }
 
   return (
     <>
       <View style={styles.connectionField}>
-        <ThemedTextInput
-          value={credentials.username}
-          onChangeText={(value) => { setCredentials({ ...credentials, username: value }) }}
-          autoComplete="username"
-          placeholder="Pseudo"
-          autoFocus
-          style={styles.connectionField}
-        />
-        <InvalidFieldTooltip field="username" tooltip={invalidTooltip} setTooltip={setInvalidTooltip} />
+        <InvalidFieldTooltip field="username" tooltip={invalidTooltip} setTooltip={setInvalidTooltip}>
+          <ThemedTextInput
+            value={credentials.username}
+            onChangeText={(value) => { setCredentials({ ...credentials, username: value }) }}
+            autoComplete="username"
+            placeholder="Pseudo"
+            autoFocus
+            style={styles.connectionField}
+          />
+        </InvalidFieldTooltip>
       </View>
       <View style={styles.connectionField}>
-        <ThemedTextInput
-          value={credentials.email}
-          onChangeText={(value) => { setCredentials({ ...credentials, email: value }) }}
-          autoComplete="email"
-          placeholder="Adresse email"
-          autoFocus
-          style={styles.connectionField}
-        />
-        <InvalidFieldTooltip field="email" tooltip={invalidTooltip} setTooltip={setInvalidTooltip} />
+        <InvalidFieldTooltip field="email" tooltip={invalidTooltip} setTooltip={setInvalidTooltip}>
+          <ThemedTextInput
+            value={credentials.email}
+            onChangeText={(value) => { setCredentials({ ...credentials, email: value }) }}
+            autoComplete="email"
+            placeholder="Adresse email"
+            autoFocus
+            style={styles.connectionField}
+          />
+        </InvalidFieldTooltip>
       </View>
       <View style={styles.connectionField}>
-        <InvalidFieldTooltip field="password" tooltip={invalidTooltip} setTooltip={setInvalidTooltip} />
-        <ThemedTextInput
-          value={credentials.password}
-          onChangeText={(value) => { setCredentials({ ...credentials, password: value }) }}
-          autoComplete="password"
-          placeholder="Mot de passe"
-          secureTextEntry
-          style={styles.connectionField}
-        />
+        <InvalidFieldTooltip field="password" tooltip={invalidTooltip} setTooltip={setInvalidTooltip}>
+          <ThemedTextInput
+            value={credentials.password}
+            onChangeText={(value) => { setCredentials({ ...credentials, password: value }) }}
+            autoComplete="password"
+            placeholder="Mot de passe"
+            secureTextEntry
+            style={styles.connectionField}
+          />
+        </InvalidFieldTooltip>
       </View>
       <View style={styles.connectionField}>
-        <InvalidFieldTooltip field="confirmPassword" tooltip={invalidTooltip} setTooltip={setInvalidTooltip} />
-        <ThemedTextInput
-          value={credentials.confirmPassword}
-          onChangeText={(value) => { setCredentials({ ...credentials, confirmPassword: value }) }}
-          autoComplete="password"
-          placeholder="Confirmer le mot de passe"
-          secureTextEntry
-          style={styles.connectionField}
-        />
+        <InvalidFieldTooltip field="confirmPassword" tooltip={invalidTooltip} setTooltip={setInvalidTooltip}>
+          <ThemedTextInput
+            value={credentials.confirmPassword}
+            onChangeText={(value) => { setCredentials({ ...credentials, confirmPassword: value }) }}
+            autoComplete="password"
+            placeholder="Confirmer le mot de passe"
+            secureTextEntry
+            style={styles.connectionField}
+          />
+        </InvalidFieldTooltip>
       </View>
       <Pressable onPress={() => { router.push('/login') }}>
         <ThemedText type="link">Déjà un compte ? Cliquez ici !</ThemedText>

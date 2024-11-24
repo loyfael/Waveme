@@ -1,7 +1,7 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
-import React from "react";
+import React, { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Tooltip } from "@rneui/themed";
+import { Tooltip, TooltipProps } from "@rneui/themed";
 
 type TooltipInfo = {
   display: boolean,
@@ -9,15 +9,18 @@ type TooltipInfo = {
   message: string,
 }
 
-type TooltipProps = {
+type InvalidTooltipProps = {
   field: string,
   tooltip: TooltipInfo,
   setTooltip: Function,
+  children: ReactNode,
 }
 
-export function InvalidFieldTooltip({ field, tooltip, setTooltip }: TooltipProps) {
+export function InvalidFieldTooltip({ field, tooltip, setTooltip, children }: InvalidTooltipProps) {
   const tooltipBackground = useThemeColor({}, 'tooltipBackground')
 
+  // Tooltip is used as a container in order for the caret placement and tooltip position to make sense among each other
+  // (i.e. prevent the tooltip from displaying on top of the selected field)
   return (
     <Tooltip
       visible={tooltip.display && (tooltip.field === field)}
@@ -27,7 +30,9 @@ export function InvalidFieldTooltip({ field, tooltip, setTooltip }: TooltipProps
       withPointer={true}
       popover={<Text>{tooltip.message}</Text>}
       overlayColor="transparent"
-    />
+    >
+      {children}
+    </Tooltip>
   )
 }
 

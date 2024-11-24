@@ -18,7 +18,9 @@ export default function Login() {
 
   const [credentials, setCredentials] = useState<LoginCredentials>({ username: '', password: '' })
 
-  const handleLogin = () => { }
+  const handleLogin = (): void => {
+    // TODO: Request to back
+  }
 
   return (
     <>
