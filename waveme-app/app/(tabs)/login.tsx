@@ -18,12 +18,14 @@ export default function Login() {
 
   const [credentials, setCredentials] = useState<LoginCredentials>({ username: '', password: '' })
 
+  const handleLogin = () => { }
+
   return (
     <>
       <View style={styles.connectionField}>
         <ThemedTextInput
           value={credentials.username}
-          onChangeText={(value) => { setCredentials({...credentials, username: value}) }}
+          onChangeText={(value) => { setCredentials({ ...credentials, username: value }) }}
           autoComplete="username"
           placeholder="Pseudo"
           autoFocus
@@ -33,7 +35,7 @@ export default function Login() {
       <View style={styles.connectionField}>
         <ThemedTextInput
           value={credentials.password}
-          onChangeText={(value) => { setCredentials({...credentials, password: value}) }}
+          onChangeText={(value) => { setCredentials({ ...credentials, password: value }) }}
           autoComplete="password"
           placeholder="Mot de passe"
           secureTextEntry
@@ -43,7 +45,7 @@ export default function Login() {
       <Pressable onPress={() => { router.push('/signup') }}>
         <ThemedText type="link">Pas de compte ? Cliquez ici !</ThemedText>
       </Pressable>
-      <Pressable style={styles.loginButton}>
+      <Pressable style={styles.loginButton} onPress={handleLogin}>
         <ThemedText type="defaultBold" style={styles.loginButtonText}>CONNEXION</ThemedText>
       </Pressable>
     </>
