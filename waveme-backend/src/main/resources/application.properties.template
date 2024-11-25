@@ -3,3 +3,8 @@ spring.datasource.url=jdbc:postgresql://localhost:5432/your-db-name
 spring.datasource.username=your-username
 spring.datasource.password=your-password
 spring.jpa.hibernate.ddl-auto=update
+
+#JWT
+waveme.app.jwtSecret=your-secret
+waveme.app.jwtExpirationMs=86400000
+waveme.app.jwtCookieName=jwtCookie
