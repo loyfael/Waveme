@@ -25,4 +25,4 @@ EXPOSE 3000
 RUN yarn install
 
 # Commande pour démarrer l'application
-CMD ["npm", "start"]
+CMD ["npm", "run", "web"]
