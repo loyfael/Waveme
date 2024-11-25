@@ -40,6 +40,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             return;
         }
 
+        if (path.equals("/api/auth/login") || path.equals("/login")) {
+            logger.info("Skipping AuthTokenFilter for public path: {}", path);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             String jwt = parseJwt(request);
             logger.info("JWT extracted: {}", jwt != null ? "Found" : "Not found");

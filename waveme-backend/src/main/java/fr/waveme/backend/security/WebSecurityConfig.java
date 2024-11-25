@@ -70,7 +70,7 @@ public class WebSecurityConfig {
     }
 
     /**
-     * Déclare l'encodeur de mot de passe à utiliser, ici `BCryptPasswordEncoder`.
+     * Déclare l'encodeur de mot de passe à utiliser, ici `BCryptPasswordEncoder'.
      *
      * @return Instance de `PasswordEncoder` configurée
      */
@@ -99,7 +99,7 @@ public class WebSecurityConfig {
 
                 // Configuration des autorisations d'accès aux routes
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/api/auth/register").permitAll() // Autorise l'accès à /register
+                        auth.requestMatchers("/api/auth/register", "/api/auth/login").permitAll() // Autorise l'accès à /register
                                 .anyRequest().authenticated() // Nécessite une authentification pour toutes les autres routes
                 );
 
