@@ -10,6 +10,8 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { Colors } from '@/constants/Colors';
 import { hexToRgbString } from '@/utils/convert';
 import { useWebTitle } from '@/hooks/useWebTitle';
+import { useAnimatedButton } from '@/hooks/useAnimatedButton';
+import { fadeButtonToClicked, fadeButtonToIdle } from '@/utils/animateButton';
 
 // NOTE: When connection with backend is established, change all ImageSourcePropType to string (URIs)
 type Post = {
@@ -25,45 +27,27 @@ export default function HomeScreen() {
 
   const AnimatedButton = Animated.createAnimatedComponent(Pressable)
 
-  // don't even ask
-  const animatedButton1 = useRef(new Animated.Value(0)).current
-  const backgroundColor1 = animatedButton1.interpolate({
-    inputRange: [0, 1],
-    outputRange: [hexToRgbString(Colors.common.barButton), hexToRgbString(Colors.common.genericButtonPressed)]
+  const { animatedButton: animatedButton1, backgroundColor: backgroundColor1 } = useAnimatedButton({
+    idleColor: hexToRgbString(Colors.common.barButton),
+    clickedColor: hexToRgbString(Colors.common.genericButtonPressed)
   })
-  const animatedButton2 = useRef(new Animated.Value(0)).current
-  const backgroundColor2 = animatedButton2.interpolate({
-    inputRange: [0, 1],
-    outputRange: [hexToRgbString(Colors.common.barButton), hexToRgbString(Colors.common.genericButtonPressed)]
+
+  const { animatedButton: animatedButton2, backgroundColor: backgroundColor2 } = useAnimatedButton({
+    idleColor: hexToRgbString(Colors.common.barButton),
+    clickedColor: hexToRgbString(Colors.common.genericButtonPressed)
   })
-  const animatedButton3 = useRef(new Animated.Value(0)).current
-  const backgroundColor3 = animatedButton3.interpolate({
-    inputRange: [0, 1],
-    outputRange: [hexToRgbString(Colors.common.barButton), hexToRgbString(Colors.common.upvote)]
+
+  const { animatedButton: animatedButton3, backgroundColor: backgroundColor3 } = useAnimatedButton({
+    idleColor: hexToRgbString(Colors.common.barButton),
+    clickedColor: hexToRgbString(Colors.common.upvote)
   })
-  const animatedButton4 = useRef(new Animated.Value(0)).current
-  const backgroundColor4 = animatedButton4.interpolate({
-    inputRange: [0, 1],
-    outputRange: [hexToRgbString(Colors.common.barButton), hexToRgbString(Colors.common.downvote)]
+
+  const { animatedButton: animatedButton4, backgroundColor: backgroundColor4 } = useAnimatedButton({
+    idleColor: hexToRgbString(Colors.common.barButton),
+    clickedColor: hexToRgbString(Colors.common.downvote)
   })
 
   const areaBackgroundColor = useThemeColor({}, 'areaBackground')
-
-  const fadeButtonToClicked = (backgroundToAnimate: Animated.Value) => {
-    Animated.timing(backgroundToAnimate, {
-      toValue: 1,
-      duration: 0,
-      useNativeDriver: false,
-    }).start()
-  }
-
-  const fadeButtonToIdle = (backgroundToAnimate: Animated.Value) => {
-    Animated.timing(backgroundToAnimate, {
-      toValue: 0,
-      duration: 150,
-      useNativeDriver: false,
-    }).start()
-  }
 
   // NOTE: When connection with backend is established, replace with a fetch request to the correct endpoint
   useEffect(() => {
