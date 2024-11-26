@@ -3,6 +3,8 @@ import { ThemedText } from "@/components/theme/ThemedText";
 import { ThemedTextInput } from "@/components/theme/ThemedTextInput";
 import { Colors } from "@/constants/Colors";
 import { useWebTitle } from "@/hooks/useWebTitle";
+import { signup } from "@/services/AuthAPI";
+import { InvalidTooltip, SignupCredentials } from "@/types";
 import { getMissingFields } from "@/utils/formChecks";
 import { validate } from "email-validator";
 import { useRouter } from "expo-router";
@@ -14,19 +16,6 @@ export default function Signup() {
 
   const router = useRouter()
 
-  type SignupCredentials = {
-    username: string,
-    email: string,
-    password: string,
-    confirmPassword: string,
-  }
-
-  type InvalidTooltip = {
-    display: boolean,
-    field: string,
-    message: string,
-  }
-
   const [credentials, setCredentials] = useState<SignupCredentials>({
     username: '',
     email: '',
@@ -35,26 +24,24 @@ export default function Signup() {
   })
   const [invalidTooltip, setInvalidTooltip] = useState<InvalidTooltip>({ display: false, field: '', message: '' })
 
-  const handleSubmit = (): void => {
+  const handleSubmit = async (): Promise<void> => {
     const missingFields = getMissingFields(credentials)
     // Form validation
     if (missingFields.length) {
-      console.log(missingFields);
       setInvalidTooltip({ display: true, field: missingFields[0], message: 'Vous devez remplir ce champ.' })
       return
     }
     if (!validate(credentials.email)) {
-      console.log('Invalid email');
       setInvalidTooltip({ display: true, field: 'email', message: 'Adresse email non valide.' })
       return
     }
     if (credentials.password !== credentials.confirmPassword) {
-      console.log('Password confirm invalid');
       setInvalidTooltip({ display: true, field: 'confirmPassword', message: 'Le mot de passe n\'est pas identique.' })
       return
     }
 
-    // TODO: Request to back
+    const response = await signup(credentials).catch((error) => console.log(error))
+    console.log(response);
   }
 
   const handleSignup = () => { }
