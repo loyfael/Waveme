@@ -1,24 +1,22 @@
 package fr.waveme.backend.storage;
 
 import io.minio.MinioClient;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 
 public class MinioConfig {
-    @Value("${minio.endpoint}")
-    private String endpoint;
+    private final MinioProperties minioProperties;
 
-    @Value("${minio.access-key}")
-    private String accessKey;
-
-    @Value("${minio.secret-key}")
-    private String secretKey;
+    @Autowired
+    public MinioConfig(MinioProperties minioProperties) {
+        this.minioProperties = minioProperties;
+    }
 
     @Bean
     public MinioClient minioClient() {
         return MinioClient.builder()
-                .endpoint(endpoint)
-                .credentials(accessKey, secretKey)
+                .endpoint(minioProperties.getEndpoint())
+                .credentials(minioProperties.getAccessKey(), minioProperties.getSecretKey())
                 .build();
     }
 }
