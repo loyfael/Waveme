@@ -2,15 +2,18 @@ package fr.waveme.backend.crud.service.impl;
 
 import fr.waveme.backend.crud.service.MinioService;
 import io.minio.*;
+import io.minio.http.Method;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
 
+@Service
 public class MinioServiceImpl implements MinioService {
     private final MinioClient minioClient;
 
+    @Autowired
     public MinioServiceImpl(MinioClient minioClient) {
         this.minioClient = minioClient;
     }
@@ -56,12 +59,14 @@ public class MinioServiceImpl implements MinioService {
     }
 
     // Génère une URL pour télécharger un fichier
-    private String getFileUrl(String bucketName, String objectName) throws Exception {
+    public String getFileUrl(String bucketName, String objectName) throws Exception {
+        // Générer une URL pré-signée (valide pendant 7 jours)
         return minioClient.getPresignedObjectUrl(
-                PresignedGetObjectArgs.builder()
+                GetPresignedObjectUrlArgs.builder()
                         .bucket(bucketName)
                         .object(objectName)
-                        .expiry(7, TimeUnit.DAYS) // URL valide pendant 7 jours
+                        .method(Method.GET) // Méthode HTTP pour accéder à l'objet
+                        .expiry(7 * 24 * 60 * 60) // Expiration de l'URL en secondes (7 jours ici)
                         .build()
         );
     }

@@ -33,4 +33,14 @@ public interface MinioService {
      * @throws Exception if an error occurs during bucket creation
      */
     void createBucket(String bucketName) throws Exception;
+
+    /**
+     * Get file url
+     *
+     * @param bucketName
+     * @param objectName
+     * @return
+     * @throws Exception
+     */
+    String getFileUrl(String bucketName, String objectName) throws Exception;
 }

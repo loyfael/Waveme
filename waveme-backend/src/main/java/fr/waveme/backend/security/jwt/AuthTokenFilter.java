@@ -3,6 +3,7 @@ package fr.waveme.backend.security.jwt;
 import fr.waveme.backend.security.services.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -30,30 +31,13 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String path = request.getServletPath();
-        logger.info("Processing request for path: {}", path);
-
-        // Ignorer les routes publiques comme /api/auth/register
-        if (path.equals("/api/auth/register") || path.equals("/register")) {
-            logger.info("Skipping AuthTokenFilter for public path: {}", path);
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if (path.equals("/api/auth/login") || path.equals("/login")) {
-            logger.info("Skipping AuthTokenFilter for public path: {}", path);
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         try {
+            // Extrait le JWT soit de l'en-tête, soit des cookies
             String jwt = parseJwt(request);
-            logger.info("JWT extracted: {}", jwt != null ? "Found" : "Not found");
-
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
-                logger.info("JWT is valid. Username extracted: {}", username);
 
+                // Charge les détails de l'utilisateur et configure le contexte de sécurité
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                 UsernamePasswordAuthenticationToken authentication =
@@ -66,23 +50,38 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                logger.info("User authenticated: {}", username);
+                logger.info("Authentication set for user: {}", username);
             }
         } catch (Exception e) {
-            logger.error("Cannot set user authentication: {}", e);
+            logger.error("Cannot set user authentication: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * Extrait le JWT de l'en-tête Authorization ou des cookies.
+     *
+     * @param request Requête HTTP entrante
+     * @return Le JWT extrait ou null
+     */
     private String parseJwt(HttpServletRequest request) {
+        // Priorité à l'en-tête Authorization
         String headerAuth = request.getHeader("Authorization");
         if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
-            logger.info("JWT found in Authorization header");
             return headerAuth.substring(7);
         }
 
-        logger.info("No JWT in Authorization header, checking cookies");
-        return jwtUtils.getJwtFromCookies(request);
+        // Recherche dans les cookies si aucun JWT n'est trouvé dans l'en-tête
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) { // Nom du cookie contenant le token JWT
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        return null; // Aucun token trouvé
     }
 }

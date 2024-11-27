@@ -28,85 +28,45 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 public class WebSecurityConfig {
 
     @Autowired
-    UserDetailsServiceImpl userDetailsService;
+    private UserDetailsServiceImpl userDetailsService;
 
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
 
-    /**
-     * Bean pour créer un filtre JWT personnalisé qui sera exécuté sur chaque requête.
-     *
-     * @return Instance d'`AuthTokenFilter`
-     */
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
     }
 
-    /**
-     * Fournisseur d'authentification basé sur la base de données, qui utilise le `UserDetailsServiceImpl`
-     * pour charger les utilisateurs et `BCryptPasswordEncoder` pour encoder les mots de passe.
-     *
-     * @return Instance de `DaoAuthenticationProvider` configurée
-     */
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService); // Utilise le service de gestion d'utilisateurs
-        authProvider.setPasswordEncoder(passwordEncoder()); // Utilise BCrypt pour encoder les mots de passe
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
-    /**
-     * Fournit un `AuthenticationManager`, utilisé par Spring Security pour la gestion des authentifications.
-     *
-     * @param authConfig Configuration d'authentification injectée
-     * @return Instance d'`AuthenticationManager`
-     * @throws Exception En cas de problème de configuration
-     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
-    /**
-     * Déclare l'encodeur de mot de passe à utiliser, ici `BCryptPasswordEncoder'.
-     *
-     * @return Instance de `PasswordEncoder` configurée
-     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Configure la chaîne de filtres de sécurité avec les règles de gestion des sessions,
-     * des CORS, des autorisations et des gestionnaires d'exception.
-     *
-     * @param http Objet de configuration `HttpSecurity`
-     * @return Instance de `SecurityFilterChain`
-     * @throws Exception En cas de problème de configuration
-     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable) // Désactive la protection CSRF pour simplifier les requêtes API
-
-                // Gestion des exceptions : utilise `AuthEntryPointJwt` pour gérer les accès non autorisés
+        http.csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-
-                // Politique de session : défini comme sans état (STATELESS) pour les APIs REST
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // Configuration des autorisations d'accès aux routes
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/api/auth/register", "/api/auth/login").permitAll() // Autorise l'accès à /register
-                                .anyRequest().authenticated() // Nécessite une authentification pour toutes les autres routes
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll() // Routes publiques pour l'authentification
+                        .anyRequest().authenticated() // Toutes les autres routes nécessitent une authentification
                 );
 
-        // Associe le fournisseur d'authentification à Spring Security
         http.authenticationProvider(authenticationProvider());
-
-        // Ajoute le filtre JWT pour vérifier la présence d'un jeton avant que la requête atteigne les contrôleurs
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
