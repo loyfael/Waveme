@@ -7,40 +7,20 @@ import java.io.InputStream;
 public interface MinioService {
 
     /**
-     * Upload a file to the specified bucket in MinIO.
+     * Upload an image to MinIO.
      *
      * @param file       the file to upload
-     * @param bucketName the bucket to store the file
-     * @return the public URL of the uploaded file
-     * @throws Exception if an error occurs during upload
+     * @param bucketName the bucket name
+     * @return the name of the object stored
      */
-    String uploadImage(MultipartFile file, String bucketName) throws Exception;
+    String uploadImage(MultipartFile file, String bucketName);
 
     /**
-     * Get an InputStream for a file in the specified bucket.
+     * Download an image from MinIO.
      *
-     * @param bucketName the bucket containing the file
-     * @param objectName the name of the file
-     * @return an InputStream for the file
-     * @throws Exception if an error occurs during retrieval
+     * @param bucketName the bucket name
+     * @param objectName the name of the object to fetch
+     * @return the InputStream of the fetched object
      */
-    InputStream getImage(String bucketName, String objectName) throws Exception;
-
-    /**
-     * Create a bucket in MinIO if it does not exist.
-     *
-     * @param bucketName the name of the bucket to create
-     * @throws Exception if an error occurs during bucket creation
-     */
-    void createBucket(String bucketName) throws Exception;
-
-    /**
-     * Get file url
-     *
-     * @param bucketName
-     * @param objectName
-     * @return
-     * @throws Exception
-     */
-    String getFileUrl(String bucketName, String objectName) throws Exception;
+    InputStream downloadImage(String bucketName, String objectName);
 }

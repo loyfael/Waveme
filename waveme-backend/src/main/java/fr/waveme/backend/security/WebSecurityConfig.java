@@ -63,6 +63,7 @@ public class WebSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() // Routes publiques pour l'authentification
+                        .requestMatchers("/api/posts/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated() // Toutes les autres routes nécessitent une authentification
                 );
 
