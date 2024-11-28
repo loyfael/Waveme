@@ -1,5 +1,6 @@
 package fr.waveme.backend.crud.service;
 
+import fr.waveme.backend.crud.models.Post;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
@@ -13,7 +14,7 @@ public interface MinioService {
      * @param bucketName the bucket name
      * @return the name of the object stored
      */
-    String uploadImage(MultipartFile file, String bucketName);
+    String uploadImage(MultipartFile file, String bucketName, Post post);
 
     /**
      * Download an image from MinIO.
