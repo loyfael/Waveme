@@ -31,9 +31,8 @@ public class PostController {
             @RequestParam("bucket") String bucketName) {
         try {
             // Vérifiez si le fichier est reçu
-            if (file.isEmpty()) {
-                logger.warn("No file received in the request");
-                return ResponseEntity.status(400).body("File is missing or empty.");
+            if (file == null || file.isEmpty()) {
+                return ResponseEntity.badRequest().body("File is missing");
             }
             logger.info("Received file: {}, bucket: {}", file.getOriginalFilename(), bucketName);
 
@@ -51,15 +50,15 @@ public class PostController {
      * Endpoint pour récupérer une URL pré-signée pour une image.
      *
      * @param bucketName nom du bucket contenant l'image
-     * @param objectName nom de l'image
+     * @param file nom de l'image
      * @return URL pré-signée de l'image
      */
     @GetMapping("/image-url")
     public ResponseEntity<String> getPostImageUrl(
             @RequestParam("bucket") String bucketName,
-            @RequestParam("object") String objectName) {
+            @RequestParam("object") MultipartFile file) {
         try {
-            String url = minioService.getFileUrl(bucketName, objectName);
+            String url = minioService.uploadImage(file, bucketName);
             return ResponseEntity.ok(url);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
