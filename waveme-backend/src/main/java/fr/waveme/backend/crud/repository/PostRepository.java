@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findByImageUrl(String imageUrl);
+    Optional<Post> findByImageUrlContaining(String partOfImageUrl);
 }

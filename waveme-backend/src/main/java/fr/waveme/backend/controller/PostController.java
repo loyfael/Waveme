@@ -40,11 +40,12 @@ public class PostController {
      */
     @PostMapping("/upload-image")
     public ResponseEntity<String> uploadPostImage(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("bucket") String bucketName,
-            @RequestParam("userId") Long userId,
-            @RequestParam("description") String description)
+                @RequestParam("file") MultipartFile file,
+                @RequestParam("bucket") String bucketName,
+                @RequestParam("userId") Long userId,
+                @RequestParam("description") String description)
             {
+
         try {
             // Vérifiez si le fichier est reçu
             if (file == null || file.isEmpty()) {
@@ -79,29 +80,24 @@ public class PostController {
      */
     @GetMapping("/image-url")
     public ResponseEntity<byte[]> downloadImage(
-            @RequestParam("imageUrl") String imageUrl)
-    {
+            @RequestParam("objectName") String objectName,
+            @RequestParam("bucket") String bucketName) {
         try {
-            // Vérifiez si le post avec l'URL existe
-            Post post = postRepository.findByImageUrl(imageUrl)
-                    .orElseThrow(() -> new RuntimeException("Post with the specified image URL not found"));
-
-            // Extraire le bucket et l'objectName à partir de l'URL
-            String bucketName = "your-bucket-name"; // Remplacez par le bucket approprié
-            String objectName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1); // Exemple de découpe de l'URL
+            // Vérifiez si un post avec ce nom de fichier existe
+            Post post = postRepository.findByImageUrlContaining(objectName)
+                    .orElseThrow(() -> new RuntimeException("Post with the specified object name not found"));
 
             // Télécharger l'image depuis MinIO
             InputStream inputStream = minioService.downloadImage(bucketName, objectName);
             byte[] imageBytes = inputStream.readAllBytes();
 
-            // Renvoyer l'image en tant que réponse
+            // Renvoyer l'image
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + objectName + "\"")
-                    .contentType(MediaType.IMAGE_JPEG) // Remplacez par le type MIME correct si nécessaire
+                    .contentType(MediaType.IMAGE_JPEG) // Ajustez selon le type réel
                     .body(imageBytes);
-
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null); // Gérez l'erreur de manière appropriée
+            return ResponseEntity.status(500).body(null); // Gérez l'erreur
         }
     }
 }
