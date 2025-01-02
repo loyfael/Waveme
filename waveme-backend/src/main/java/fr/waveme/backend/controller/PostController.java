@@ -35,7 +35,6 @@ public class PostController {
      *
      * @param file       fichier à uploader
      * @param bucketName nom du bucket où stocker l'image
-     * @param userId
      * @return URL de l'image uploadée
      */
     @PostMapping("/upload-image")
@@ -75,7 +74,7 @@ public class PostController {
     /**
      * Endpoint pour récupérer une URL pré-signée pour une image.
      *
-     * @param imageUrl URL de l'image
+     * @param bucketName URL de l'image
      * @return URL pré-signée de l'image
      */
     @GetMapping("/image-url")
