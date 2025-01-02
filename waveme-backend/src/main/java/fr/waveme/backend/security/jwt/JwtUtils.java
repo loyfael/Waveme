@@ -2,6 +2,8 @@ package fr.waveme.backend.security.jwt;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import fr.waveme.backend.security.services.UserDetailsImpl;
 import io.jsonwebtoken.*;
@@ -14,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
@@ -46,68 +49,60 @@ public class JwtUtils {
      * @return Valeur du JWT, ou `null` si le cookie n'est pas présent
      */
     public String getJwtFromCookies(HttpServletRequest request) {
-        Cookie cookie = WebUtils.getCookie(request, jwtCookie);
-        if (cookie != null) {
-            return cookie.getValue();
-        } else {
+        try {
+            Cookie cookie = WebUtils.getCookie(request, jwtCookie);
+            if (cookie != null) {
+                return cookie.getValue();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("Error extracting JWT from cookies: {}", e.getMessage());
             return null;
         }
     }
 
-    /**
-     * Génère un cookie contenant un JWT à partir des informations de l'utilisateur.
-     *
-     * @param userPrincipal Détails de l'utilisateur authentifié
-     * @return Cookie contenant le JWT
-     */
     public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
-        String jwt = generateTokenFromUsername(userPrincipal.getUsername());
-        ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt)
-                .path("/api") // Chemin de validité du cookie
-                .maxAge(24 * 60 * 60) // Durée de vie du cookie en secondes (24 heures)
-                .httpOnly(true) // Empêche l'accès au cookie depuis le JavaScript côté client
-                .build();
-        return cookie;
+        try {
+            if (userPrincipal == null) {
+                return getCleanJwtCookie();
+            }
+            String jwt = generateTokenFromUsername(userPrincipal.getUsername());
+            return ResponseCookie.from(jwtCookie, jwt).path("/api").maxAge(24 * 60 * 60).httpOnly(true).build();
+        } catch (Exception e) {
+            logger.error("Error generating JWT cookie: {}", e.getMessage());
+            return getCleanJwtCookie();
+        }
     }
 
-    /**
-     * Crée un cookie "propre" sans jeton, utile pour la déconnexion.
-     *
-     * @return Cookie sans valeur de jeton pour effacer le JWT existant
-     */
     public ResponseCookie getCleanJwtCookie() {
-        ResponseCookie cookie = ResponseCookie.from(jwtCookie, null)
-                .path("/api") // Même chemin que le cookie JWT
-                .build();
-        return cookie;
+        try {
+            return ResponseCookie.from(jwtCookie, "")
+                    .path("/api")
+                    .maxAge(0) // Set maxAge to 0 to delete the cookie
+                    .httpOnly(true) // Ensure the cookie is HTTP only
+                    .build();
+        } catch (Exception e) {
+            logger.error("Error generating clean JWT cookie: {}", e.getMessage());
+        }
+
+        return null;
     }
 
-    /**
-     * Extrait le nom d'utilisateur du JWT.
-     *
-     * @param token Jeton JWT
-     * @return Nom d'utilisateur contenu dans le jeton
-     */
     public String getUserNameFromJwtToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(key()).build()
-                .parseClaimsJws(token).getBody().getSubject();
+        try {
+            return Jwts.parserBuilder().setSigningKey(key()).build()
+                    .parseClaimsJws(token).getBody().getSubject();
+        } catch (Exception e) {
+            logger.error("Error extracting username from JWT token: {}", e.getMessage());
+            return null;
+        }
     }
 
-    /**
-     * Génère la clé de signature pour le JWT en utilisant le secret configuré.
-     *
-     * @return Clé de signature HMAC
-     */
     private Key key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-    /**
-     * Valide le JWT en vérifiant sa signature et son expiration.
-     *
-     * @param authToken Jeton JWT à valider
-     * @return `true` si le jeton est valide, `false` sinon
-     */
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
@@ -125,18 +120,12 @@ public class JwtUtils {
         return false;
     }
 
-    /**
-     * Génère un jeton JWT à partir d'un nom d'utilisateur.
-     *
-     * @param username Nom d'utilisateur
-     * @return Jeton JWT signé
-     */
     public String generateTokenFromUsername(String username) {
         return Jwts.builder()
-                .setSubject(username) // Associe le nom d'utilisateur au jeton
-                .setIssuedAt(new Date()) // Date de création du jeton
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs)) // Date d'expiration du jeton
-                .signWith(key(), SignatureAlgorithm.HS512) // Signature HMAC avec SHA-512
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(key(), SignatureAlgorithm.HS512)
                 .compact();
     }
 }
