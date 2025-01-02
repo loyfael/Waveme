@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,60 +29,35 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
             throws ServletException, IOException {
-
         try {
-            // Extrait le JWT soit de l'en-tête, soit des cookies
+            // on recupere le JWT de la requete
             String jwt = parseJwt(request);
+            // s'il est present et valide
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+                // on recup son username (on pourrait recup son ID si besoin)
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
-
-                // Charge les détails de l'utilisateur et configure le contexte de sécurité
+                // on utilise la classe qui va bien pour recup l'user associé
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
+                // On créé un UsernamePasswordAuthentificationToken qui va verifier directement la validité du user
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
+                        new UsernamePasswordAuthenticationToken(userDetails,
                                 null,
-                                userDetails.getAuthorities()
-                        );
-
+                                userDetails.getAuthorities());
+                // on construit l'objet qui représente l'authentification dans spring secu
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
+                // On le place dans le contexte (sorte de session) pour l'utiliser plus loin dans le code (si on est loggé?)
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                logger.info("Authentication set for user: {}", username);
             }
         } catch (Exception e) {
-            logger.error("Cannot set user authentication: {}", e.getMessage());
+            logger.error("Cannot set user authentication: ", e);
         }
-
+        // On renvoi la requête.
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * Extrait le JWT de l'en-tête Authorization ou des cookies.
-     *
-     * @param request Requête HTTP entrante
-     * @return Le JWT extrait ou null
-     */
     private String parseJwt(HttpServletRequest request) {
-        // Priorité à l'en-tête Authorization
-        String headerAuth = request.getHeader("Authorization");
-        if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7);
-        }
-
-        // Recherche dans les cookies si aucun JWT n'est trouvé dans l'en-tête
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("jwt".equals(cookie.getName())) { // Nom du cookie contenant le token JWT
-                    return cookie.getValue();
-                }
-            }
-        }
-
-        return null; // Aucun token trouvé
+        return jwtUtils.getJwtFromCookies(request);
     }
 }
