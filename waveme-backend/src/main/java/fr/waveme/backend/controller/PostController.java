@@ -6,12 +6,14 @@ import fr.waveme.backend.crud.repository.PostRepository;
 import fr.waveme.backend.crud.repository.UserRepository;
 import fr.waveme.backend.crud.service.MinioService;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.InputStream;
 
@@ -42,14 +44,15 @@ public class PostController {
                 @RequestParam("file") MultipartFile file,
                 @RequestParam("bucket") String bucketName,
                 @RequestParam("userId") Long userId,
-                @RequestParam("description") String description)
-            {
-
+                @RequestParam("description") String description
+    )
+    {
         try {
             // Vérifiez si le fichier est reçu
             if (file == null || file.isEmpty()) {
                 return ResponseEntity.badRequest().body("File is missing");
             }
+
             logger.info("Received file: {}, bucket: {}", file.getOriginalFilename(), bucketName);
 
             User user = userRepository.findById(userId)
@@ -64,6 +67,7 @@ public class PostController {
             // Appelle le service pour uploader l'image
             String url = minioService.uploadImage(file, bucketName, post);
             logger.info("File uploaded successfully to MinIO. URL: {}", url);
+
             return ResponseEntity.ok(url);
         } catch (Exception e) {
             logger.error("Error during file upload: {}", e.getMessage(), e);
@@ -82,21 +86,20 @@ public class PostController {
             @RequestParam("objectName") String objectName,
             @RequestParam("bucket") String bucketName) {
         try {
-            // Vérifiez si un post avec ce nom de fichier existe
             Post post = postRepository.findByImageUrlContaining(objectName)
-                    .orElseThrow(() -> new RuntimeException("Post with the specified object name not found"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
 
-            // Télécharger l'image depuis MinIO
-            InputStream inputStream = minioService.downloadImage(bucketName, objectName);
-            byte[] imageBytes = inputStream.readAllBytes();
-
-            // Renvoyer l'image
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + objectName + "\"")
-                    .contentType(MediaType.IMAGE_JPEG) // Ajustez selon le type réel
-                    .body(imageBytes);
+            try (InputStream inputStream = minioService.downloadImage(bucketName, objectName)) {
+                byte[] imageBytes = inputStream.readAllBytes();
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + objectName + "\"")
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(imageBytes);
+            }
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null); // Gérez l'erreur
+            logger.error("Error during image download: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
         }
     }
 }
