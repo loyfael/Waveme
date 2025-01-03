@@ -34,10 +34,10 @@ public class UserDetailsImpl implements UserDetails {
 
     // Mot de passe de l'utilisateur, annoté avec @JsonIgnore pour être exclu des sérialisations JSON
     @JsonIgnore
-    private String password;
+    private final String password;
 
     // Collection des autorisations de l'utilisateur (ex. : rôles), nécessaires pour Spring Security
-    private Collection<? extends GrantedAuthority> authorities;
+    private final Collection<? extends GrantedAuthority> authorities;
 
     /**
      * Constructeur de `UserDetailsImpl` pour initialiser toutes les informations d'utilisateur.
@@ -48,7 +48,13 @@ public class UserDetailsImpl implements UserDetails {
      * @param password    Mot de passe de l'utilisateur
      * @param authorities Collection des autorisations de l'utilisateur
      */
-    public UserDetailsImpl(Long id, String username, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    public UserDetailsImpl(
+            Long id,
+            String username,
+            String email,
+            String password,
+            Collection<? extends GrantedAuthority> authorities
+    ) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -66,9 +72,16 @@ public class UserDetailsImpl implements UserDetails {
     public static UserDetailsImpl build(User user) {
         // Convertit les rôles en `SimpleGrantedAuthority` pour chaque rôle
         List<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                 .collect(Collectors.toList());
-        return new UserDetailsImpl(user.getId(), user.getPseudo(), user.getEmail(), user.getPassword(), authorities);
+
+        return new UserDetailsImpl(
+                user.getId(),
+                user.getPseudo(),
+                user.getEmail(),
+                user.getPassword(),
+                authorities
+        );
     }
 
     /**
