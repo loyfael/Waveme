@@ -1,39 +1,91 @@
 # Waveme Project
 
-Waveme est une application de réseau social axée sur le partage de memes. Elle se compose d'un frontend React Native utilisant Expo et d'un backend Java Spring Boot avec PostgreSQL comme base de données. Le projet est conteneurisé à l'aide de Docker et orchestré avec Docker Compose.
+Waveme is a social networking application focused on memes sharing. It consists of a React Native frontend using Expo and a Spring Boot Java backend with PostgreSQL as database. The project is containerized using Docker and orchestrated with Docker Compose.
 
 ## LIENS UTILES
 - [FIGMA](https://www.figma.com/design/Y2lEnBAA5OJLVWoeQz6Ptd/Waveme?node-id=0-1&node-type=canvas&t=GhNvvwdEAVWkzJTs-0)
 
 ## Architecture
 ### `archives`
-Contient les archives du projet précédent (à retirer prochainement)
+Contain all archives (à retirer prochainement)
 ### `waveme-app`
-Contient l'application frontend du projet en React Native x Expo.
+Frontend project: React Native x Expo.
 ### `waveme-backend`
-Contient l'application backend du projet en Java 21 & Spring Boot.
-### `command`
-Contient les commandes shells utile du projet.
-- `clean.sh` Permet d'entièrement reset le projet sur docker.
--  `restart.sh` Permet de redémarrer le projet.
+Backend project: Java 21 & Spring Boot.
 
-## Prérequis
+## Dependencies
 - [Docker](https://www.docker.com/get-started) installé sur votre machine.
 - [Docker Compose](https://docs.docker.com/compose/install/) installé sur votre machine.
 - [Git](https://git-scm.com/downloads) installé sur votre machine.
 
 ## Get started !
-1. (Demandez l'accès) Clonez le projet `git clone https://github.com/loisdps/Waveme.git`
+1. Clone `git clone https://github.com/loisdps/Waveme.git`
 2. Une fois que c'est fait, à l'aide du docker-compose.template effectuez votre docker-compose.yml et remplissez
 les différents identifiants présents à l'intérieur.
-3. Une fois que docker et docker-compose sont installés sur votre machine, allez au path du dossier `command` et exécutez `./restart.sh`.
-Le script va build l'ensemble des conteneurs. Si besoin plus tard vous pouvez utiliser `clean.sh` pour reset le projet.
-> [!NOTE]
-> Pour l'application frontend, le build peut être long. Veuillez patienter ~ 5 minutes.
-4. Une fois que tout à été build, connectez vous à pgadmin à http://localhost:5050 avec les identifiants que vous avez fourni.
-Créez une base de données en appuyant sur "add new server".
-- Nommez la bdd exactement pareil que vous l'avez nommé dans le docker-compose.yml
-- Pour le host, mettez le nom du conteneur `postgres`. Docker prendra directement l'adresse ip de Postgres.
-*Documentation à finir.*
 
-### Vous êtes désormais prêt(e) !
+### Backend
+1. Once the containers have been launched, the backend is logically switched off, as it has no database or configuration. You need to create a application.properties and fill them.
+2. Once this has been done, launch pgadmin at http://localhost:5050/, then log in with the credentials present in docker-compose.yml.
+3. Once in pgadmin, click on create a server. Name this server `waveme`.
+- Get the machine's IP with an `ipconfig` :warning: get the first one!
+- Enter the IP in pgadmin.
+- Set credentials. Write “admin” in the role.
+4. The database is now created. You now need to run the backend once to create the tables.
+5. Now go to the “role” table on pgadmin and execute this query:
+```sql
+INSERT INTO role (name) VALUES ('ROLE_USER');
+INSERT INTO role (name) VALUES ('ROLE_MODERATOR');
+INSERT INTO role (name) VALUES ('ROLE_ADMIN');
+```
+6. The database is now ready. We now need to set up postman. In postman, communication with the backend will always be http://localhost:8080/api/otherRoute.
+For example, the registration route will always be http://localhost:8080/api/auth/register.
+
+To register a first user, you don't need to authenticate, just fill in the body field:
+```json
+{
+    "pseudo": "test",
+    "email": "test@test.com",
+    "password": "teeeeeeeeeeeeeeeeeeest",
+    "role": "ROLE_USER"
+}
+```
+7. Run the query, and you should get a response of 200. If you check the bdd, the row has been created.
+8. Authentication is required to browse the backend (except for login and register routes).
+
+**Register**
+- Route: http://localhost:8080/api/auth/register
+- Body:
+```
+{
+    "pseudo": "test",
+    "email": "test@test.com",
+    "password": "teeeeeeeeeeeeeeeeeeest",
+        "role": "ROLE_USER"
+}
+```
+
+**Login**
+- Route: http://localhost:8080/api/auth/login
+- Body:
+```
+{
+    "pseudo": "test",
+    "password": "teeeeeeeeeeeeeeeeeeest"
+}
+```
+Good? Now get the cookie and use it for your other request.
+
+9. How upload a file?
+- Login
+- Retrieve the cookie.
+- Put the cookie in auth -> BearerToken -> Insert in token field and the prefix will be jwtCookie
+- For the body, do as shown on the screen
+![image](https://github.com/user-attachments/assets/25a822d9-55a4-47b8-b073-c8d63c6c6141)
+
+
+### Frontend
+1. Go to the project and run `npm i` to install the dependencies. (Why doesn't this already work via docker? I've no idea).
+2. Go to the URL https://localhost:3000
+3. Finish
+
+### You're ready !
