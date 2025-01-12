@@ -3,7 +3,7 @@
 Waveme is a social networking application focused on memes sharing. It consists of a React Native frontend using Expo and a Spring Boot Java backend with PostgreSQL as database. The project is containerized using Docker and orchestrated with Docker Compose.
 
 > [!WARNING]
-> This plugin is part of a student project and is provided as-is. While every effort has been made to ensure its functionality, the authors cannot be held responsible for any critical issues, bugs, or problems encountered while using the project.
+> This project is part of a student project and is provided as-is. While every effort has been made to ensure its functionality, the authors cannot be held responsible for any critical issues, bugs, or problems encountered while using the project.
 
 ## LIENS UTILES
 - [FIGMA](https://www.figma.com/design/Y2lEnBAA5OJLVWoeQz6Ptd/Waveme?node-id=0-1&node-type=canvas&t=GhNvvwdEAVWkzJTs-0)
