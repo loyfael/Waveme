@@ -12,14 +12,8 @@ import { hexToRgbString } from '@/utils/convert';
 import { useWebTitle } from '@/hooks/useWebTitle';
 import { useAnimatedButton } from '@/hooks/useAnimatedButton';
 import { fadeButtonToClicked, fadeButtonToIdle } from '@/utils/animateButton';
-
-// NOTE: When connection with backend is established, change all ImageSourcePropType to string (URIs)
-type Post = {
-  title: string | null,
-  meme: ImageSourcePropType,
-  userName: string,
-  userPfp: ImageSourcePropType | null,
-}
+import { Post } from '@/types';
+import { memeStyle } from '@/constants/commonStyles';
 
 export default function HomeScreen() {
   useWebTitle('Accueil - Waveme')
@@ -54,20 +48,26 @@ export default function HomeScreen() {
     setPosts([{
       title: 'Hilarant.',
       meme: require('@/assets/images/meme.png'),
-      userName: 'Beiten34',
-      userPfp: require('@/assets/images/pfp.png'),
+      user: {
+        userName: 'Beiten34',
+        userPfp: require('@/assets/images/pfp.png'),
+      }
     },
     {
       title: 'Repost si tu trouves ça hilarant hahaha trodrol quoi terrible quest-ce que je fais de ma vie jecris littéralement un gros texte pour tester ce que ça donne avec un gros texte et jai la flemme de mettre des backslash du coup je mets juste pas dapostrophe et jai limpression de pas savoir écrire lolool',
       meme: require('@/assets/images/meme.png'),
-      userName: 'Beiten34',
-      userPfp: require('@/assets/images/pfp.png'),
+      user: {
+        userName: 'Beiten34',
+        userPfp: require('@/assets/images/pfp.png'),
+      }
     },
     {
       title: 'Hilarant.',
       meme: require('@/assets/images/meme.png'),
-      userName: 'Beiten34',
-      userPfp: require('@/assets/images/pfp.png'),
+      user: {
+        userName: 'Beiten34',
+        userPfp: require('@/assets/images/pfp.png'),
+      }
     }]);
   }, []);
 
@@ -76,11 +76,11 @@ export default function HomeScreen() {
       {posts.map((post: Post, index: number) => (
         <ThemedView key={index} style={styles.postWrapper}>
           <View style={styles.postProfile}>
-            {post.userPfp ? (
-              <Image source={post.userPfp} style={styles.profilePicture} />
+            {post.user.userPfp ? (
+              <Image source={post.user.userPfp} style={styles.profilePicture} />
             ) : null}
             <View style={styles.profileText}>
-              <ThemedText type="defaultBold">{post.userName}</ThemedText>
+              <ThemedText type="defaultBold">{post.user.userName}</ThemedText>
               {post.title ? (
                 <ThemedText>{post.title}</ThemedText>
               ) : ''}
@@ -133,83 +133,4 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  postWrapper: {
-    flexDirection: 'column',
-    marginTop: 50,
-  },
-
-  postProfile: {
-    flexDirection: 'row',
-  },
-
-  profilePicture: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    overflow: 'hidden',
-    marginEnd: 5,
-  },
-
-  profileText: {
-    flexDirection: 'column',
-    flex: 1,
-    flexWrap: 'wrap',
-  },
-
-  postMeme: {
-    flexDirection: 'column',
-  },
-
-  memeImage: {
-    alignItems: 'center',
-    height: 500,
-    width: '100%',
-    marginTop: 10,
-    overflow: 'hidden',
-    borderTopStartRadius: 24,
-    borderTopEndRadius: 24,
-  },
-
-  memeActionBar: {
-    height: 48,
-    backgroundColor: Colors.common.memeActionBar,
-    borderBottomStartRadius: 24,
-    borderBottomEndRadius: 24,
-    flexDirection: 'row',
-  },
-
-  barLeft: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-
-  barRight: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-
-  barButton: {
-    backgroundColor: Colors.common.barButton,
-    borderRadius: 24,
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 6,
-  },
-
-  barButtonPressed: {
-    backgroundColor: Colors.common.memeActionBar,
-    borderRadius: 24,
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 6,
-  },
-});
+const styles = memeStyle;

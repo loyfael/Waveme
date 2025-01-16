@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import React from "react";
 import { TextInput, TextInputProps, StyleSheet, Platform } from "react-native";
@@ -22,9 +23,9 @@ export function ThemedTextInput({
       // Ignore this error, it's lying to your face (code works as intended)
       Platform.OS === 'web' ? { outlineStyle: 'none' } : {}
     ]}
-    autoCorrect={false}
-    placeholderTextColor="#666"
-    {...rest}
+      autoCorrect={false}
+      placeholderTextColor={Colors.common.placeholderTextColor}
+      {...rest}
     />
   )
 }

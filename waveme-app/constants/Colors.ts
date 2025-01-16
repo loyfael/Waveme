@@ -18,6 +18,7 @@ export const Colors = {
   common: {
     memeActionBar: '#2C2C2C',
     genericButtonPressed: '#5F5F5F',
+    placeholderTextColor: '#666666',
     barButton: '#D0D0D0',
     upvote: '#DDDD22',
     downvote: '#8040D0',
