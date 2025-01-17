@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 @RestController
@@ -41,12 +42,11 @@ public class PostController {
      */
     @PostMapping("/upload-image")
     public ResponseEntity<String> uploadPostImage(
-                @RequestParam("file") MultipartFile file,
-                @RequestParam("bucket") String bucketName,
-                @RequestParam("userId") Long userId,
-                @RequestParam("description") String description
-    )
-    {
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("bucket") String bucketName,
+            @RequestParam("userId") Long userId,
+            @RequestParam("description") String description
+    ) {
         try {
             // Vérifiez si le fichier est reçu
             if (file == null || file.isEmpty()) {
@@ -56,7 +56,7 @@ public class PostController {
             logger.info("Received file: {}, bucket: {}", file.getOriginalFilename(), bucketName);
 
             User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
             Post post = new Post();
             post.setUser(user);
@@ -71,7 +71,8 @@ public class PostController {
             return ResponseEntity.ok(url);
         } catch (Exception e) {
             logger.error("Error during file upload: {}", e.getMessage(), e);
-            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error during file upload: " + e.getMessage());
         }
     }
 
@@ -84,9 +85,11 @@ public class PostController {
     @GetMapping("/image-url")
     public ResponseEntity<byte[]> downloadImage(
             @RequestParam("objectName") String objectName,
-            @RequestParam("bucket") String bucketName) {
+            @RequestParam("bucket") String bucketName
+    )
+    {
         try {
-            Post post = postRepository.findByImageUrlContaining(objectName)
+            postRepository.findByImageUrlContaining(objectName)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
 
             try (InputStream inputStream = minioService.downloadImage(bucketName, objectName)) {
@@ -95,11 +98,13 @@ public class PostController {
                         .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + objectName + "\"")
                         .contentType(MediaType.IMAGE_JPEG)
                         .body(imageBytes);
+            } catch (Exception e) {
+                logger.error("Error during image download: {}", e.getMessage(), e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(("Error during image download: " + e.getMessage()).getBytes());
             }
-        } catch (Exception e) {
-            logger.error("Error during image download: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
         }
     }
 }
