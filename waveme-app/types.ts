@@ -8,7 +8,7 @@ export type SignupCredentials = {
 }
 
 export type LoginCredentials = {
-  username: string,
+  pseudo: string,
   password: string,
 }
 

@@ -15,7 +15,7 @@ export default function Login() {
 
   const router = useRouter()
 
-  const [credentials, setCredentials] = useState<LoginCredentials>({ username: '', password: '' })
+  const [credentials, setCredentials] = useState<LoginCredentials>({ pseudo: '', password: '' })
   const [invalidTooltip, setInvalidTooltip] = useState<InvalidTooltip>({ display: false, field: '', message: '' })
 
   const handleLogin = (): void => {
@@ -25,7 +25,7 @@ export default function Login() {
       return
     }
 
-    const response = authenticate(credentials)
+    const response = authenticate(credentials)    
   }
 
   return (
@@ -33,8 +33,8 @@ export default function Login() {
       <View style={styles.connectionField}>
         <InvalidFieldTooltip field="username" tooltip={invalidTooltip} setTooltip={setInvalidTooltip}>
           <ThemedTextInput
-            value={credentials.username}
-            onChangeText={(value) => { setCredentials({ ...credentials, username: value }) }}
+            value={credentials.pseudo}
+            onChangeText={(value) => { setCredentials({ ...credentials, pseudo: value }) }}
             autoComplete="username"
             placeholder="Pseudo"
             autoFocus

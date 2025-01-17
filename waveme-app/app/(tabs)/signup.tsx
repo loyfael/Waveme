@@ -41,7 +41,6 @@ export default function Signup() {
     }
 
     const response = await signup(credentials).catch((error) => console.log(error))
-    console.log(response);
   }
 
   const handleSignup = () => { }
