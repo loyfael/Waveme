@@ -15,6 +15,7 @@ export const Colors = {
     areaBackground: '#BFBFBF',
     tooltipBackground: '#CFCFCF',
   },
+  // Specific colors used the same in both modes
   common: {
     memeActionBar: '#2C2C2C',
     genericButtonPressed: '#5F5F5F',

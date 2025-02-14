@@ -8,6 +8,8 @@ export type ThemedViewProps = ViewProps & {
   darkColor?: string;
 };
 
+// View component with coloring
+// Using <View> for DOM layout is fine if a parent component is already a <ThemedView>
 export function ThemedView({ style, lightColor, darkColor, ...otherProps }: ThemedViewProps) {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 

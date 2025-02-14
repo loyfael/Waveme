@@ -1,5 +1,8 @@
 import { Animated } from 'react-native'
 
+// Logic to properly animate the buttons on tap/click
+// See hooks/useAnimatedButton to create the animation
+
 export const fadeButtonToClicked = (backgroundToAnimate: Animated.Value, duration: number = 0) => {
   Animated.timing(backgroundToAnimate, {
     toValue: 1,

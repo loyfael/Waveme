@@ -8,6 +8,7 @@ export type ThemedTextInputProps = TextInputProps & {
   darkColor?: string;
 }
 
+// Generic input type text
 export function ThemedTextInput({
   style,
   lightColor,

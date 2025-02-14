@@ -1,14 +1,17 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "./Colors";
 
+// Add stylesheets here if they are recurrent in two or more different components/pages
+
 export const memeStyle = StyleSheet.create({
   postWrapper: {
     flexDirection: 'column',
-    marginTop: 50,
+    marginTop: 40,
   },
 
   postProfile: {
     flexDirection: 'row',
+    marginTop: 5,
   },
 
   profilePicture: {

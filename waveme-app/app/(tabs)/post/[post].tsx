@@ -26,9 +26,11 @@ export default function PostScreen() {
   }
 
   type Comment = Message & {
+    hasReplies: boolean,
     replies: Message[],
   }
 
+  const textColor = useThemeColor({}, 'text')
   const { postId } = useLocalSearchParams()
   const [post, setPost] = useState<Post | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
@@ -74,6 +76,7 @@ export default function PostScreen() {
           userName: "heyeah",
           userPfp: require('@/assets/images/pfp.png'),
         },
+        hasReplies: true,
         replies: [],
       },
       {
@@ -83,7 +86,35 @@ export default function PostScreen() {
           userName: "heyeah2",
           userPfp: require('@/assets/images/pfp.png'),
         },
+        hasReplies: false,
         replies: [],
+      },
+      {
+        id: 3,
+        message: "J'avoue peut-être",
+        user: {
+          userName: "heyeah3",
+          userPfp: require('@/assets/images/pfp.png'),
+        },
+        hasReplies: true,
+        replies: [
+          {
+            id: 1,
+            message: "Tu as tort",
+            user: {
+              userName: "hater",
+              userPfp: require('@/assets/images/pfp.png'),
+            },
+          },
+          {
+            id: 2,
+            message: "Tu as taure",
+            user: {
+              userName: "hater2",
+              userPfp: require('@/assets/images/pfp.png'),
+            },
+          }
+        ],
       }
     ])
   }, [postId])
@@ -171,20 +202,25 @@ export default function PostScreen() {
                     </View>
                   </View>
                   {comment.replies.length > 0 ? (
-                    <View>
+                    <View style={{ ...styles.repliesContainer, borderLeftColor: textColor }}>
                       {comment.replies.map((reply, replyKey) => (
-                        <View key={replyKey}>
-                          <Image source={reply.user.userPfp} />
-                          <ThemedText>{reply.user.userName}</ThemedText>
-                          <ThemedText>{reply.message}</ThemedText>
+                        <View key={replyKey} style={styles.postProfile}>
+                          <Image source={reply.user.userPfp} style={styles.profilePicture} />
+                          <View style={styles.profileText}>
+                            <ThemedText type="defaultBold">{reply.user.userName}</ThemedText>
+                            <View style={{ ...styles.commentContainer, backgroundColor: areaBackgroundColor }}>
+                              <ThemedText style={styles.commentOverride}>{reply.message}</ThemedText>
+                            </View>
+                          </View>
                         </View>
                       ))}
                     </View>
-                  ) : (
-                    <Pressable onPress={() => { handleViewReplies(comment.id) }}>
-                      <ThemedText style={styles.viewReplies}>Voir les réponses</ThemedText>
-                    </Pressable>
-                  )}
+                  ) :
+                    comment.hasReplies ? (
+                      <Pressable onPress={() => { handleViewReplies(comment.id) }}>
+                        <ThemedText style={styles.viewReplies}>Voir les réponses</ThemedText>
+                      </Pressable>
+                    ) : (<></>)}
                 </View>
               ))}
             </View>
@@ -228,7 +264,7 @@ const localStyles = StyleSheet.create({
 
   commentContainer: {
     maxWidth: 750,
-    padding: 10,
+    padding: 8,
     alignSelf: 'flex-start',
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
@@ -237,6 +273,18 @@ const localStyles = StyleSheet.create({
 
   commentOverride: {
     color: Colors.common.placeholderTextColor,
+  },
+
+  repliesContainer: {
+    marginLeft: 5,
+    paddingLeft: 15,
+    borderLeftWidth: 1,
+    borderBottomLeftRadius: 30,
+  },
+
+  // Override for memeStyle.postWrapper
+  postWrapper: {
+    marginTop: 15,
   },
 
   viewReplies: {

@@ -1,5 +1,7 @@
 import { ImageSourcePropType } from "react-native"
 
+// Add types used throughout multiple files here
+
 export type SignupCredentials = {
   username: string,
   email: string,
@@ -18,7 +20,7 @@ export type InvalidTooltip = {
   message: string,
 }
 
-// NOTE: When connection with backend is established, change all ImageSourcePropType to string (URIs)
+// TODO: When connection with backend is established, change all ImageSourcePropType to string (URIs)
 export type Post = {
   title: string | null,
   meme: ImageSourcePropType,
