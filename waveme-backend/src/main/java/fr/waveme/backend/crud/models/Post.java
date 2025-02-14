@@ -34,6 +34,9 @@ public class Post {
     @Column(name = "description")
     private String description;
 
+    @Column(name ="shorturl", unique = true)
+    private String shortUrl;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

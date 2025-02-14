@@ -3,6 +3,9 @@ package fr.waveme.backend.crud.mapper;
 
 import fr.waveme.backend.crud.dto.CommentDto;
 import fr.waveme.backend.crud.models.Comment;
+import fr.waveme.backend.crud.models.Reply;
+
+import java.util.stream.Collectors;
 
 public class CommentMapper {
     public static CommentDto mapToCommentDto(Comment comment) {
@@ -11,7 +14,10 @@ public class CommentMapper {
                 comment.getUserId(),
                 comment.getUpVote(),
                 comment.getDownVote(),
-                comment.getDescription()
+                comment.getDescription(),
+                comment.getReply().stream()
+                        .map(Reply::getId)
+                        .collect(Collectors.toSet())
         );
     }
 

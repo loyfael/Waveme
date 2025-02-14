@@ -5,6 +5,7 @@ import fr.waveme.backend.crud.models.User;
 import fr.waveme.backend.crud.repository.PostRepository;
 import fr.waveme.backend.crud.repository.UserRepository;
 import fr.waveme.backend.crud.service.MinioService;
+import fr.waveme.backend.utils.UrlShorter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -68,7 +69,11 @@ public class PostController {
             String url = minioService.uploadImage(file, bucketName, post);
             logger.info("File uploaded successfully to MinIO. URL: {}", url);
 
-            return ResponseEntity.ok(url);
+            // Generate short url
+            UrlShorter urlShorter = new UrlShorter();
+            String shortUrl = urlShorter.generateShortUrl(url);
+
+            return ResponseEntity.ok(shortUrl);
         } catch (Exception e) {
             logger.error("Error during file upload: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -82,7 +87,7 @@ public class PostController {
      * @param bucketName URL de l'image
      * @return URL pré-signée de l'image
      */
-    @GetMapping("/image-url")
+    @GetMapping("/download-image")
     public ResponseEntity<byte[]> downloadImage(
             @RequestParam("objectName") String objectName,
             @RequestParam("bucket") String bucketName

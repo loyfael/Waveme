@@ -5,17 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Set;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentDto {
+public class ReplyDto {
     private Long id;
     private String userId;
     private Integer upVote;
     private Integer downVote;
     private String description;
-    private Set<Long> replyIds;
 }
