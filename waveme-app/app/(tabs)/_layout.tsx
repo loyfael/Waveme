@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { StyleSheet, Image, ScrollView, Pressable, Modal, ImageSourcePropType, CursorValue, View, Switch, Appearance, Animated } from 'react-native';
-import { Slot, usePathname } from 'expo-router';
+import React, { useContext, useEffect, useState } from 'react';
+import { StyleSheet, Image, ScrollView, Pressable, Modal, ImageSourcePropType, CursorValue, View, Switch, Animated } from 'react-native';
+import { Slot, usePathname, useRouter } from 'expo-router';
 import { ThemedView } from '@/components/theme/ThemedView';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { PencilFill } from 'react-bootstrap-icons';
@@ -8,7 +8,6 @@ import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/theme/ThemedText';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { ThemeContext } from '@/context/ThemeContext';
-import { hexToRgbString } from '@/utils/convert';
 import { fadeButtonToClicked, fadeButtonToIdle } from '@/utils/animateButton';
 import { useAnimatedButton } from '@/hooks/useAnimatedButton';
 
@@ -21,6 +20,7 @@ export default function TabLayout() {
   const textColor = useThemeColor({}, 'text')
   const backgroundColor = useThemeColor({}, 'background')
 
+  const router = useRouter()
   const pathname = usePathname()
   const connectionRoutes = ['/login', '/signup']
 
@@ -31,9 +31,9 @@ export default function TabLayout() {
 
   const AnimatedButton = Animated.createAnimatedComponent(Pressable)
 
-  const { animatedButton: logoutButton,  backgroundColor: logoutBackgroundColor } = useAnimatedButton({
-    idleColor: hexToRgbString(backgroundColor),
-    clickedColor: hexToRgbString(Colors.common.genericButtonPressed)
+  const { animatedButton: logoutButton, backgroundColor: logoutBackgroundColor } = useAnimatedButton({
+    idleColor: backgroundColor,
+    clickedColor: Colors.common.genericButtonPressed
   })
 
   if (connectionRoutes.includes(pathname)) {
@@ -47,7 +47,9 @@ export default function TabLayout() {
   return (
     <ThemedView style={styles.wrapper}>
       <ThemedView style={styles.leftColumn}>
-        <Image source={require('@/assets/images/waveme.png')} style={styles.logo} />
+        <Pressable style={styles.logo} onPress={() => {router.push("/")}}>
+          <Image source={require('@/assets/images/waveme.png')} style={styles.logo} />
+        </Pressable>
       </ThemedView>
       <ScrollView style={styles.main} showsVerticalScrollIndicator={false}>
         <Slot />
@@ -94,7 +96,7 @@ export default function TabLayout() {
               <AnimatedButton
                 onPressIn={() => fadeButtonToClicked(logoutButton)}
                 onPressOut={() => fadeButtonToIdle(logoutButton, 250)}
-                onPress={() => { }}
+                onPress={() => { router.push("/login") }}
                 style={{ ...styles.logout, backgroundColor: logoutBackgroundColor }}>
                 <MaterialIcons name="logout" size={36} color={textColor} />
               </AnimatedButton>

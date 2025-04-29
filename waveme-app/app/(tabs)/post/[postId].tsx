@@ -3,54 +3,44 @@ import { ThemedView } from "@/components/theme/ThemedView";
 import { Colors } from "@/constants/Colors";
 import { useWebTitle } from "@/hooks/useWebTitle";
 import { fadeButtonToClicked, fadeButtonToIdle } from "@/utils/animateButton";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Animated, StyleSheet, View, Image, Pressable } from 'react-native'
-import { Post, UserInfo } from "@/types";
+import { Comment, Post } from "@/types";
 import { memeStyle } from "@/constants/commonStyles";
-import { hexToRgbString } from "@/utils/convert";
 import { useAnimatedButton } from "@/hooks/useAnimatedButton";
 import Entypo from "@expo/vector-icons/Entypo";
 import { BiSolidDownArrowAlt, BiSolidUpArrowAlt } from "react-icons/bi";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedTextInput } from "@/components/theme/ThemedTextInput";
 import { IoSend } from "react-icons/io5";
+import { Loading } from "@/components/Loading";
 
 export default function PostScreen() {
-  useWebTitle('Post de user - Waveme')
+  useWebTitle('Post de user')
 
-  type Message = {
-    id: number,
-    message: string,
-    user: UserInfo,
-  }
-
-  type Comment = Message & {
-    hasReplies: boolean,
-    replies: Message[],
-  }
-
+  const router = useRouter()
   const textColor = useThemeColor({}, 'text')
   const { postId } = useLocalSearchParams()
   const [post, setPost] = useState<Post | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
-  const [input, setInput] = useState<string>('')
+  const [input, setInput] = useState('')
 
   const AnimatedButton = Animated.createAnimatedComponent(Pressable)
 
   const { animatedButton: animatedButton1, backgroundColor: backgroundColor1 } = useAnimatedButton({
-    idleColor: hexToRgbString(Colors.common.barButton),
-    clickedColor: hexToRgbString(Colors.common.genericButtonPressed)
+    idleColor: Colors.common.barButton,
+    clickedColor: Colors.common.genericButtonPressed
   })
 
   const { animatedButton: animatedButton2, backgroundColor: backgroundColor2 } = useAnimatedButton({
-    idleColor: hexToRgbString(Colors.common.barButton),
-    clickedColor: hexToRgbString(Colors.common.upvote)
+    idleColor: Colors.common.barButton,
+    clickedColor: Colors.common.upvote
   })
 
   const { animatedButton: animatedButton3, backgroundColor: backgroundColor3 } = useAnimatedButton({
-    idleColor: hexToRgbString(Colors.common.barButton),
-    clickedColor: hexToRgbString(Colors.common.downvote)
+    idleColor: Colors.common.barButton,
+    clickedColor: Colors.common.downvote
   })
 
   const areaBackgroundColor = useThemeColor({}, 'areaBackground')
@@ -60,9 +50,11 @@ export default function PostScreen() {
   useEffect(() => {
     // TODO: API call
     setPost({
+      id: 34,
       title: 'Hilarant.',
       meme: require('@/assets/images/meme.png'),
       user: {
+        id: 1,
         userName: 'Beiten34',
         userPfp: require('@/assets/images/pfp.png'),
       }
@@ -73,26 +65,31 @@ export default function PostScreen() {
         id: 1,
         message: "J'avoue",
         user: {
+          id: 2,
           userName: "heyeah",
           userPfp: require('@/assets/images/pfp.png'),
         },
         hasReplies: true,
         replies: [],
+        upvotes: 12,
       },
       {
         id: 2,
         message: "J'avoue pas",
         user: {
+          id: 3,
           userName: "heyeah2",
           userPfp: require('@/assets/images/pfp.png'),
         },
         hasReplies: false,
         replies: [],
+        upvotes: -5,
       },
       {
         id: 3,
         message: "J'avoue peut-être",
         user: {
+          id: 4,
           userName: "heyeah3",
           userPfp: require('@/assets/images/pfp.png'),
         },
@@ -102,6 +99,7 @@ export default function PostScreen() {
             id: 1,
             message: "Tu as tort",
             user: {
+              id: 5,
               userName: "hater",
               userPfp: require('@/assets/images/pfp.png'),
             },
@@ -110,11 +108,13 @@ export default function PostScreen() {
             id: 2,
             message: "Tu as taure",
             user: {
+              id: 6,
               userName: "hater2",
               userPfp: require('@/assets/images/pfp.png'),
             },
           }
         ],
+        upvotes: 0,
       }
     ])
   }, [postId])
@@ -127,10 +127,14 @@ export default function PostScreen() {
           <ThemedView style={styles.postWrapper}>
             <View style={styles.postProfile}>
               {post.user.userPfp ? (
-                <Image source={post.user.userPfp} style={styles.profilePicture} />
+                <Pressable onPress={() => { router.push(`/user/${"23"/*TODO: Post user id*/}`) }}>
+                  <Image source={post.user.userPfp} style={styles.profilePicture} />
+                </Pressable>
               ) : null}
               <View style={styles.profileText}>
-                <ThemedText type="defaultBold">{post.user.userName}</ThemedText>
+                <Pressable onPress={() => { router.push(`/user/${"23"/*TODO: Post user id*/}`) }}>
+                  <ThemedText type="defaultBold">{post.user.userName}</ThemedText>
+                </Pressable>
                 {post.title ? (
                   <ThemedText>{post.title}</ThemedText>
                 ) : ''}
@@ -193,9 +197,13 @@ export default function PostScreen() {
               {comments.map((comment, commentKey) => (
                 <View key={commentKey} style={styles.postWrapper}>
                   <View style={styles.postProfile}>
-                    <Image source={comment.user.userPfp} style={styles.profilePicture} />
+                    <Pressable onPress={() => { router.push(`/user/${"23"/*TODO: Post user id*/}`) }}>
+                      <Image source={comment.user.userPfp} style={styles.profilePicture} />
+                    </Pressable>
                     <View style={styles.profileText}>
-                      <ThemedText type="defaultBold">{comment.user.userName}</ThemedText>
+                      <Pressable onPress={() => { router.push(`/user/${"23"/*TODO: Post user id*/}`) }}>
+                        <ThemedText type="defaultBold">{comment.user.userName}</ThemedText>
+                      </Pressable>
                       <View style={{ ...styles.commentContainer, backgroundColor: areaBackgroundColor }}>
                         <ThemedText style={styles.commentOverride}>{comment.message}</ThemedText>
                       </View>
@@ -205,9 +213,13 @@ export default function PostScreen() {
                     <View style={{ ...styles.repliesContainer, borderLeftColor: textColor }}>
                       {comment.replies.map((reply, replyKey) => (
                         <View key={replyKey} style={styles.postProfile}>
-                          <Image source={reply.user.userPfp} style={styles.profilePicture} />
+                          <Pressable onPress={() => { router.push(`/user/${"23"/*TODO: Post user id*/}`) }}>
+                            <Image source={reply.user.userPfp} style={styles.profilePicture} />
+                          </Pressable>
                           <View style={styles.profileText}>
-                            <ThemedText type="defaultBold">{reply.user.userName}</ThemedText>
+                            <Pressable onPress={() => { router.push(`/user/${"23"/*TODO: Post user id*/}`) }}>
+                              <ThemedText type="defaultBold">{reply.user.userName}</ThemedText>
+                            </Pressable>
                             <View style={{ ...styles.commentContainer, backgroundColor: areaBackgroundColor }}>
                               <ThemedText style={styles.commentOverride}>{reply.message}</ThemedText>
                             </View>
@@ -226,17 +238,12 @@ export default function PostScreen() {
             </View>
           </ThemedView>
         </>
-      ) : (<ThemedText type="title" style={styles.loading}>Chargement...</ThemedText>)}
+      ) : (<Loading />)}
     </>
   )
 }
 
 const localStyles = StyleSheet.create({
-  loading: {
-    textAlign: 'center',
-    marginTop: 75,
-  },
-
   comments: {
     flex: 1,
     flexDirection: 'column',

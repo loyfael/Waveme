@@ -84,3 +84,23 @@ export const memeStyle = StyleSheet.create({
     marginHorizontal: 6,
   },
 })
+
+export const authStyle = StyleSheet.create({
+  connectionField: {
+    marginTop: 15,
+    width: 250,
+  },
+
+  loginButton: {
+    backgroundColor: Colors.common.button,
+    paddingHorizontal: 25,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 5,
+    cursor: "pointer",
+  },
+
+  loginButtonText: {
+    color: 'white',
+  },
+})

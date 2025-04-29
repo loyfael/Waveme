@@ -11,16 +11,8 @@ export function useThemeColor(
   props: { light?: string; dark?: string },
   colorName: keyof typeof Colors.light & keyof typeof Colors.dark
 ) {
-  const [theme, setTheme] = useState<keyof typeof props>('light')
-
   const { isDarkMode } = useContext(ThemeContext)
-
-  useEffect(() => {
-    const handleAsync = async () => {
-      setTheme(isDarkMode ? 'dark' : 'light')
-    }
-    handleAsync()
-  })
+  const theme: keyof typeof props = isDarkMode ? 'dark' : 'light';
 
   const colorFromProps = props[theme];
 
