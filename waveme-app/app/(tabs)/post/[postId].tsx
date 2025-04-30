@@ -15,16 +15,21 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedTextInput } from "@/components/theme/ThemedTextInput";
 import { IoSend } from "react-icons/io5";
 import { Loading } from "@/components/Loading";
+import ReportModal from "@/components/ReportModal";
 
 export default function PostScreen() {
   useWebTitle('Post de user')
 
   const router = useRouter()
   const textColor = useThemeColor({}, 'text')
-  const { postId } = useLocalSearchParams()
+  const { postId } = useLocalSearchParams<{ postId: string }>()
   const [post, setPost] = useState<Post | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
   const [input, setInput] = useState('')
+  const [reportModalOpen, setReportModalOpen] = useState(false)
+  const [reportedContent, setReportedContent] = useState<"post" | "comment">("post")
+  const [reportedUser, setReportedUser] = useState("")
+  const [reportedMessage, setReportedMessage] = useState<string | null>(null)
 
   const AnimatedButton = Animated.createAnimatedComponent(Pressable)
 
@@ -44,6 +49,17 @@ export default function PostScreen() {
   })
 
   const areaBackgroundColor = useThemeColor({}, 'areaBackground')
+
+  const handleOpenReportModal = (
+    contentType: "post" | "comment",
+    userName: string,
+    message: string | null = null,
+  ) => {
+    setReportedContent(contentType)
+    setReportedUser(userName)
+    setReportedMessage(message)
+    setReportModalOpen(true)
+  }
 
   const handleViewReplies = (commentId: number) => { }
 
@@ -147,7 +163,7 @@ export default function PostScreen() {
                   <AnimatedButton
                     onPressIn={() => fadeButtonToClicked(animatedButton1)}
                     onPressOut={() => fadeButtonToIdle(animatedButton1)}
-                    onPress={() => { }}>
+                    onPress={() => { handleOpenReportModal("post", post.user.userName, post.title) }}>
                     <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor1 }}>
                       <Entypo name="flag" size={36} color={Colors.common.memeActionBar} />
                     </Animated.View>
@@ -195,7 +211,7 @@ export default function PostScreen() {
             </View>
             <View>
               {comments.map((comment, commentKey) => (
-                <View key={commentKey} style={styles.postWrapper}>
+                <View key={commentKey} style={styles.commentWrapper}>
                   <View style={styles.postProfile}>
                     <Pressable onPress={() => { router.push(`/user/${"23"/*TODO: Post user id*/}`) }}>
                       <Image source={comment.user.userPfp} style={styles.profilePicture} />
@@ -237,6 +253,15 @@ export default function PostScreen() {
               ))}
             </View>
           </ThemedView>
+
+          <ReportModal
+            visible={reportModalOpen}
+            setVisible={setReportModalOpen}
+            reportedContent={reportedContent}
+            userName={reportedUser}
+            id={postId}
+            message={reportedMessage}
+          />
         </>
       ) : (<Loading />)}
     </>
@@ -289,8 +314,7 @@ const localStyles = StyleSheet.create({
     borderBottomLeftRadius: 30,
   },
 
-  // Override for memeStyle.postWrapper
-  postWrapper: {
+  commentWrapper: {
     marginTop: 15,
   },
 

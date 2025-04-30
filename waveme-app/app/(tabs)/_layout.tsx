@@ -10,6 +10,7 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { ThemeContext } from '@/context/ThemeContext';
 import { fadeButtonToClicked, fadeButtonToIdle } from '@/utils/animateButton';
 import { useAnimatedButton } from '@/hooks/useAnimatedButton';
+import { modalContainerStyle } from '@/constants/commonStyles';
 
 export default function TabLayout() {
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false)
@@ -63,8 +64,9 @@ export default function TabLayout() {
           )}
         </Pressable>
       </ThemedView>
+
       {/* Profile modal */}
-      <Modal visible={showProfileModal} transparent={true} animationType='fade' onRequestClose={() => setShowProfileModal(false)}>
+      <Modal visible={showProfileModal} transparent animationType="fade" onRequestClose={() => setShowProfileModal(false)}>
         <Pressable style={{ ...styles.centeredModalView, ...styles.modalCursorOverride }} onPress={() => setShowProfileModal(false)}>
           <Pressable style={styles.modalCursorOverride}>
             <ThemedView style={styles.modalView}>
@@ -108,7 +110,7 @@ export default function TabLayout() {
   );
 }
 
-const styles = StyleSheet.create({
+const localStyles = StyleSheet.create({
   wrapper: {
     flex: 1,
     flexDirection: 'row',
@@ -156,18 +158,6 @@ const styles = StyleSheet.create({
   main: {
     flex: 6,
     flexGrow: 6,
-  },
-
-  centeredModalView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#0005',
-  },
-
-
-  modalCursorOverride: {
-    cursor: 'default' as unknown as CursorValue,
   },
 
   modalView: {
@@ -234,3 +224,5 @@ const styles = StyleSheet.create({
     borderRadius: 26,
   },
 })
+
+const styles = { ...localStyles, ...modalContainerStyle }

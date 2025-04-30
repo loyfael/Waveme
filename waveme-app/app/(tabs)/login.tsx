@@ -1,15 +1,14 @@
 import { InvalidFieldTooltip } from "@/components/InvalidFieldTooltip";
 import { ThemedText } from "@/components/theme/ThemedText";
 import { ThemedTextInput } from "@/components/theme/ThemedTextInput";
-import { Colors } from "@/constants/Colors";
-import { authStyle } from "@/constants/commonStyles";
+import { authStyle, genericButtonStyle } from "@/constants/commonStyles";
 import { useWebTitle } from "@/hooks/useWebTitle";
 import { authenticate } from "@/services/AuthAPI";
 import { InvalidTooltip, LoginCredentials } from "@/types";
 import { getMissingFields } from "@/utils/formChecks";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Pressable, TouchableOpacity, View } from "react-native";
 
 export default function Login() {
   useWebTitle('Connexion')
@@ -26,7 +25,7 @@ export default function Login() {
       return
     }
 
-    const response = authenticate(credentials)    
+    const response = authenticate(credentials)
   }
 
   return (
@@ -58,11 +57,11 @@ export default function Login() {
       <Pressable onPress={() => { router.push('/signup') }}>
         <ThemedText type="link">Pas de compte ? Cliquez ici !</ThemedText>
       </Pressable>
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <ThemedText type="defaultBold" style={styles.loginButtonText}>CONNEXION</ThemedText>
+      <TouchableOpacity style={styles.genericButton} onPress={handleLogin}>
+        <ThemedText type="defaultBold" style={styles.genericButtonText}>CONNEXION</ThemedText>
       </TouchableOpacity>
     </>
   )
 }
 
-const styles = authStyle
+const styles = { ...authStyle, ...genericButtonStyle }

@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { CursorValue, StyleSheet } from "react-native";
 import { Colors } from "./Colors";
 
 // Add stylesheets here if they are recurrent in two or more different components/pages
@@ -90,8 +90,10 @@ export const authStyle = StyleSheet.create({
     marginTop: 15,
     width: 250,
   },
+})
 
-  loginButton: {
+export const genericButtonStyle = StyleSheet.create({
+  genericButton: {
     backgroundColor: Colors.common.button,
     paddingHorizontal: 25,
     paddingVertical: 8,
@@ -100,7 +102,20 @@ export const authStyle = StyleSheet.create({
     cursor: "pointer",
   },
 
-  loginButtonText: {
+  genericButtonText: {
     color: 'white',
+  },
+})
+
+export const modalContainerStyle = StyleSheet.create({
+  centeredModalView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#0005',
+  },
+
+  modalCursorOverride: {
+    cursor: 'default' as unknown as CursorValue,
   },
 })
