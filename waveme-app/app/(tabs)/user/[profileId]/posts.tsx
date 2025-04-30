@@ -1,16 +1,20 @@
-import { useState, useEffect } from 'react'
-import React from 'react';
-import { useWebTitle } from '@/hooks/useWebTitle';
-import { Post } from '@/types';
-import PostList from '@/components/PostList';
+import PostList from "@/components/PostList"
+import UserActivityHeader from "@/components/UserActivityHeader"
+import { useWebTitle } from "@/hooks/useWebTitle"
+import { Post } from "@/types"
+import { useLocalSearchParams, useRouter } from "expo-router"
+import React, { useEffect, useState } from "react"
 
-export default function HomeScreen() {
-  useWebTitle('Accueil')
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+export default function Posts() {
+  useWebTitle("Tous les posts de user")
 
-  // NOTE: When connection with backend is established, replace with a fetch request to the correct endpoint
+  const { profileId } = useLocalSearchParams<{ profileId: string }>()
+  const [posts, setPosts] = useState<Post[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
   useEffect(() => {
+    setIsLoading(true)
+    // TODO: API call
     setPosts([{
       id: 32,
       title: 'Hilarant.',
@@ -40,13 +44,14 @@ export default function HomeScreen() {
         userName: 'Beiten34',
         userPfp: require('@/assets/images/pfp.png'),
       }
-    }]);
+    }])
     setIsLoading(false)
-  }, []);
+  }, [profileId])
 
   return (
     <>
+      <UserActivityHeader profileId={profileId} />
       <PostList isLoading={isLoading} posts={posts} />
     </>
-  );
+  )
 }

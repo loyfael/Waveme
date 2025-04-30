@@ -2,6 +2,7 @@ import { InvalidFieldTooltip } from "@/components/InvalidFieldTooltip";
 import { ThemedText } from "@/components/theme/ThemedText";
 import { ThemedTextInput } from "@/components/theme/ThemedTextInput";
 import { Colors } from "@/constants/Colors";
+import { authStyle } from "@/constants/commonStyles";
 import { useWebTitle } from "@/hooks/useWebTitle";
 import { signup } from "@/services/AuthAPI";
 import { InvalidTooltip, SignupCredentials } from "@/types";
@@ -9,10 +10,10 @@ import { getMissingFields } from "@/utils/formChecks";
 import { validate } from "email-validator";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Pressable, StyleSheet, View, Text } from 'react-native'
+import { Pressable, StyleSheet, View, Text, TouchableOpacity } from 'react-native'
 
 export default function Signup() {
-  useWebTitle('Inscription - Waveme')
+  useWebTitle('Inscription')
 
   const router = useRouter()
 
@@ -98,28 +99,11 @@ export default function Signup() {
       <Pressable onPress={() => { router.push('/login') }}>
         <ThemedText type="link">Déjà un compte ? Cliquez ici !</ThemedText>
       </Pressable>
-      <Pressable style={styles.loginButton} onPress={handleSubmit}>
+      <TouchableOpacity style={styles.loginButton} onPress={handleSubmit}>
         <ThemedText type="defaultBold" style={styles.loginButtonText}>INSCRIPTION</ThemedText>
-      </Pressable>
+      </TouchableOpacity>
     </>
   )
 }
 
-const styles = StyleSheet.create({
-  connectionField: {
-    marginTop: 15,
-    width: 250,
-  },
-
-  loginButton: {
-    backgroundColor: Colors.common.button,
-    paddingHorizontal: 25,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginTop: 5,
-  },
-
-  loginButtonText: {
-    color: 'white',
-  },
-})
+const styles = authStyle

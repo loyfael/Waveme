@@ -9,6 +9,7 @@ export type ThemedTextProps = TextProps & {
   type?: 'default' | 'title' | 'defaultBold' | 'subtitle' | 'link';
 };
 
+// Generic text component
 export function ThemedText({
   style,
   lightColor,

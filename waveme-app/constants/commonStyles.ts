@@ -1,14 +1,17 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "./Colors";
 
+// Add stylesheets here if they are recurrent in two or more different components/pages
+
 export const memeStyle = StyleSheet.create({
   postWrapper: {
     flexDirection: 'column',
-    marginTop: 50,
+    marginTop: 40,
   },
 
   postProfile: {
     flexDirection: 'row',
+    marginTop: 5,
   },
 
   profilePicture: {
@@ -79,5 +82,25 @@ export const memeStyle = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 6,
+  },
+})
+
+export const authStyle = StyleSheet.create({
+  connectionField: {
+    marginTop: 15,
+    width: 250,
+  },
+
+  loginButton: {
+    backgroundColor: Colors.common.button,
+    paddingHorizontal: 25,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 5,
+    cursor: "pointer",
+  },
+
+  loginButtonText: {
+    color: 'white',
   },
 })
