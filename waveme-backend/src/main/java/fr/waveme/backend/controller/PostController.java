@@ -1,8 +1,12 @@
 package fr.waveme.backend.controller;
 
+import fr.waveme.backend.crud.models.Comment;
 import fr.waveme.backend.crud.models.Post;
+import fr.waveme.backend.crud.models.Reply;
 import fr.waveme.backend.crud.models.User;
+import fr.waveme.backend.crud.repository.CommentRepository;
 import fr.waveme.backend.crud.repository.PostRepository;
+import fr.waveme.backend.crud.repository.ReplyRepository;
 import fr.waveme.backend.crud.repository.UserRepository;
 import fr.waveme.backend.crud.service.MinioService;
 import fr.waveme.backend.utils.UrlShorter;
@@ -27,11 +31,15 @@ public class PostController {
     private final MinioService minioService;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final ReplyRepository replyRepository;
 
-    public PostController(MinioService minioService, UserRepository userRepository, PostRepository postRepository) {
+    public PostController(MinioService minioService, UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository, ReplyRepository replyRepository) {
         this.minioService = minioService;
         this.userRepository = userRepository;
         this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
+        this.replyRepository = replyRepository;
     }
 
     /**
@@ -111,5 +119,22 @@ public class PostController {
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @PostMapping("/{postId}/comments")
+    public Comment addCommentToPost(
+            @PathVariable Long postId,
+            @RequestParam String userId,
+            @RequestParam String content
+    ) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        Comment comment = new Comment();
+        comment.setUserId(userId);
+        comment.setDescription(content);
+        comment.setPost(post);
+
+        return commentRepository.save(comment);
     }
 }
