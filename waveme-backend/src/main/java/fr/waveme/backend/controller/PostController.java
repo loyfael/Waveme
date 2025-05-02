@@ -9,6 +9,7 @@ import fr.waveme.backend.crud.repository.PostRepository;
 import fr.waveme.backend.crud.repository.ReplyRepository;
 import fr.waveme.backend.crud.repository.UserRepository;
 import fr.waveme.backend.crud.service.MinioService;
+import fr.waveme.backend.utils.RateLimiter;
 import fr.waveme.backend.utils.UrlShorter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,14 @@ public class PostController {
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
 
-    public PostController(MinioService minioService, UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository, ReplyRepository replyRepository) {
+    public PostController(
+            MinioService minioService,
+            UserRepository userRepository,
+            PostRepository postRepository,
+            CommentRepository commentRepository,
+            ReplyRepository replyRepository,
+            RateLimiter rateLimiter
+    ) {
         this.minioService = minioService;
         this.userRepository = userRepository;
         this.postRepository = postRepository;
@@ -42,22 +50,18 @@ public class PostController {
         this.replyRepository = replyRepository;
     }
 
-    /**
-     * Endpoint pour uploader une image liée à un post.
-     *
-     * @param file       fichier à uploader
-     * @param bucketName nom du bucket où stocker l'image
-     * @return URL de l'image uploadée
-     */
     @PostMapping("/upload-image")
     public ResponseEntity<String> uploadPostImage(
             @RequestParam("file") MultipartFile file,
             @RequestParam("bucket") String bucketName,
             @RequestParam("userId") Long userId,
-            @RequestParam("description") String description
+            @RequestParam("description") String description,
+            @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
     ) {
         try {
-            // Vérifiez si le fichier est reçu
+            ipAddress = ipAddress != null ? ipAddress : "unknown";
+            RateLimiter.checkRateLimit("post:" + ipAddress);
+
             if (file == null || file.isEmpty()) {
                 return ResponseEntity.badRequest().body("File is missing");
             }
@@ -73,11 +77,9 @@ public class PostController {
             post.setUpVote(0);
             post.setDownVote(0);
 
-            // Appelle le service pour uploader l'image
             String url = minioService.uploadImage(file, bucketName, post);
             logger.info("File uploaded successfully to MinIO. URL: {}", url);
 
-            // Generate short url
             UrlShorter urlShorter = new UrlShorter();
             String shortUrl = urlShorter.generateShortUrl(url);
 
@@ -89,19 +91,16 @@ public class PostController {
         }
     }
 
-    /**
-     * Endpoint pour récupérer une URL pré-signée pour une image.
-     *
-     * @param bucketName URL de l'image
-     * @return URL pré-signée de l'image
-     */
     @GetMapping("/download-image")
     public ResponseEntity<byte[]> downloadImage(
             @RequestParam("objectName") String objectName,
-            @RequestParam("bucket") String bucketName
-    )
-    {
+            @RequestParam("bucket") String bucketName,
+            @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
+    ) {
         try {
+            ipAddress = ipAddress != null ? ipAddress : "unknown";
+            RateLimiter.checkRateLimit("post:" + ipAddress);
+
             postRepository.findByImageUrlContaining(objectName)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
 
@@ -125,32 +124,56 @@ public class PostController {
     public Comment addCommentToPost(
             @PathVariable Long postId,
             @RequestParam String userId,
-            @RequestParam String content
+            @RequestParam String content,
+            @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
     ) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+        try {
+            ipAddress = ipAddress != null ? ipAddress : "unknown";
+            RateLimiter.checkRateLimit("post:" + ipAddress);
 
-        Comment comment = new Comment();
-        comment.setUserId(userId);
-        comment.setDescription(content);
-        comment.setPost(post);
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
 
-        return commentRepository.save(comment);
+            Comment comment = new Comment();
+            comment.setUserId(userId);
+            comment.setDescription(content);
+            comment.setPost(post);
+            comment.setUpVote(0);
+            comment.setDownVote(0);
+
+            return commentRepository.save(comment);
+        } catch (Exception e) {
+            logger.error("Error adding comment: {}", e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error adding comment");
+        }
+
     }
 
     @PostMapping("/comments/{commentId}/reply")
     public Reply addReplyToComment(
             @PathVariable Long commentId,
             @RequestParam String userId,
-            @RequestParam String content
+            @RequestParam String content,
+            @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
     ) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
-        Reply reply = new Reply();
+        try {
+            ipAddress = ipAddress != null ? ipAddress : "unknown";
+            RateLimiter.checkRateLimit("post:" + ipAddress);
 
-        reply.setUserId(userId);
-        reply.setDescription(content);
-        reply.setComment(comment);
-        return replyRepository.save(reply);
+            Comment comment = commentRepository.findById(commentId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+            Reply reply = new Reply();
+
+            reply.setUserId(userId);
+            reply.setDescription(content);
+            reply.setComment(comment);
+            reply.setUpVote(0);
+            reply.setDownVote(0);
+
+            return replyRepository.save(reply);
+        } catch (Exception e) {
+            logger.error("Error adding reply: {}", e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error adding reply");
+        }
     }
 }
