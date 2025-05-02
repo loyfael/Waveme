@@ -137,4 +137,20 @@ public class PostController {
 
         return commentRepository.save(comment);
     }
+
+    @PostMapping("/comments/{commentId}/reply")
+    public Reply addReplyToComment(
+            @PathVariable Long commentId,
+            @RequestParam String userId,
+            @RequestParam String content
+    ) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+        Reply reply = new Reply();
+
+        reply.setUserId(userId);
+        reply.setDescription(content);
+        reply.setComment(comment);
+        return replyRepository.save(reply);
+    }
 }
