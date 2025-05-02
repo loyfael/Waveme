@@ -176,4 +176,67 @@ public class PostController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error adding reply");
         }
     }
+
+    @PostMapping("/{postId}/vote")
+    public ResponseEntity<?> votePost(
+            @PathVariable Long postId,
+            @RequestParam boolean upvote,
+            @RequestHeader(value = "X-Forwarded-For", required = false) String clientIp
+    ) {
+        clientIp = clientIp != null ? clientIp : "unknown";
+        RateLimiter.checkRateLimit("post:" + postId + ":" + clientIp);
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        if (upvote) {
+            post.setUpVote(post.getUpVote() + 1);
+        } else {
+            post.setDownVote(post.getDownVote() + 1);
+        }
+        postRepository.save(post);
+        return ResponseEntity.ok("Vote recorded");
+    }
+
+    @PostMapping("/comments/{commentId}/vote")
+    public ResponseEntity<?> voteComment(
+            @PathVariable Long commentId,
+            @RequestParam boolean upvote,
+            @RequestHeader(value = "X-Forwarded-For", required = false) String clientIp
+    ) {
+        clientIp = clientIp != null ? clientIp : "unknown";
+        RateLimiter.checkRateLimit("comment:" + commentId + ":" + clientIp);
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+
+        if (upvote) {
+            comment.setUpVote(comment.getUpVote() + 1);
+        } else {
+            comment.setDownVote(comment.getDownVote() + 1);
+        }
+        commentRepository.save(comment);
+        return ResponseEntity.ok("Vote recorded");
+    }
+
+    @PostMapping("/replies/{replyId}/vote")
+    public ResponseEntity<?> voteReply(
+            @PathVariable Long replyId,
+            @RequestParam boolean upvote,
+            @RequestHeader(value = "X-Forwarded-For", required = false) String clientIp
+    ) {
+        clientIp = clientIp != null ? clientIp : "unknown";
+        RateLimiter.checkRateLimit("reply:" + replyId + ":" + clientIp);
+
+        Reply reply = replyRepository.findById(replyId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Reply not found"));
+
+        if (upvote) {
+            reply.setUpVote(reply.getUpVote() + 1);
+        } else {
+            reply.setDownVote(reply.getDownVote() + 1);
+        }
+        replyRepository.save(reply);
+        return ResponseEntity.ok("Vote recorded");
+    }
 }
