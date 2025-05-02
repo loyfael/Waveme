@@ -21,9 +21,7 @@ public class DataSourceConfig implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("----------Waveme backend démarré avec succès----------");
+        System.out.println("----------WAVEME BACKEND STARTED----------");
         System.out.println("URL de la datasource : " + datasourceUrl);
-        System.out.println("Nom d'utilisateur de la datasource : " + datasourceUsername);
-        System.out.println("Mot de passe de la datasource : " + datasourcePassword);
     }
 }
