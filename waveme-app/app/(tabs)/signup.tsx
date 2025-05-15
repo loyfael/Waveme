@@ -1,8 +1,7 @@
 import { InvalidFieldTooltip } from "@/components/InvalidFieldTooltip";
 import { ThemedText } from "@/components/theme/ThemedText";
 import { ThemedTextInput } from "@/components/theme/ThemedTextInput";
-import { Colors } from "@/constants/Colors";
-import { authStyle } from "@/constants/commonStyles";
+import { authStyle, genericButtonStyle } from "@/constants/commonStyles";
 import { useWebTitle } from "@/hooks/useWebTitle";
 import { signup } from "@/services/AuthAPI";
 import { InvalidTooltip, SignupCredentials } from "@/types";
@@ -10,7 +9,7 @@ import { getMissingFields } from "@/utils/formChecks";
 import { validate } from "email-validator";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Pressable, StyleSheet, View, Text, TouchableOpacity } from 'react-native'
+import { Pressable, View, TouchableOpacity } from 'react-native'
 
 export default function Signup() {
   useWebTitle('Inscription')
@@ -99,11 +98,11 @@ export default function Signup() {
       <Pressable onPress={() => { router.push('/login') }}>
         <ThemedText type="link">Déjà un compte ? Cliquez ici !</ThemedText>
       </Pressable>
-      <TouchableOpacity style={styles.loginButton} onPress={handleSubmit}>
-        <ThemedText type="defaultBold" style={styles.loginButtonText}>INSCRIPTION</ThemedText>
+      <TouchableOpacity style={styles.genericButton} onPress={handleSubmit}>
+        <ThemedText type="defaultBold" style={styles.genericButtonText}>INSCRIPTION</ThemedText>
       </TouchableOpacity>
     </>
   )
 }
 
-const styles = authStyle
+const styles = { ...authStyle, ...genericButtonStyle }

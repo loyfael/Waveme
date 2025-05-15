@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Loading } from "./Loading";
 import { ThemedView } from "./theme/ThemedView";
 import { Animated, View, Image, Pressable } from "react-native";
@@ -13,6 +13,7 @@ import { useAnimatedButton } from "@/hooks/useAnimatedButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Post } from "@/types";
 import { useRouter } from "expo-router";
+import ReportModal from "./ReportModal";
 
 type PostListProps = {
   isLoading: boolean,
@@ -21,6 +22,10 @@ type PostListProps = {
 
 export default function PostList(props: PostListProps) {
   const router = useRouter()
+  const [reportModalOpen, setReportModalOpen] = useState(false)
+  const [reportedContent, setReportedContent] = useState<"post" | "comment">("post")
+  const [reportedUser, setReportedUser] = useState("")
+  const [reportedMessage, setReportedMessage] = useState<string | null>(null)
 
   const AnimatedButton = Animated.createAnimatedComponent(Pressable)
 
@@ -46,6 +51,17 @@ export default function PostList(props: PostListProps) {
 
   const areaBackgroundColor = useThemeColor({}, 'areaBackground')
 
+  const handleOpenReportModal = (
+    contentType: "post" | "comment",
+    userName: string,
+    message: string | null = null,
+  ) => {
+    setReportedContent(contentType)
+    setReportedUser(userName)
+    setReportedMessage(message)
+    setReportModalOpen(true)
+  }
+
   return (
     <>
       {!props.isLoading ? props.posts.map((post) => (
@@ -53,12 +69,12 @@ export default function PostList(props: PostListProps) {
           {/* Profile and post title */}
           <View style={styles.postProfile}>
             {post.user.userPfp ? (
-              <Pressable onPress={() => {router.push(`/user/${"23"/*TODO: Post user id*/}`)}}>
+              <Pressable onPress={() => { router.push(`/user/${"23"/*TODO: Post user id*/}`) }}>
                 <Image source={post.user.userPfp} style={styles.profilePicture} />
               </Pressable>
             ) : null}
             <View style={styles.profileText}>
-              <Pressable onPress={() => {router.push(`/user/${"23"/*TODO: Post user id*/}`)}}>
+              <Pressable onPress={() => { router.push(`/user/${"23"/*TODO: Post user id*/}`) }}>
                 <ThemedText type="defaultBold">{post.user.userName}</ThemedText>
               </Pressable>
               {post.title ? (
@@ -74,7 +90,7 @@ export default function PostList(props: PostListProps) {
                 <AnimatedButton
                   onPressIn={() => fadeButtonToClicked(animatedButton1)}
                   onPressOut={() => fadeButtonToIdle(animatedButton1)}
-                  onPress={() => { }}>
+                  onPress={() => { handleOpenReportModal("post", post.user.userName, post.title) }}>
                   <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor1 }}>
                     <Entypo name="flag" size={36} color={Colors.common.memeActionBar} />
                   </Animated.View>
@@ -84,7 +100,7 @@ export default function PostList(props: PostListProps) {
                 <AnimatedButton
                   onPressIn={() => fadeButtonToClicked(animatedButton2)}
                   onPressOut={() => fadeButtonToIdle(animatedButton2)}
-                  onPress={() => {router.push(`/post/${"11"/*TODO: post id*/}`)}}>
+                  onPress={() => { router.push(`/post/${"11"/*TODO: post id*/}`) }}>
                   <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor2 }}>
                     <ChatDotsFill color={Colors.common.memeActionBar} size={30} />
                   </Animated.View>
@@ -108,6 +124,15 @@ export default function PostList(props: PostListProps) {
               </View>
             </View>
           </View>
+
+          <ReportModal
+            visible={reportModalOpen}
+            setVisible={setReportModalOpen}
+            reportedContent={reportedContent}
+            userName={reportedUser}
+            id={"11"/*TODO: post id*/}
+            message={reportedMessage}
+          />
         </ThemedView>
       )) : (<Loading />)}
     </>
