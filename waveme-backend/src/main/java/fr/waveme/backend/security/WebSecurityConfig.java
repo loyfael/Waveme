@@ -101,6 +101,8 @@ public class WebSecurityConfig {
             cors.setAllowedOrigins(List.of("http://localhost:3000"));
             cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             cors.setAllowedHeaders(List.of("*"));
+            // CORS permissions for authentication credentials
+            cors.setAllowCredentials(true);
             return cors;
         };
     }
