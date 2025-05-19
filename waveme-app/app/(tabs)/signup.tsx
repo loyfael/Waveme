@@ -23,6 +23,7 @@ export default function Signup() {
     confirmPassword: '',
   })
   const [invalidTooltip, setInvalidTooltip] = useState<InvalidTooltip>({ display: false, field: '', message: '' })
+  const [invalidMessage, setInvalidMessage] = useState("")
 
   const handleSubmit = async (): Promise<void> => {
     const missingFields = getMissingFields(credentials)
@@ -40,10 +41,10 @@ export default function Signup() {
       return
     }
 
-    const response = await signup(credentials).catch((error) => console.log(error))
+    await signup(credentials)
+      .then(() => router.push('/login'))
+      .catch((error) => setInvalidMessage(error.response.data.message))
   }
-
-  const handleSignup = () => { }
 
   return (
     <>
@@ -101,6 +102,9 @@ export default function Signup() {
       <TouchableOpacity style={styles.genericButton} onPress={handleSubmit}>
         <ThemedText type="defaultBold" style={styles.genericButtonText}>INSCRIPTION</ThemedText>
       </TouchableOpacity>
+      {invalidMessage && (
+        <ThemedText style={styles.invalidMessage}>{invalidMessage}</ThemedText>
+      )}
     </>
   )
 }

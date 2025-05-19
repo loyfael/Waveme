@@ -24,5 +24,6 @@ export const Colors = {
     upvote: '#DDDD22',
     downvote: '#8040D0',
     button: '#3575D4',
+    error: '#dc3545',
   },
 };

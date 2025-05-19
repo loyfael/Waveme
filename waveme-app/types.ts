@@ -2,6 +2,10 @@ import { ImageSourcePropType } from "react-native"
 
 // Add types used throughout multiple files here
 
+export type ChildrenProps = {
+  children: React.ReactNode
+}
+
 export type SignupCredentials = {
   username: string,
   email: string,
@@ -30,8 +34,10 @@ export type Post = {
 
 export type UserInfo = {
   id: number,
-  userName: string,
-  userPfp: ImageSourcePropType | undefined,
+  pseudo: string,
+  profileImg: string | null,
+  totalUpvotes: number,
+  updatedAt: string,
 }
 
 export type Message = {

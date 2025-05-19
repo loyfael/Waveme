@@ -90,6 +90,11 @@ export const authStyle = StyleSheet.create({
     marginTop: 15,
     width: 250,
   },
+
+  invalidMessage: {
+    color: Colors.common.error,
+    marginTop: 5,
+  },
 })
 
 export const genericButtonStyle = StyleSheet.create({
