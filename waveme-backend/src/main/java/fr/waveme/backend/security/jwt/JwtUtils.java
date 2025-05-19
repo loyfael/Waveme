@@ -27,27 +27,18 @@ import org.springframework.web.util.WebUtils;
 @Component
 public class JwtUtils {
 
-    // Logger pour capturer les erreurs et informations liées aux jetons JWT
+
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    // Clé secrète pour signer le JWT, injectée depuis les propriétés de configuration
     @Value("${waveme.app.jwtSecret}")
     private String jwtSecret;
 
-    // Durée de validité du JWT en millisecondes, injectée depuis les propriétés de configuration
     @Value("${waveme.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
-    // Nom du cookie où le JWT sera stocké, injecté depuis les propriétés de configuration
     @Value("${waveme.app.jwtCookieName}")
     private String jwtCookie;
 
-    /**
-     * Extrait le jeton JWT du cookie dans la requête HTTP.
-     *
-     * @param request Requête HTTP contenant le cookie
-     * @return Valeur du JWT, ou `null` si le cookie n'est pas présent
-     */
     public String getJwtFromCookies(HttpServletRequest request) {
         try {
             Cookie cookie = WebUtils.getCookie(request, jwtCookie);
@@ -67,8 +58,12 @@ public class JwtUtils {
             if (userPrincipal == null) {
                 return getCleanJwtCookie();
             }
-            String jwt = generateTokenFromUsername(userPrincipal.getUsername());
-            return ResponseCookie.from(jwtCookie, jwt).path("/api").maxAge(24 * 60 * 60).httpOnly(true).build();
+            String jwt = generateTokenFromUser(userPrincipal);
+            return ResponseCookie.from(jwtCookie, jwt)
+                    .path("/api")
+                    .maxAge(24 * 60 * 60)
+                    .httpOnly(true)
+                    .build();
         } catch (Exception e) {
             logger.error("Error generating JWT cookie: {}", e.getMessage());
             return getCleanJwtCookie();
@@ -79,8 +74,8 @@ public class JwtUtils {
         try {
             return ResponseCookie.from(jwtCookie, "")
                     .path("/api")
-                    .maxAge(0) // Set maxAge to 0 to delete the cookie
-                    .httpOnly(true) // Ensure the cookie is HTTP only
+                    .maxAge(0)
+                    .httpOnly(true)
                     .build();
         } catch (Exception e) {
             logger.error("Error generating clean JWT cookie: {}", e.getMessage());
@@ -97,10 +92,6 @@ public class JwtUtils {
             logger.error("Error extracting username from JWT token: {}", e.getMessage());
             return null;
         }
-    }
-
-    private Key key() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
     public boolean validateJwtToken(String authToken) {
@@ -127,5 +118,23 @@ public class JwtUtils {
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(key(), SignatureAlgorithm.HS512)
                 .compact();
+    }
+
+    public String generateTokenFromUser(UserDetailsImpl userPrincipal) {
+        return Jwts.builder()
+                .setSubject(userPrincipal.getUsername())
+                .claim("id", userPrincipal.getId())
+                .claim("email", userPrincipal.getEmail())
+                .claim("roles", userPrincipal.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toList()))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(key(), SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    private Key key() {
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 }
