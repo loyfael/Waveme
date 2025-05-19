@@ -40,8 +40,7 @@ public class PostController {
             UserRepository userRepository,
             PostRepository postRepository,
             CommentRepository commentRepository,
-            ReplyRepository replyRepository,
-            RateLimiter rateLimiter
+            ReplyRepository replyRepository
     ) {
         this.minioService = minioService;
         this.userRepository = userRepository;
