@@ -12,12 +12,14 @@ public class UserInfoResponse {
     private String pseudo;
     private final String email;
     private final List<String> roles;
+    private String jwtCookie;
 
-    public UserInfoResponse(Long id, String pseudo, String email, List<String> roles) {
+    public UserInfoResponse(Long id, String pseudo, String email, List<String> roles, String jwtCookie) {
         this.id = id;
         this.pseudo = pseudo;
         this.email = email;
         this.roles = roles;
+        this.jwtCookie = jwtCookie;
     }
 
     public void setUsername(String pseudo) {
