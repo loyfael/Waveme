@@ -1,6 +1,6 @@
 package fr.waveme.backend.crud.repository;
 
-import fr.waveme.backend.crud.models.ERole;
+import fr.waveme.backend.crud.models.enumerators.ERole;
 import fr.waveme.backend.crud.models.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
