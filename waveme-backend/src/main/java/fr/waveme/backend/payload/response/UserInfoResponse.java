@@ -12,7 +12,7 @@ public class UserInfoResponse {
     private String pseudo;
     private final String email;
     private final List<String> roles;
-    private String jwtCookie;
+    private final String jwtCookie;
 
     public UserInfoResponse(Long id, String pseudo, String email, List<String> roles, String jwtCookie) {
         this.id = id;
