@@ -1,6 +1,6 @@
 package fr.waveme.backend.controller;
 
-import fr.waveme.backend.crud.models.ERole;
+import fr.waveme.backend.crud.models.enumerators.ERole;
 import fr.waveme.backend.crud.models.Role;
 import fr.waveme.backend.crud.models.User;
 import fr.waveme.backend.crud.repository.RoleRepository;
@@ -89,20 +89,27 @@ public class AuthController {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+        String token = jwtUtils.generateTokenFromUser(userDetails); // méthode déjà faite dans ta JwtUtils
+        ResponseCookie jwtCookie = ResponseCookie.from(jwtUtils.getJwtCookieName(), token)
+                .path("/api")
+                .maxAge(24 * 60 * 60)
+                .httpOnly(true)
+                .build();
+
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                 .body(new UserInfoResponse(
                         userDetails.getId(),
                         userDetails.getUsername(),
                         userDetails.getEmail(),
                         roles,
-                        jwtCookie.toString())
-                );
+                        token
+                ));
     }
 
     @PostMapping("/signout")
