@@ -55,7 +55,6 @@ public class UserController {
       UserPublicDto dto = new UserPublicDto(
               user.getId(),
               user.getPseudo(),
-              user.getEmail(),
               user.getProfileImg(),
               user.getCreatedAt(),
               user.getUpdatedAt(),
