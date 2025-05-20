@@ -1,5 +1,6 @@
 package fr.waveme.backend.crud.models;
 
+import fr.waveme.backend.crud.models.enumerators.ERole;
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
