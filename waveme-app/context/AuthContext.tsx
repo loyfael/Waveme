@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/services/UserAPI";
 import { ChildrenProps, UserInfo } from "@/types";
+import { getLocalStorage } from "@/utils/localStorage";
 import axios from "axios";
 import React, { createContext, useEffect, useState } from "react";
 
@@ -19,7 +20,7 @@ export const AuthProvider = ({ children }: ChildrenProps) => {
   const [refresh, setRefresh] = useState(false)
 
   useEffect(() => {
-    const fetchCurrentUser = async () => {
+    const fetchCurrentUser = async () => {      
       if (axios.defaults.headers.common?.["Authorization"]) {
         await getCurrentUser()
           .then((res) => setUser(res.data))
@@ -30,6 +31,18 @@ export const AuthProvider = ({ children }: ChildrenProps) => {
     }
     fetchCurrentUser()
   }, [refresh])
+
+  // Set the token as header after a page reload
+  useEffect(() => {
+    const getTokenFromStorage = async () => {
+      const token = await getLocalStorage("authToken")
+      if (token) {
+        axios.defaults.headers.common["Authorization"] = token
+        reloadUser()
+      }
+    }
+    getTokenFromStorage()
+  }, [])
 
   const reloadUser = () => {
     setRefresh(!refresh)

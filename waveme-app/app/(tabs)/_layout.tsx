@@ -92,7 +92,7 @@ export default function TabLayout() {
                 </ThemedText>
                 <View style={styles.options}>
                   <ThemedText>Total d'upvotes : {user.totalUpvotes}</ThemedText>
-                  <ThemedText>Nombre de posts : 0</ThemedText>
+                  <ThemedText>Nombre de posts : {user.totalPosts}</ThemedText>
                   <View style={styles.switch}>
                     <Switch value={isDarkMode} onValueChange={setDarkMode} />
                     <ThemedText style={styles.switchLabel}>Mode sombre</ThemedText>

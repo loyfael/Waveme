@@ -1,11 +1,8 @@
 import axios from "axios";
 import { refreshAuthIfNeeded } from "./AuthToken";
-import { JwtPayload, jwtDecode } from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { USER_URL } from "@/constants/API";
-
-type JwtType = JwtPayload & {
-  id: string,
-}
+import { JwtType } from "@/types";
 
 export async function getCurrentUser() {
   return refreshAuthIfNeeded(() => {    
