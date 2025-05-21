@@ -91,6 +91,21 @@ public class JwtUtils {
         }
     }
 
+    public Long getUserIdFromJwtToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            return claims.get("id", Integer.class).longValue();
+        } catch (Exception e) {
+            logger.error("[JwtUtils] Cannot extract userId from token: {}", e.getMessage(), e);
+            return null;
+        }
+    }
+
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
