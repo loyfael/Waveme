@@ -13,7 +13,6 @@ import java.util.Set;
 @AllArgsConstructor
 public class PostDto {
     private Long id;
-    private Long userId;
     private String imageUrl;
     private Integer upVote;
     private Integer downVote;
