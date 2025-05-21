@@ -32,32 +32,41 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            // on recupere le JWT de la requete
             String jwt = parseJwt(request);
-            // s'il est present et valide
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-                // on recup son username (on pourrait recup son ID si besoin)
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
-                // on utilise la classe qui va bien pour recup l'user associé
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                // On créé un UsernamePasswordAuthentificationToken qui va verifier directement la validité du user
+
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userDetails,
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
                                 null,
-                                userDetails.getAuthorities());
-                // on construit l'objet qui représente l'authentification dans spring secu
+                                userDetails.getAuthorities()
+                        );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                // On le place dans le contexte (sorte de session) pour l'utiliser plus loin dans le code (si on est loggé?)
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                logger.debug("[AuthTokenFilter] Authenticated user '{}'", username);
+            } else {
+                logger.debug("[AuthTokenFilter] No valid JWT found in Authorization header.");
             }
         } catch (Exception e) {
-            logger.error("Cannot set user authentication: ", e);
+            logger.error("[AuthTokenFilter] Cannot set user authentication: ", e);
         }
-        // On renvoi la requête.
+
         filterChain.doFilter(request, response);
     }
 
     private String parseJwt(HttpServletRequest request) {
-        return jwtUtils.getJwtFromCookies(request);
+        String headerAuth = request.getHeader("Authorization");
+
+        if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
+            String token = headerAuth.substring(7);
+            logger.debug("[AuthTokenFilter] Found JWT in Authorization header: {}", token);
+            return token;
+        }
+
+        logger.debug("[AuthTokenFilter] No Authorization header or wrong format.");
+        return null;
     }
 }
