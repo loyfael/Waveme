@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -36,32 +38,35 @@ public class UserController {
         this.replyRepository = replyRepository;
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<UserPublicDto> getUserById(@PathVariable Long id) {
-      User user = userRepository.findById(id)
-              .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+  @GetMapping("{id}")
+  public ResponseEntity<UserPublicDto> getUserById(@PathVariable Long id) {
+    User user = userRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-      int postUpvotes = postRepository.findByUser(user).stream()
-              .mapToInt(p -> p.getUpVote() != null ? p.getUpVote() : 0).sum();
+    int postUpvotes = postRepository.findByUser(user).stream()
+            .mapToInt(p -> p.getUpVote() != null ? p.getUpVote() : 0).sum();
 
-      int commentUpvotes = commentRepository.findByUserId(user.getId().toString()).stream()
-              .mapToInt(c -> c.getUpVote() != null ? c.getUpVote() : 0).sum();
+    int commentUpvotes = commentRepository.findByUserId(user.getId().toString()).stream()
+            .mapToInt(c -> c.getUpVote() != null ? c.getUpVote() : 0).sum();
 
-      int replyUpvotes = replyRepository.findByUserId(user.getId().toString()).stream()
-              .mapToInt(r -> r.getUpVote() != null ? r.getUpVote() : 0).sum();
+    int replyUpvotes = replyRepository.findByUserId(user.getId().toString()).stream()
+            .mapToInt(r -> r.getUpVote() != null ? r.getUpVote() : 0).sum();
 
-      int totalUpvotes = postUpvotes + commentUpvotes + replyUpvotes;
+    int totalUpvotes = postUpvotes + commentUpvotes + replyUpvotes;
 
-      UserPublicDto dto = new UserPublicDto(
-              user.getId(),
-              user.getPseudo(),
-              user.getProfileImg(),
-              user.getCreatedAt(),
-              user.getUpdatedAt(),
-              totalUpvotes
-      );
+    int totalPosts = postRepository.findByUser(user).size();
 
-      return ResponseEntity.ok(dto);
 
-    }
+    UserPublicDto dto = new UserPublicDto(
+            user.getId(),
+            user.getPseudo(),
+            user.getProfileImg(),
+            totalUpvotes,
+            totalPosts,
+            user.getCreatedAt(),
+            user.getUpdatedAt()
+    );
+
+    return ResponseEntity.ok(dto);
+  }
 }
