@@ -1,57 +1,42 @@
+import { getLocalStorage, removeLocalStorage, setLocalStorage } from '@/utils/localStorage'
 import axios from 'axios'
-import {jwtDecode} from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 
 export async function isAuthenticatedByToken() {
-    // Check if there is a token
-    const token = window.localStorage.getItem('authToken')
+  // Check if there is a token
+  const token = await getLocalStorage('authToken')
+  if (token) {
     // Check if token has expired
-    if (token) {
-        const { exp: expiration } = jwtDecode(token)
-        if ((expiration ?? 0) * 1000 > new Date().getTime()) {
-            return true
-        }
+    const { exp: expiration } = jwtDecode(token)
+    if ((expiration ?? 0) * 1000 > new Date().getTime()) {
+      setAxiosToken(token)
+      return true
     }
+  }
 
-    return false
-}
-
-export function getExpirationTime() {
-    const token = window.localStorage.getItem('authToken')
-    // Check if token has expired
-    if (token) {
-        const { exp: expiration } = jwtDecode(token)
-        const diffTime: number = new Date((expiration ?? 0) * 1000).getTime() - new Date().getTime();
-        if (diffTime <= 0) return 0
-        return diffTime
-    }
-    return 0
+  return false
 }
 
 export async function refreshAuthIfNeeded(call: Function) {
-    // TODO: Check token validity
-    return call().catch(async (error: any) => {
-        if (error?.response?.status === 401 || error.code === 401) {
-            if (await isAuthenticatedByToken()) {
-                return call()
-            }
-            clearTokens()
-            window.location.href = `/${window.location.href.split('/')[3]}/login`
-            return error
-        }
+  return call().catch(async (error: any) => {
+    if (error?.response?.status === 401 || error.code === 401) {
+      if (await isAuthenticatedByToken()) {
+        return call()
+      }
+      clearTokens()
+      window.location.href = `/${window.location.href.split('/')[3]}/login`
+      return error
+    }
 
-        throw error
-    })
+    throw error
+  })
 }
 
 export function setAxiosToken(token: string) {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 }
 
-export function setupAxiosToken() {
-    setAxiosToken(window.localStorage.getItem('authToken') ?? '')
-}
-
-export function clearTokens() {
-    window.localStorage.removeItem('authToken')
-    // delete axios.defaults.headers.Authorization
+export async function clearTokens() {
+  await removeLocalStorage('authToken')
+  axios.defaults.headers.common['Authorization'] = undefined  
 }

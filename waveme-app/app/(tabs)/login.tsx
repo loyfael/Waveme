@@ -2,30 +2,38 @@ import { InvalidFieldTooltip } from "@/components/InvalidFieldTooltip";
 import { ThemedText } from "@/components/theme/ThemedText";
 import { ThemedTextInput } from "@/components/theme/ThemedTextInput";
 import { authStyle, genericButtonStyle } from "@/constants/commonStyles";
+import { AuthContext } from "@/context/AuthContext";
 import { useWebTitle } from "@/hooks/useWebTitle";
 import { authenticate } from "@/services/AuthAPI";
 import { InvalidTooltip, LoginCredentials } from "@/types";
 import { getMissingFields } from "@/utils/formChecks";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Pressable, TouchableOpacity, View } from "react-native";
 
 export default function Login() {
   useWebTitle('Connexion')
 
-  const router = useRouter()
-
   const [credentials, setCredentials] = useState<LoginCredentials>({ pseudo: '', password: '' })
   const [invalidTooltip, setInvalidTooltip] = useState<InvalidTooltip>({ display: false, field: '', message: '' })
+  const [invalidMessage, setInvalidMessage] = useState("")
 
-  const handleLogin = (): void => {
+  const router = useRouter()
+  const { reloadUser } = useContext(AuthContext)
+
+  const handleLogin = async () => {
     const missingFields = getMissingFields(credentials)
     if (missingFields.length) {
       setInvalidTooltip({ display: true, field: missingFields[0], message: 'Vous devez remplir ce champ.' })
       return
     }
 
-    const response = authenticate(credentials)
+    await authenticate(credentials)
+      .then(() => {
+        reloadUser()
+        router.push('/')
+      })
+      .catch((error) => setInvalidMessage(error.data.message))
   }
 
   return (
@@ -60,6 +68,9 @@ export default function Login() {
       <TouchableOpacity style={styles.genericButton} onPress={handleLogin}>
         <ThemedText type="defaultBold" style={styles.genericButtonText}>CONNEXION</ThemedText>
       </TouchableOpacity>
+      {invalidMessage && (
+        <ThemedText style={styles.invalidMessage}>{invalidMessage}</ThemedText>
+      )}
     </>
   )
 }

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Image, ScrollView, Pressable, Modal, ImageSourcePropType, CursorValue, View, Switch, Animated } from 'react-native';
+import { StyleSheet, Image, ScrollView, Pressable, Modal, ImageSourcePropType, View, Switch, Animated, TouchableOpacity } from 'react-native';
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { ThemedView } from '@/components/theme/ThemedView';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -10,25 +10,27 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { ThemeContext } from '@/context/ThemeContext';
 import { fadeButtonToClicked, fadeButtonToIdle } from '@/utils/animateButton';
 import { useAnimatedButton } from '@/hooks/useAnimatedButton';
-import { modalContainerStyle } from '@/constants/commonStyles';
+import { genericButtonStyle, modalContainerStyle } from '@/constants/commonStyles';
+import { AuthContext } from '@/context/AuthContext';
+import { logout } from '@/services/AuthAPI';
+import { redirectFromModal } from '@/utils/modals';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
-  const [showProfileModal, setShowProfileModal] = useState<boolean>(false)
-  const [userPfp, setUserPfp] = useState<ImageSourcePropType | null>(null)
-  const [userName, setUserName] = useState<string | null>(null)
+  const [showProfileModal, setShowProfileModal] = useState(false)
 
   const { isDarkMode, setDarkMode } = useContext(ThemeContext)
   const textColor = useThemeColor({}, 'text')
   const backgroundColor = useThemeColor({}, 'background')
-
+  const { user, reloadUser } = useContext(AuthContext)
   const router = useRouter()
   const pathname = usePathname()
   const connectionRoutes = ['/login', '/signup']
 
-  useEffect(() => {
-    setUserPfp(require('@/assets/images/pfp.png'))
-    setUserName('Beuteu34')
-  }, [])
+  const handleLogout = async () => {
+    await logout()
+    reloadUser()
+  }
 
   const AnimatedButton = Animated.createAnimatedComponent(Pressable)
 
@@ -40,6 +42,10 @@ export default function TabLayout() {
   if (connectionRoutes.includes(pathname)) {
     return (
       <ThemedView style={styles.loginWrapper}>
+        <TouchableOpacity style={styles.backToHomepageButton} onPress={() => router.push("/")}>
+          <Ionicons name="arrow-back-outline" size={32} color={textColor} />
+          <ThemedText type="defaultBold">Retourner à la page d'accueil</ThemedText>
+        </TouchableOpacity>
         <Image source={require('@/assets/images/waveme.png')} style={styles.loginLogo} />
         <Slot />
       </ThemedView>
@@ -48,7 +54,7 @@ export default function TabLayout() {
   return (
     <ThemedView style={styles.wrapper}>
       <ThemedView style={styles.leftColumn}>
-        <Pressable style={styles.logo} onPress={() => {router.push("/")}}>
+        <Pressable style={styles.logo} onPress={() => { router.push("/") }}>
           <Image source={require('@/assets/images/waveme.png')} style={styles.logo} />
         </Pressable>
       </ThemedView>
@@ -56,53 +62,63 @@ export default function TabLayout() {
         <Slot />
       </ScrollView>
       <ThemedView style={styles.rightColumn}>
-        <Pressable onPress={() => setShowProfileModal(true)}>
-          {userPfp ? (
-            <Image source={userPfp} style={styles.account} />
+        <TouchableOpacity onPress={() => setShowProfileModal(true)}>
+          {user?.profileImg ? (
+            <Image source={{ uri: user?.profileImg }} style={styles.account} />
           ) : (
             <MaterialIcons name="account-circle" size={70} color="black" style={styles.account} />
           )}
-        </Pressable>
+        </TouchableOpacity>
       </ThemedView>
 
       {/* Profile modal */}
       <Modal visible={showProfileModal} transparent animationType="fade" onRequestClose={() => setShowProfileModal(false)}>
         <Pressable style={{ ...styles.centeredModalView, ...styles.modalCursorOverride }} onPress={() => setShowProfileModal(false)}>
           <Pressable style={styles.modalCursorOverride}>
-            <ThemedView style={styles.modalView}>
-              <Pressable onPress={() => { }}>
-                {userPfp ? (
-                  <Image source={userPfp} style={styles.userPfp} />
-                ) : (
-                  <MaterialIcons name="account-circle" size={150} color="black" style={styles.account} />
-                )}
-                <View style={styles.editPfpButton}>
-                  <PencilFill color="white" size={12} />
+            {user ? (
+              <ThemedView style={{ ...styles.modalView, ...styles.connectedModalSize }}>
+                <Pressable onPress={() => { }}>
+                  {user.profileImg ? (
+                    <Image source={{ uri: user.profileImg }} style={styles.userPfp} />
+                  ) : (
+                    <MaterialIcons name="account-circle" size={150} color="black" style={styles.userPfp} />
+                  )}
+                  <View style={styles.editPfpButton}>
+                    <PencilFill color="white" size={12} />
+                  </View>
+                </Pressable>
+                <ThemedText type='title' style={{ ...styles.userName, borderBottomColor: textColor }}>
+                  {user.pseudo}
+                </ThemedText>
+                <View style={styles.options}>
+                  <ThemedText>Total d'upvotes : {user.totalUpvotes}</ThemedText>
+                  <ThemedText>Nombre de posts : 0</ThemedText>
+                  <View style={styles.switch}>
+                    <Switch value={isDarkMode} onValueChange={setDarkMode} />
+                    <ThemedText style={styles.switchLabel}>Mode sombre</ThemedText>
+                  </View>
                 </View>
-              </Pressable>
-              <ThemedText type='title' style={{ ...styles.userName, borderBottomColor: textColor }}>
-                {userName}
-              </ThemedText>
-              <View style={styles.options}>
-                <ThemedText>Total d'upvotes : 0</ThemedText>
-                <ThemedText>Total de downvotes : 0</ThemedText>
-                <ThemedText>Nombre de posts : 0</ThemedText>
-                <View style={styles.switch}>
-                  <Switch value={isDarkMode} onValueChange={setDarkMode} />
-                  <ThemedText style={styles.switchLabel}>Mode sombre</ThemedText>
+                <AnimatedButton
+                  onPressIn={() => fadeButtonToClicked(logoutButton)}
+                  onPressOut={() => fadeButtonToIdle(logoutButton, 250)}
+                  onPress={handleLogout}
+                  style={{ ...styles.logout, backgroundColor: logoutBackgroundColor }}>
+                  <MaterialIcons name="logout" size={36} color={textColor} />
+                </AnimatedButton>
+              </ThemedView>
+            ) : (
+              <ThemedView style={{ ...styles.modalView, ...styles.disconnectedModalSize }}>
+                <View style={styles.connection}>
+                  <ThemedText type="subtitle">Envie de poster ?</ThemedText>
+                  <TouchableOpacity style={styles.genericButton} onPress={() => { redirectFromModal("/login", setShowProfileModal) }}>
+                    <ThemedText type="defaultBold" style={styles.genericButtonText}>Se connecter</ThemedText>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.genericButton} onPress={() => { redirectFromModal("/signup", setShowProfileModal) }}>
+                    <ThemedText type="defaultBold" style={styles.genericButtonText}>S'inscrire</ThemedText>
+                  </TouchableOpacity>
                 </View>
-              </View>
-              <View style={styles.connection}>
-                {/* TODO: Figure out when and where to display login and signup */}
-              </View>
-              <AnimatedButton
-                onPressIn={() => fadeButtonToClicked(logoutButton)}
-                onPressOut={() => fadeButtonToIdle(logoutButton, 250)}
-                onPress={() => { router.push("/login") }}
-                style={{ ...styles.logout, backgroundColor: logoutBackgroundColor }}>
-                <MaterialIcons name="logout" size={36} color={textColor} />
-              </AnimatedButton>
-            </ThemedView>
+              </ThemedView>
+            )}
           </Pressable>
         </Pressable>
       </Modal>
@@ -121,6 +137,15 @@ const localStyles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
+  },
+
+  backToHomepageButton: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    position: "absolute",
+    top: 80,
+    left: 60,
   },
 
   leftColumn: {
@@ -161,14 +186,22 @@ const localStyles = StyleSheet.create({
   },
 
   modalView: {
-    width: 700,
-    height: 650,
     paddingVertical: 40,
     paddingHorizontal: 80,
     opacity: 0.97,
     flexDirection: 'column',
     alignItems: 'center',
     borderRadius: 20,
+  },
+
+  connectedModalSize: {
+    width: 700,
+    height: 650,
+  },
+
+  disconnectedModalSize: {
+    width: 500,
+    height: 300,
   },
 
   userPfp: {
@@ -213,7 +246,12 @@ const localStyles = StyleSheet.create({
     marginStart: 8,
   },
 
-  connection: {},
+  connection: {
+    display: "flex",
+    alignItems: "center",
+    marginTop: 40,
+    gap: 10,
+  },
 
   logout: {
     alignSelf: 'flex-end',
@@ -225,4 +263,4 @@ const localStyles = StyleSheet.create({
   },
 })
 
-const styles = { ...localStyles, ...modalContainerStyle }
+const styles = { ...localStyles, ...modalContainerStyle, ...genericButtonStyle }

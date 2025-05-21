@@ -1,7 +1,8 @@
 import { AUTH_URL } from "@/constants/API";
 import { LoginCredentials, SignupCredentials } from "@/types";
 import axios from "axios";
-import { setAxiosToken } from "./AuthToken";
+import { clearTokens, setAxiosToken } from "./AuthToken";
+import { setLocalStorage } from "@/utils/localStorage";
 
 export async function signup(data: SignupCredentials) {
   return axios.post(`${AUTH_URL}/register`, {
@@ -26,11 +27,21 @@ export async function authenticate(credentials: LoginCredentials) {
       if (response.status !== 200) {
         throw response
       }
-      console.log(response);
       // We stock the token on local storage
-      window.localStorage.setItem('authToken', response.data.token)
+      setLocalStorage('authToken', response.data.jwtCookie)
       // We add token to axios header
-      setAxiosToken(response.data.token)
+      setAxiosToken(response.data.jwtCookie)
       return response.data.token
+    })
+}
+
+export async function logout() {
+  return axios
+    .post(`${AUTH_URL}/signout`)
+    .then(async (response) => {
+      if (response.status !== 200) {
+        throw response
+      }
+      await clearTokens()      
     })
 }

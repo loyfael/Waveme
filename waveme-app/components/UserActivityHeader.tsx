@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons"
 import React from "react"
-import { Pressable, View, StyleSheet } from "react-native"
+import { View, StyleSheet, TouchableOpacity } from "react-native"
 import { ThemedText } from "./theme/ThemedText"
 import { useRouter } from "expo-router"
 import { useThemeColor } from "@/hooks/useThemeColor"
@@ -17,10 +17,10 @@ export default function UserActivityHeader(props: UserActivityHeaderProps) {
   return (
     <View style={styles.userPostsWrapper}>
       <View style={styles.userPostsHeader}>
-        <Pressable style={styles.goBackButton} onPress={() => { router.push(`/user/${props.profileId}`) }}>
+        <TouchableOpacity style={styles.goBackButton} onPress={() => { router.push(`/user/${props.profileId}`) }}>
           <Ionicons name="arrow-back-outline" size={32} color={textColor} />
           <ThemedText type="defaultBold">Retour</ThemedText>
-        </Pressable>
+        </TouchableOpacity>
         <ThemedText type="title">Posts de user</ThemedText>
       </View>
     </View>
