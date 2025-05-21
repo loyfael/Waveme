@@ -9,6 +9,7 @@ import fr.waveme.backend.crud.repository.PostRepository;
 import fr.waveme.backend.crud.repository.ReplyRepository;
 import fr.waveme.backend.crud.repository.UserRepository;
 import fr.waveme.backend.crud.service.MinioService;
+import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.utils.RateLimiter;
 import fr.waveme.backend.utils.UrlShorter;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 @RestController
@@ -53,19 +53,28 @@ public class PostController {
     public ResponseEntity<String> uploadPostImage(
             @RequestParam("file") MultipartFile file,
             @RequestParam("bucket") String bucketName,
-            @RequestParam("userId") Long userId,
             @RequestParam("description") String description,
+            @RequestHeader("Authorization") String authorizationHeader,
             @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
     ) {
         try {
             ipAddress = ipAddress != null ? ipAddress : "unknown";
             RateLimiter.checkRateLimit("post:" + ipAddress);
 
+            JwtUtils jwtUtils = new JwtUtils();
+
             if (file == null || file.isEmpty()) {
                 return ResponseEntity.badRequest().body("File is missing");
             }
 
             logger.info("Received file: {}, bucket: {}", file.getOriginalFilename(), bucketName);
+
+            String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token: user ID not found");
+            }
 
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
@@ -122,13 +131,25 @@ public class PostController {
     @PostMapping("/{postId}/comments")
     public Comment addCommentToPost(
             @PathVariable Long postId,
-            @RequestParam String userId,
+            @RequestHeader("Authorization") String authorizationHeader,
             @RequestParam String content,
             @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
     ) {
+
+        JwtUtils jwtUtils = new JwtUtils();
         try {
             ipAddress = ipAddress != null ? ipAddress : "unknown";
             RateLimiter.checkRateLimit("post:" + ipAddress);
+
+            String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+
+            if (userId == null) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token: user ID not found");
+            }
+
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
             Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
