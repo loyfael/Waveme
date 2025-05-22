@@ -1,13 +1,9 @@
 # Waveme Project
-
 Waveme is a social networking application focused on memes sharing. It consists of a React Native frontend using Expo and a Spring Boot Java backend with PostgreSQL as database. The project is containerized using Docker and orchestrated with Docker Compose.
-
 > [!WARNING]
 > This project is part of a student project and is provided as-is. While every effort has been made to ensure its functionality, the authors cannot be held responsible for any critical issues, bugs, or problems encountered while using the project.
-
 ## Usefull links
 - [FIGMA](https://www.figma.com/design/Y2lEnBAA5OJLVWoeQz6Ptd/Waveme?node-id=0-1&node-type=canvas&t=GhNvvwdEAVWkzJTs-0)
-
 ## Architectury
 ### `archives`
 Contain all archives (à retirer prochainement)
@@ -15,80 +11,82 @@ Contain all archives (à retirer prochainement)
 Frontend project: React Native x Expo.
 ### `waveme-backend`
 Backend project: Java 21 & Spring Boot.
-
 ## Dependencies
 - [Docker](https://www.docker.com/get-started) installé sur votre machine.
 - [Docker Compose](https://docs.docker.com/compose/install/) installé sur votre machine.
 - [Git](https://git-scm.com/downloads) installé sur votre machine.
-
 ## Get started !
 1. Clone `git clone https://github.com/loisdps/Waveme.git`
-2. Une fois que c'est fait, à l'aide du docker-compose.template effectuez votre docker-compose.yml et remplissez
-les différents identifiants présents à l'intérieur.
+# Backend Setup (automated with script)
+## 1. Prepare the `.env` file
+At the root of your project (same level as `docker-compose.yml`), create a `.env` file with the following variables:
+```env
+POSTGRES_DB=waveme
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=your_postgres_password
 
-### Backend
-1. Once the containers have been launched, the backend is logically switched off, as it has no database or configuration. You need to create a application.properties and fill them.
-2. Once this has been done, launch pgadmin at http://localhost:5050/, then log in with the credentials present in docker-compose.yml.
-3. Once in pgadmin, click on create a server. Name this server `waveme`.
-- Get the machine's IP with an `ipconfig` :warning: get the first one!
-- Enter the IP in pgadmin.
-- Set credentials. Write “admin” in the role.
-4. The database is now created. You now need to run the backend once to create the tables.
-5. Now go to the “role” table on pgadmin and execute this query:
-```sql
-INSERT INTO role (name) VALUES ('ROLE_USER');
-INSERT INTO role (name) VALUES ('ROLE_MODERATOR');
-INSERT INTO role (name) VALUES ('ROLE_ADMIN');
+PGADMIN_EMAIL=admin@waveme.com
+PGADMIN_PASSWORD=your_pgadmin_password
+
+MINIO_ROOT_USER=admin
+MINIO_ROOT_PASSWORD=your_minio_password
 ```
-6. The database is now ready. We now need to set up postman. In postman, communication with the backend will always be http://localhost:8080/api/otherRoute.
-For example, the registration route will always be http://localhost:8080/api/auth/register.
+Make sure this file is **not committed** to Git (add it to `.gitignore`).
+## 2. Fill `application.properties`
+In the backend folder, create or update:
+```
+src/main/resources/application.properties
+```
+## 3. Run the setup script
+From the root of the project, run:
 
-To register a first user, you don't need to authenticate, just fill in the body field:
+### Linux
+```sh
+chmod +x install-waveme.sh
+./install-waveme.sh
+```
+
+### Windows
+```ps1
+.\install-waveme.ps1
+```
+
+This script will:
+* Install MinIO Client (`mc`) if missing
+* Build and start required Docker containers (PostgreSQL, pgAdmin, MinIO)
+* Show your local IP for pgAdmin
+* Ask whether you want to run the backend locally or via Docker
+* Wait for backend to be fully started
+* Insert default roles in the database
+* Create the `waveme` bucket in MinIO
+## 4. Test the backend
+Use Insomnia or Postman to send a request to:
+```http
+POST http://localhost:9080/api/auth/register
+```
+
+With this JSON body:
 ```json
 {
-    "pseudo": "test",
-    "email": "test@test.com",
-    "password": "teeeeeeeeeeeeeeeeeeest",
-    "role": "ROLE_USER"
-}
-```
-7. Run the query, and you should get a response of 200. If you check the bdd, the row has been created.
-8. Authentication is required to browse the backend (except for login and register routes).
-
-**Register**
-- Route: http://localhost:8080/api/auth/register
-- Body:
-```
-{
-    "pseudo": "test",
-    "email": "test@test.com",
-    "password": "teeeeeeeeeeeeeeeeeeest",
-        "role": "ROLE_USER"
+  "pseudo": "test",
+  "email": "test@test.com",
+  "password": "teeeeeeeeeeeeeeeeeeest",
+  "role": "ROLE_USER"
 }
 ```
 
-**Login**
-- Route: http://localhost:8080/api/auth/login
-- Body:
-```
-{
-    "pseudo": "test",
-    "password": "teeeeeeeeeeeeeeeeeeest"
-}
-```
-Good? Now get the cookie and use it for your other request.
+You should get a `200 OK` and see the new user in the database.
 
-9. How upload a file?
+✅ You’re now ready to use the Waveme backend!
+
+1. How upload a file?
 - Login
-- Retrieve the cookie.
-- Put the cookie in auth -> BearerToken -> Insert in token field and the prefix will be jwtCookie
+- Retrieve the JWT.
+- Put the JWT in auth -> BearerToken -> Insert in token field.
 - For the body, do as shown on the screen
 ![image](https://github.com/user-attachments/assets/25a822d9-55a4-47b8-b073-c8d63c6c6141)
-
-
 ### Frontend
-1. Go to the project and run `npm i` to install the dependencies. (Why doesn't this already work via docker? I've no idea).
+1. Go to the project and run `npm i` to install the dependencies.
 2. Go to the URL https://localhost:3000
 3. Finish
-
 ### You're ready !
