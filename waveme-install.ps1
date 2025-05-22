@@ -108,5 +108,33 @@ try {
   Write-Host "✅ Bucket created."
 }
 
+# Step 9 - Ensure MinIO user 'minio' exists
+Write-Host ""
+Write-Host "👤 Checking for MinIO user 'minio'..."
+$minioUserInfo = & mc.exe admin user info local minio 2>&1
+
+if ($minioUserInfo -match "not found" -or $minioUserInfo -match "error") {
+  Write-Host "➕ User 'minio' not found. Creating..."
+
+  # Generate random 40-character alphanumeric secret key
+  Add-Type -AssemblyName System.Web
+  $random = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 40 | ForEach-Object {[char]$_})
+  $generatedSecret = $random
+
+  # Create the user
+  & mc.exe admin user add local minio $generatedSecret
+  Write-Host "✅ User 'minio' created."
+
+  # Output config reminder
+  Write-Host ""
+  Write-Host "🔐 Please update your 'application.properties' with the following:"
+  Write-Host ""
+  Write-Host "minio.access-key=minio"
+  Write-Host "minio.secret-key=$generatedSecret"
+  Write-Host ""
+} else {
+  Write-Host "✅ User 'minio' already exists."
+}
+
 Write-Host ""
 Write-Host "🎉 Waveme environment successfully initialized."

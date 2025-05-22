@@ -89,6 +89,27 @@ else
   echo "ℹ️ Bucket 'waveme' already exists."
 fi
 
+# Step 8 - Ensure MinIO user 'minio' exists
+echo
+echo "👤 Checking for MinIO user 'minio'..."
+USER_EXISTS=$(mc admin user info local minio 2>/dev/null || true)
+
+if [[ "$USER_EXISTS" == "" ]]; then
+  echo "➕ User 'minio' not found. Creating..."
+  GENERATED_SECRET=$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | head -c40)
+  mc admin user add local minio "$GENERATED_SECRET"
+  echo "✅ User 'minio' created."
+
+  echo
+  echo "🔐 Please update your 'application.properties' file with the following:"
+  echo
+  echo "minio.access-key=minio"
+  echo "minio.secret-key=$GENERATED_SECRET"
+  echo
+else
+  echo "✅ User 'minio' already exists."
+fi
+
 # Done
 echo
 echo "🎉 Waveme environment successfully initialized."
