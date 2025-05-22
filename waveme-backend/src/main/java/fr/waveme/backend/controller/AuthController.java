@@ -90,7 +90,7 @@ public class AuthController {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         String token = jwtUtils.generateTokenFromUser(userDetails); // méthode déjà faite dans ta JwtUtils
-        ResponseCookie jwtCookie = ResponseCookie.from(jwtUtils.getJwtCookieName(), token)
+        ResponseCookie jwt = ResponseCookie.from(jwtUtils.getJwtCookieName(), token)
                 .path("/api")
                 .maxAge(24 * 60 * 60)
                 .httpOnly(true)
@@ -102,7 +102,7 @@ public class AuthController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, token)
                 .body(new UserInfoResponse(
                         userDetails.getId(),
                         userDetails.getUsername(),
@@ -114,7 +114,7 @@ public class AuthController {
 
     @PostMapping("/signout")
     public ResponseEntity<?> logoutUser() {
-        ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
+        ResponseCookie cookie = jwtUtils.getCleanJwt();
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(new MessageResponse("You've been signed out!"));
     }

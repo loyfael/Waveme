@@ -29,16 +29,16 @@ public class JwtUtils {
     private int jwtExpirationMs;
 
     @Value("${waveme.app.jwtCookieName}")
-    private String jwtCookie;
+    private String token;
 
     public String getJwtFromCookies(HttpServletRequest request) {
         try {
-            Cookie cookie = WebUtils.getCookie(request, jwtCookie);
+            Cookie cookie = WebUtils.getCookie(request, token);
             if (cookie != null) {
                 logger.debug("JWT found in cookie: {}", cookie.getValue());
                 return cookie.getValue();
             } else {
-                logger.warn("No JWT cookie named '{}' found in request.", jwtCookie);
+                logger.warn("No JWT cookie named '{}' found in request.", token);
             }
         } catch (Exception e) {
             logger.error("[getJwtFromCookies] Error extracting JWT: {}", e.getMessage(), e);
@@ -49,32 +49,32 @@ public class JwtUtils {
     public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
         try {
             if (userPrincipal == null) {
-                logger.warn("[generateJwtCookie] User principal is null, returning clean cookie.");
-                return getCleanJwtCookie();
+                logger.warn("[generateJwt] User principal is null, returning clean cookie.");
+                return getCleanJwt();
             }
             String jwt = generateTokenFromUser(userPrincipal);
-            logger.debug("[generateJwtCookie] JWT generated for user {}: {}", userPrincipal.getUsername(), jwt);
-            return ResponseCookie.from(jwtCookie, jwt)
+            logger.debug("[generateJwt] JWT generated for user {}: {}", userPrincipal.getUsername(), jwt);
+            return ResponseCookie.from(token, jwt)
                     .path("/api")
                     .maxAge(24 * 60 * 60)
                     .httpOnly(true)
                     .build();
         } catch (Exception e) {
-            logger.error("[generateJwtCookie] Error: {}", e.getMessage(), e);
-            return getCleanJwtCookie();
+            logger.error("[generateJwt] Error: {}", e.getMessage(), e);
+            return getCleanJwt();
         }
     }
 
-    public ResponseCookie getCleanJwtCookie() {
+    public ResponseCookie getCleanJwt() {
         try {
-            logger.info("[getCleanJwtCookie] Returning clean JWT cookie.");
-            return ResponseCookie.from(jwtCookie, "")
+            logger.info("[getCleanJwt] Returning clean JWT cookie.");
+            return ResponseCookie.from(token, "")
                     .path("/api")
                     .maxAge(0)
                     .httpOnly(true)
                     .build();
         } catch (Exception e) {
-            logger.error("[getCleanJwtCookie] Error generating clean JWT cookie: {}", e.getMessage(), e);
+            logger.error("[getCleanJwt] Error generating clean JWT cookie: {}", e.getMessage(), e);
         }
         return null;
     }
@@ -172,6 +172,6 @@ public class JwtUtils {
     }
 
     public String getJwtCookieName() {
-        return jwtCookie;
+        return token;
     }
 }
