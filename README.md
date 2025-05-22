@@ -45,7 +45,6 @@ From the root of the project, run:
 chmod +x install-waveme.sh
 ./install-waveme.sh
 ```
-
 ### Windows
 ```ps1
 .\install-waveme.ps1
