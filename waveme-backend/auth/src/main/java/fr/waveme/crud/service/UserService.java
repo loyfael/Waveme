@@ -1,5 +1,6 @@
 package fr.waveme.crud.service;
 
+import fr.waveme.crud.dto.UserDto;
 import fr.waveme.crud.models.User;
 
 import java.util.List;
