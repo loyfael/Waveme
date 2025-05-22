@@ -57,7 +57,7 @@ public class UserController {
     int postUpvotes = postRepository.findByUser(user).stream()
             .mapToInt(p -> p.getUpVote() != null ? p.getUpVote() : 0).sum();
 
-    int commentUpvotes = commentRepository.findByUserId(user.getId().toString()).stream()
+    int commentUpvotes = commentRepository.findByUserId(user.getId()).stream()
             .mapToInt(c -> c.getUpVote() != null ? c.getUpVote() : 0).sum();
 
     int replyUpvotes = replyRepository.findByUserId(user.getId().toString()).stream()

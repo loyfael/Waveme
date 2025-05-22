@@ -10,7 +10,6 @@ public class PostMapper {
     public static PostDto mapToPostDto(Post post) {
         return new PostDto(
                 post.getId(),
-                post.getUser().getId(),
                 post.getImageUrl(),
                 post.getUpVote(),
                 post.getDownVote(),

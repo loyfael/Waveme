@@ -13,7 +13,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class CommentDto {
     private Long id;
-    private String userId;
+    private Long userId;
     private Integer upVote;
     private Integer downVote;
     private String description;
