@@ -1,3 +1,4 @@
+import { JwtPayload } from "jwt-decode"
 import { ImageSourcePropType } from "react-native"
 
 // Add types used throughout multiple files here
@@ -37,6 +38,7 @@ export type UserInfo = {
   pseudo: string,
   profileImg: string | null,
   totalUpvotes: number,
+  totalPosts: number,
   updatedAt: string,
 }
 
@@ -50,4 +52,14 @@ export type Comment = Message & {
   hasReplies: boolean,
   replies: Message[],
   upvotes: number,
+}
+
+export type JwtType = JwtPayload & {
+  id: string,
+}
+
+export type NewPost = {
+  description: string,
+  file: any,
+  bucketName: string,
 }
