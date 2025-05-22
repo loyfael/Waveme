@@ -1,6 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { ThemeContext } from '@/context/ThemeContext';
-import { useState, useEffect, useContext } from 'react'
+import { useContext } from 'react'
 
 /**
  * @param props 
