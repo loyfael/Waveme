@@ -1,0 +1,22 @@
+spring.application.name=social
+
+spring.data.mongodb.uri=mongodb://localhost:27017/waveme_social
+
+# Logging
+logging.level.root=WARN
+logging.level.org.springframework.security=ERROR
+
+# JWT
+waveme.app.jwtSecret=your-64-char-secret
+waveme.app.jwtExpirationMs=86400000
+waveme.app.jwtCookieName=jwtCookie
+
+# MinIO (stockage d'images, fichiers)
+minio.endpoint=http://localhost:9000
+minio.access-key=minio
+minio.secret-key=your-minio-secret
+minio.bucket-name=waveme
+
+# Server
+server.address=0.0.0.0
+server.port=8081
