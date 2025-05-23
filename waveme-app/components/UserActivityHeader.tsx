@@ -7,6 +7,7 @@ import { useThemeColor } from "@/hooks/useThemeColor"
 
 type UserActivityHeaderProps = {
   profileId: string
+  title: string
 }
 
 export default function UserActivityHeader(props: UserActivityHeaderProps) {
@@ -21,7 +22,7 @@ export default function UserActivityHeader(props: UserActivityHeaderProps) {
           <Ionicons name="arrow-back-outline" size={32} color={textColor} />
           <ThemedText type="defaultBold">Retour</ThemedText>
         </TouchableOpacity>
-        <ThemedText type="title">Posts de user</ThemedText>
+        <ThemedText type="title">{props.title} de user</ThemedText>
       </View>
     </View>
   )

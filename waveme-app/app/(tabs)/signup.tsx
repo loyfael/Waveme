@@ -5,7 +5,7 @@ import { authStyle, genericButtonStyle } from "@/constants/commonStyles";
 import { useWebTitle } from "@/hooks/useWebTitle";
 import { signup } from "@/services/AuthAPI";
 import { InvalidTooltip, SignupCredentials } from "@/types";
-import { getMissingFields } from "@/utils/formChecks";
+import { getIncorrectLengthFields, getMissingFields } from "@/utils/formChecks";
 import { validate } from "email-validator";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -36,6 +36,10 @@ export default function Signup() {
       setInvalidTooltip({ display: true, field: 'email', message: 'Adresse email non valide.' })
       return
     }
+    const incorrectFields = getIncorrectLengthFields(credentials)
+    if (incorrectFields.length) {
+      setInvalidTooltip(incorrectFields[0])
+    }
     if (credentials.password !== credentials.confirmPassword) {
       setInvalidTooltip({ display: true, field: 'confirmPassword', message: 'Le mot de passe n\'est pas identique.' })
       return
@@ -43,7 +47,9 @@ export default function Signup() {
 
     await signup(credentials)
       .then(() => router.push('/login'))
-      .catch((error) => setInvalidMessage(error.response.data.message))
+      .catch((error) => {
+        setInvalidMessage(error.response.data.message)
+      })
   }
 
   return (

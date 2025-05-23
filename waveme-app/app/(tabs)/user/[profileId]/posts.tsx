@@ -50,7 +50,7 @@ export default function Posts() {
 
   return (
     <>
-      <UserActivityHeader profileId={profileId} />
+      <UserActivityHeader profileId={profileId} title="Posts" />
       <PostList isLoading={isLoading} posts={posts} />
     </>
   )
