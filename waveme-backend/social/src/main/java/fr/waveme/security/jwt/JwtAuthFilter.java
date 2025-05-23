@@ -1,4 +1,4 @@
-package fr.waveme.security;
+package fr.waveme.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
