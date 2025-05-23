@@ -6,9 +6,12 @@ import { useWebTitle } from "@/hooks/useWebTitle";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Image, Pressable, ImageSourcePropType, TouchableOpacity } from "react-native";
+import { useMediaQuery } from "react-responsive";
 
 export default function UserScreen() {
   useWebTitle('user')
+
+  const [user, setUser] = useState<User | null>()
 
   type SimplePost = {
     id: number,
@@ -32,8 +35,7 @@ export default function UserScreen() {
 
   const router = useRouter()
   const { userId } = useLocalSearchParams()
-  const [user, setUser] = useState<User | null>()
-
+  const isSmallScreen = useMediaQuery({ query: '(max-width: 1200px)' })
   const areaBackgroundColor = useThemeColor({}, "areaBackground")
 
   useEffect(() => {
@@ -69,15 +71,16 @@ export default function UserScreen() {
             <ThemedText type="title">{user.name}</ThemedText>
             <ThemedText>Score : {user.upvotes}</ThemedText>
           </View>
-          <View style={styles.activityWrapper}>
+          <View style={isSmallScreen ? styles.activityWrapperSmallScreen : styles.activityWrapper}>
             {/* Don't mind that error, the linter must get confused by dynamic values */}
-            <Pressable style={{ ...styles.activityBlock, borderColor: areaBackgroundColor }} onPress={() => {router.push(`/user/${userId}/posts`)}}>
+            {/* If you don't see an error, ignore these comments as well */}
+            <Pressable style={{ ...styles.activityBlock, borderColor: areaBackgroundColor }} onPress={() => { router.push(`/user/${userId}/posts`) }}>
               <ThemedText type="subtitle">Derniers posts</ThemedText>
               {typeof user === "object" ? (
                 <>
                   <View style={styles.latestActivityList}>
                     {user.latestPosts.map((post) => (
-                      <TouchableOpacity key={post.id} onPress={() => {router.push(`/post/${"11"/*TODO: Replace with postId*/}`)}} style={styles.latestPost}>
+                      <TouchableOpacity key={post.id} onPress={() => { router.push(`/post/${"11"/*TODO: Replace with postId*/}`) }} style={styles.latestPost}>
                         <ThemedText>
                           {post.title}
                         </ThemedText>
@@ -92,20 +95,20 @@ export default function UserScreen() {
               ) : (<ThemedText>Cet utilisateur n'a rien posté.</ThemedText>)}
             </Pressable>
             {/* Same here */}
-            <Pressable style={{ ...styles.activityBlock, borderColor: areaBackgroundColor }} onPress={() => {router.push(`/user/${userId}/comments`)}}>
+            <Pressable style={{ ...styles.activityBlock, borderColor: areaBackgroundColor }} onPress={() => { router.push(`/user/${userId}/comments`) }}>
               <ThemedText type="subtitle">Derniers commentaires</ThemedText>
               {typeof user === "object" ? (
                 <>
                   <View style={styles.latestActivityList}>
                     {user.latestComments.map((comment) => (
-                      <TouchableOpacity key={comment.id} onPress={() => {router.push(`/post/${"11"/*TODO: Replace with postId*/}`)}} style={styles.latestPost}>
-                      <ThemedText>
-                        {comment.message}
-                      </ThemedText>
-                      <ThemedText type="defaultBold" style={{ color: comment.upvotes >= 0 ? Colors.common.upvote : Colors.common.downvote }}>
-                        {comment.upvotes > 0 ? "+" : ""}{comment.upvotes}
-                      </ThemedText>
-                    </TouchableOpacity>
+                      <TouchableOpacity key={comment.id} onPress={() => { router.push(`/post/${"11"/*TODO: Replace with postId*/}`) }} style={styles.latestPost}>
+                        <ThemedText>
+                          {comment.message}
+                        </ThemedText>
+                        <ThemedText type="defaultBold" style={{ color: comment.upvotes >= 0 ? Colors.common.upvote : Colors.common.downvote }}>
+                          {comment.upvotes > 0 ? "+" : ""}{comment.upvotes}
+                        </ThemedText>
+                      </TouchableOpacity>
                     ))}
                   </View>
                   <ThemedText>Voir plus...</ThemedText>
@@ -139,8 +142,22 @@ const localStyles = StyleSheet.create({
     flexDirection: "row",
   },
 
+  activityWrapperSmallScreen: {
+    display: "flex",
+    flexDirection: "column",
+  },
+
   activityBlock: {
     flex: 1,
+    display: "flex",
+    alignItems: "center",
+    margin: 15,
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+  },
+
+  activityBlockSmallScreen: {
     display: "flex",
     alignItems: "center",
     margin: 15,

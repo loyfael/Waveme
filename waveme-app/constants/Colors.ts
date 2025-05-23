@@ -8,12 +8,14 @@ export const Colors = {
     background: '#F7F7F7',
     areaBackground: '#DADADA',
     tooltipBackground: '#CACACA',
+    icon: '#000000'
   },
   dark: {
     text: '#9FCBF4',
     background: '#222F3F',
     areaBackground: '#BFBFBF',
     tooltipBackground: '#CFCFCF',
+    icon: '#FFFFFF'
   },
   // Specific colors used the same in both modes
   common: {

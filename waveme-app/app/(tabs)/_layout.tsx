@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Image, ScrollView, Pressable, Modal, ImageSourcePropType, View, Switch, Animated, TouchableOpacity } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { StyleSheet, Image, ScrollView, Pressable, Modal, View, Switch, Animated, TouchableOpacity } from 'react-native';
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { ThemedView } from '@/components/theme/ThemedView';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -15,16 +15,19 @@ import { AuthContext } from '@/context/AuthContext';
 import { logout } from '@/services/AuthAPI';
 import { redirectFromModal } from '@/utils/modals';
 import { Ionicons } from '@expo/vector-icons';
+import { useMediaQuery } from 'react-responsive';
 
 export default function TabLayout() {
   const [showProfileModal, setShowProfileModal] = useState(false)
 
   const { isDarkMode, setDarkMode } = useContext(ThemeContext)
   const textColor = useThemeColor({}, 'text')
+  const iconColor = useThemeColor({}, "icon")
   const backgroundColor = useThemeColor({}, 'background')
   const { user, reloadUser } = useContext(AuthContext)
   const router = useRouter()
   const pathname = usePathname()
+  const isSmallScreen = useMediaQuery({ query: '(max-width: 1200px)' })
   const connectionRoutes = ['/login', '/signup']
 
   const handleLogout = async () => {
@@ -44,29 +47,29 @@ export default function TabLayout() {
       <ThemedView style={styles.loginWrapper}>
         <TouchableOpacity style={styles.backToHomepageButton} onPress={() => router.push("/")}>
           <Ionicons name="arrow-back-outline" size={32} color={textColor} />
-          <ThemedText type="defaultBold">Retourner à la page d'accueil</ThemedText>
+          <ThemedText type="defaultBold">{isSmallScreen ? "Retour à l'accueil" : "Retourner à la page d'accueil"}</ThemedText>
         </TouchableOpacity>
         <Image source={require('@/assets/images/waveme.png')} style={styles.loginLogo} />
         <Slot />
-      </ThemedView>
+      </ThemedView >
     )
   }
   return (
     <ThemedView style={styles.wrapper}>
-      <ThemedView style={styles.leftColumn}>
-        <Pressable style={styles.logo} onPress={() => { router.push("/") }}>
-          <Image source={require('@/assets/images/waveme.png')} style={styles.logo} />
+      <ThemedView style={isSmallScreen ? styles.leftColumnSmallScreen : styles.leftColumn}>
+        <Pressable style={isSmallScreen ? styles.logoSmallScreen : styles.logo} onPress={() => { router.push("/") }}>
+          <Image source={require('@/assets/images/waveme.png')} style={isSmallScreen ? styles.logoSmallScreen : styles.logo} />
         </Pressable>
       </ThemedView>
       <ScrollView style={styles.main} showsVerticalScrollIndicator={false}>
         <Slot />
       </ScrollView>
-      <ThemedView style={styles.rightColumn}>
+      <ThemedView style={isSmallScreen ? styles.rightColumnSmallScreen : styles.rightColumn}>
         <TouchableOpacity onPress={() => setShowProfileModal(true)}>
           {user?.profileImg ? (
             <Image source={{ uri: user?.profileImg }} style={styles.account} />
           ) : (
-            <MaterialIcons name="account-circle" size={70} color="black" style={styles.account} />
+            <MaterialIcons name="account-circle" size={70} color={iconColor} style={styles.account} />
           )}
         </TouchableOpacity>
       </ThemedView>
@@ -81,7 +84,7 @@ export default function TabLayout() {
                   {user.profileImg ? (
                     <Image source={{ uri: user.profileImg }} style={styles.userPfp} />
                   ) : (
-                    <MaterialIcons name="account-circle" size={150} color="black" style={styles.userPfp} />
+                    <MaterialIcons name="account-circle" size={150} color={iconColor} style={styles.userPfp} />
                   )}
                   <View style={styles.editPfpButton}>
                     <PencilFill color="white" size={12} />
@@ -151,12 +154,24 @@ const localStyles = StyleSheet.create({
   leftColumn: {
     flex: 1,
     marginTop: 50,
-    marginStart: 50,
+    marginLeft: 50,
+  },
+
+  leftColumnSmallScreen: {
+    flex: 1,
+    marginBottom: 30,
+    marginLeft: 30,
+    justifyContent: "flex-end"
   },
 
   logo: {
     width: 90,
     height: 90,
+  },
+
+  logoSmallScreen: {
+    width: 75,
+    height: 75,
   },
 
   loginLogo: {
@@ -171,6 +186,14 @@ const localStyles = StyleSheet.create({
     alignItems: 'flex-end',
     marginTop: 35,
     marginEnd: 35,
+  },
+
+  rightColumnSmallScreen: {
+    flex: 1,
+    alignItems: "flex-end",
+    justifyContent: "flex-end",
+    marginBottom: 30,
+    marginEnd: 30,
   },
 
   account: {
