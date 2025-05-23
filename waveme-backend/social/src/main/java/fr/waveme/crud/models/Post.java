@@ -22,7 +22,7 @@ public class Post {
     private Integer downVote;
     private String description;
     private String shortUrl;
-    private String userId;
+    private Long userId;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

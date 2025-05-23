@@ -1,8 +1,16 @@
 package fr.waveme.crud.controllers;
 
+import fr.waveme.crud.models.Role;
+import fr.waveme.crud.models.User;
+import fr.waveme.crud.models.enumerators.ERole;
 import fr.waveme.crud.repository.RoleRepository;
 import fr.waveme.crud.repository.UserRepository;
+import fr.waveme.payload.request.LoginRequest;
+import fr.waveme.payload.request.RegisterRequest;
+import fr.waveme.payload.response.MessageResponse;
+import fr.waveme.payload.response.UserInfoResponse;
 import fr.waveme.security.jwt.JwtUtils;
+import fr.waveme.security.services.UserDetailsImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;

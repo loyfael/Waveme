@@ -7,10 +7,8 @@ public class PostMapper {
     public static PostDto mapToPostDto(Post post) {
         PostDto dto = new PostDto();
         dto.setId(post.getId());
-        dto.setImageUrl(post.getImageUrl());
         dto.setDescription(post.getDescription());
-        dto.setShortUrl(post.getShortUrl());
-        dto.setUserId(post.getUserId());
+        dto.setImageUrl(post.getImageUrl());
         dto.setUpVote(post.getUpVote());
         dto.setDownVote(post.getDownVote());
         dto.setCreatedAt(post.getCreatedAt());

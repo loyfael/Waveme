@@ -1,5 +1,7 @@
 package fr.waveme.security.services;
 
+import fr.waveme.crud.models.User;
+import fr.waveme.crud.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
