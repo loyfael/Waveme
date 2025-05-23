@@ -9,7 +9,6 @@ export async function signup(data: SignupCredentials) {
     pseudo: data.username,
     email: data.email,
     password: data.password,
-    role: "ROLE_USER", // TODO: /!\ REMOVE AS SOON AS POSSIBLE /!\
   }, {
     withCredentials: true,
   })

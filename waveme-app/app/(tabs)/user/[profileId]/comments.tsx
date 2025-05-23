@@ -86,7 +86,7 @@ export default function Comments() {
 
   return (
     <>
-      <UserActivityHeader profileId={profileId} />
+      <UserActivityHeader profileId={profileId} title="Commentaires" />
       {!isLoading ? comments.map((comment) => (
         <TouchableOpacity key={comment.id} style={styles.commentContainer} onPress={() => {router.push(`/post/${"11"/*TODO: Replace with postId*/}`)}}>
           <ThemedText type="defaultBold" style={{ color: comment.upvotes >= 0 ? Colors.common.upvote : Colors.common.downvote }}>

@@ -7,6 +7,6 @@ import { JwtType } from "@/types";
 export async function getCurrentUser() {
   return refreshAuthIfNeeded(() => {    
     const { id: id } = jwtDecode<JwtType>(localStorage.getItem("authToken") ?? "")    
-    return axios.get(`${USER_URL}/${id}`)
+    return axios.get(`${USER_URL}/me`)
   })
 }
