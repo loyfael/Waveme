@@ -1,11 +1,21 @@
 package fr.waveme.payload.request;
 
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.List;
-
-@Data
+@Getter
+@Setter
 public class PostRequest {
-    private String content;
-    private List<String> images;
+    @NotBlank(message = "Image URL is required")
+    private String imageUrl;
+
+    private String description;
+
+    @NotNull(message = "Upvote count cannot be null")
+    private Integer upVote = 0;
+
+    @NotNull(message = "Downvote count cannot be null")
+    private Integer downVote = 0;
 }
