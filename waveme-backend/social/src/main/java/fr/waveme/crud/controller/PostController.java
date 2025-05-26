@@ -1,23 +1,15 @@
 package fr.waveme.crud.controller;
 
-import fr.waveme.crud.dto.PostDto;
 import fr.waveme.crud.models.Post;
 import fr.waveme.crud.repository.PostRepository;
 import fr.waveme.crud.service.MinioService;
-import fr.waveme.crud.service.PostService;
-import fr.waveme.payload.request.PostRequest;
-import fr.waveme.security.utils.JwtUtils;
+import fr.waveme.security.utils.SocialJwtUtils;
 import fr.waveme.utils.RateLimiter;
 import fr.waveme.utils.UrlShorter;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,17 +21,17 @@ public class PostController {
     private static final Logger logger = LoggerFactory.getLogger(PostController.class);
     private final MinioService minioService;
     private final PostRepository postRepository;
-    private final JwtUtils jwtUtils;
+    private final SocialJwtUtils socialJwtUtils;
 
     public PostController(
             MinioService minioService,
             PostRepository postRepository,
-            JwtUtils jwtUtils
+            SocialJwtUtils socialJwtUtils
 
             ) {
         this.minioService = minioService;
         this.postRepository = postRepository;
-        this.jwtUtils = jwtUtils;
+        this.socialJwtUtils = socialJwtUtils;
     }
 
     @PostMapping("/upload-image")
@@ -61,7 +53,7 @@ public class PostController {
             logger.info("Received file: {}, bucket: {}", file.getOriginalFilename(), bucketName);
 
             String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
-            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            Long userId = socialJwtUtils.getUserIdFromJwtToken(token);
 
             if (userId == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token: user ID not found");
