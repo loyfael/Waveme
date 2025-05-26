@@ -9,7 +9,7 @@ import fr.waveme.payload.request.LoginRequest;
 import fr.waveme.payload.request.RegisterRequest;
 import fr.waveme.payload.response.MessageResponse;
 import fr.waveme.payload.response.UserInfoResponse;
-import fr.waveme.security.jwt.JwtUtils;
+import fr.waveme.security.jwt.AuthJwtUtils;
 import fr.waveme.security.services.UserDetailsImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ public class AuthController {
     PasswordEncoder encoder;
 
     @Autowired
-    JwtUtils jwtUtils;
+    AuthJwtUtils authJwtUtils;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest signUpRequest) {
@@ -89,8 +89,8 @@ public class AuthController {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        String token = jwtUtils.generateTokenFromUser(userDetails); // méthode déjà faite dans ta JwtUtils
-        ResponseCookie jwt = ResponseCookie.from(jwtUtils.getJwtCookieName(), token)
+        String token = authJwtUtils.generateTokenFromUser(userDetails); // méthode déjà faite dans ta JwtUtils
+        ResponseCookie jwt = ResponseCookie.from(authJwtUtils.getJwtCookieName(), token)
                 .path("/api")
                 .maxAge(24 * 60 * 60)
                 .httpOnly(true)
@@ -114,7 +114,7 @@ public class AuthController {
 
     @PostMapping("/signout")
     public ResponseEntity<?> logoutUser() {
-        ResponseCookie cookie = jwtUtils.getCleanJwt();
+        ResponseCookie cookie = authJwtUtils.getCleanJwt();
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(new MessageResponse("You've been signed out!"));
     }

@@ -18,9 +18,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
 @Component
-public class JwtUtils {
+public class AuthJwtUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuthJwtUtils.class);
 
     @Value("${waveme.app.jwtSecret}")
     private String jwtSecretUtf8;
