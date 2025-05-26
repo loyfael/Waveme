@@ -1,7 +1,7 @@
 services:
   postgres:
     container_name: waveme-postgres
-    image: postgres:16
+    image: postgres:17
     restart: always
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
