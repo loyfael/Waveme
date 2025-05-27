@@ -1,0 +1,35 @@
+spring.main.banner-mode=console
+
+spring.data.mongodb.uri=mongodb://localhost:27017/waveme_social
+spring.datasource.url=jdbc:postgresql://localhost:5432/waveme
+spring.datasource.username=admin
+spring.datasource.password=your-password
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# Logging
+logging.level.root=WARN
+logging.level.org.springframework.security=ERROR
+
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.idle-timeout=30000
+spring.datasource.hikari.pool-name=HikariPool-Auth
+spring.datasource.hikari.max-lifetime=2000000
+spring.datasource.hikari.connection-timeout=30000
+spring.datasource.hikari.auto-commit=true
+spring.datasource.hikari.transaction-isolation=TRANSACTION_READ_COMMITTED
+
+# JWT
+waveme.app.jwtSecret=your-secret-key
+waveme.app.jwtExpirationMs=86400000
+waveme.app.jwtCookieName=jwtCookie
+
+# MinIO (stockage d'images, fichiers)
+minio.endpoint=http://localhost:9001
+minio.access-key=minio
+minio.secret-key=your-secret-key
+minio.bucket-name=waveme
+
+# Server
+server.address=0.0.0.0
+server.port=8081

@@ -2,3 +2,4 @@
 .env
 waveme-backend/auth/src/main/resources/application.properties
 waveme-backend/social/src/main/resources/application.properties
+waveme-backend/core/src/main/resources/application.properties
