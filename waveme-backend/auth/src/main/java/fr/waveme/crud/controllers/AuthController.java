@@ -11,9 +11,11 @@ import fr.waveme.payload.response.MessageResponse;
 import fr.waveme.payload.response.UserInfoResponse;
 import fr.waveme.security.jwt.AuthJwtUtils;
 import fr.waveme.security.services.UserDetailsImpl;
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -49,8 +51,15 @@ public class AuthController {
     @Autowired
     AuthJwtUtils authJwtUtils;
 
+    @PostConstruct
+    public void init() {
+        System.out.println("✅ AuthController chargé !");
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest signUpRequest) {
+
+        System.out.println("✅ registerUser invoked");
         // Si l'utilisateur existe déjà
         if (userRepository.existsByPseudo(signUpRequest.getPseudo())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
@@ -79,37 +88,41 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        try {
+            Authentication authentication = authenticationManager
+                        .authenticate(new UsernamePasswordAuthenticationToken(
+                                loginRequest.getPseudo(), loginRequest.getPassword())
+                        );
 
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(
-                        loginRequest.getPseudo(), loginRequest.getPassword())
-                );
+                SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-
-        String token = authJwtUtils.generateTokenFromUser(userDetails); // méthode déjà faite dans ta JwtUtils
-        ResponseCookie jwt = ResponseCookie.from(authJwtUtils.getJwtCookieName(), token)
-                .path("/api")
-                .maxAge(24 * 60 * 60)
-                .httpOnly(true)
-                .build();
+                String token = authJwtUtils.generateTokenFromUser(userDetails); // méthode déjà faite dans ta JwtUtils
+                ResponseCookie jwt = ResponseCookie.from(authJwtUtils.getJwtCookieName(), token)
+                        .path("/api")
+                        .maxAge(24 * 60 * 60)
+                        .httpOnly(true)
+                        .build();
 
 
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+                List<String> roles = userDetails.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toList());
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, token)
-                .body(new UserInfoResponse(
-                        userDetails.getId(),
-                        userDetails.getUsername(),
-                        userDetails.getEmail(),
-                        roles,
-                        token
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.SET_COOKIE, token)
+                        .body(new UserInfoResponse(
+                                userDetails.getId(),
+                                userDetails.getUsername(),
+                                userDetails.getEmail(),
+                                roles,
+                                token
                 ));
+        } catch (Exception e) {
+                System.out.println("❌ Authentication failed: " + e.getMessage());
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed");
+        }
     }
 
     @PostMapping("/signout")
