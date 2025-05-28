@@ -78,7 +78,7 @@ services:
       ME_CONFIG_BASICAUTH_USERNAME: admin
       ME_CONFIG_BASICAUTH_PASSWORD: admin
     ports:
-      - "8081:8081"
+      - "8881:8881"
     depends_on:
       - mongodb
 
