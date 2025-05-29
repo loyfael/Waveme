@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,5 +16,5 @@ public class PostDto {
     private String imageUrl;
     private Integer upVote;
     private Integer downVote;
-    private Set<Long> commentIds;
+    private List<Long> commentIds;
 }
