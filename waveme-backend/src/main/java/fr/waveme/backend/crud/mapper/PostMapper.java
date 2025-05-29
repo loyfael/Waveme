@@ -13,9 +13,7 @@ public class PostMapper {
                 post.getImageUrl(),
                 post.getUpVote(),
                 post.getDownVote(),
-                post.getComments().stream()
-                        .map(Comment::getId)
-                        .collect(Collectors.toSet())
+                post.getCommentIds()
         );
     }
 
