@@ -63,8 +63,10 @@ public class JwtUtils {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return claims.get("id", String.class);
+        Object idObj = claims.get("id");
+        return idObj != null ? idObj.toString() : null;
     }
+
 
     public boolean validateJwtToken(String authToken) {
         try {
