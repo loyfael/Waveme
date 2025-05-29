@@ -1,5 +1,8 @@
 package fr.waveme.backend.config;
 
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoDatabase;
 import io.minio.MinioClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -21,6 +24,12 @@ public class DataSourceConfig implements CommandLineRunner {
     @Value("${spring.datasource.password}")
     private String datasourcePassword;
 
+    @Value("${spring.data.mongodb.uri}")
+    private String mongoUri;
+
+    @Value("${spring.data.mongodb.database}")
+    private String mongoDatabaseName;
+
     @Value("${minio.endpoint}")
     private String minioEndpoint;
 
@@ -34,15 +43,25 @@ public class DataSourceConfig implements CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("Waveme Backend is starting...");
 
-        // Vérification de la connexion à la base de données
+        // Vérification de la connexion à la base de données relationnelle (PostgreSQL)
         try (Connection connection = DriverManager.getConnection(
                 datasourceUrl,
                 datasourceUsername,
                 datasourcePassword)) {
-            System.out.println("\u001B[32m✓ Database connection successful\u001B[0m");
+            System.out.println("\u001B[32m✓ PostgreSQL database connection successful !\u001B[0m");
         } catch (SQLException e) {
-            System.err.println("\u001B[31m✗ Failed to connect to database: " + e.getMessage() + "\u001B[0m");
+            System.err.println("\u001B[31m✗ Failed to connect to PostgreSQL database: " + e.getMessage() + "\u001B[0m");
             throw new RuntimeException("Database connection failed", e);
+        }
+
+        // Vérification de la connexion à MongoDB
+        try (MongoClient mongoClient = MongoClients.create(mongoUri)) {
+            MongoDatabase database = mongoClient.getDatabase(mongoDatabaseName);
+            database.runCommand(new org.bson.Document("ping", 1));
+            System.out.println("\u001B[32m✓ MongoDB connection successful\u001B[0m");
+        } catch (Exception e) {
+            System.err.println("\u001B[31m✗ Failed to connect to MongoDB: " + e.getMessage() + "\u001B[0m");
+            throw new RuntimeException("MongoDB connection failed", e);
         }
 
         // Vérification de la connexion à Minio
@@ -51,7 +70,6 @@ public class DataSourceConfig implements CommandLineRunner {
                 .credentials(minioAccessKey, minioSecretKey)
                 .build()) {
 
-            // Vérifier si Minio est accessible
             minioClient.listBuckets();
             System.out.println("\u001B[32m✓ Minio connection successful\u001B[0m");
         } catch (Exception e) {
