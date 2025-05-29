@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ReplyDto {
     private Long id;
-    private String userId;
+    private Long userId;
     private Integer upVote;
     private Integer downVote;
     private String description;
