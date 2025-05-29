@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends MongoRepository<Post, String> {
+    Optional<Post> findById(Long id);
     Optional<Post> findByImageUrl(String imageUrl);
     Optional<Post> findByImageUrlContaining(String partOfImageUrl);
     List<Post> findByUser(User user);
