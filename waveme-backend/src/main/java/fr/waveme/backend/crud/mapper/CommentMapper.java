@@ -15,9 +15,7 @@ public class CommentMapper {
                 comment.getUpVote(),
                 comment.getDownVote(),
                 comment.getDescription(),
-                comment.getReply().stream()
-                        .map(Reply::getId)
-                        .collect(Collectors.toSet())
+                comment.getReplyIds()
         );
     }
 
