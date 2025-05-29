@@ -12,6 +12,7 @@ import fr.waveme.backend.crud.service.MinioService;
 import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.utils.RateLimiter;
 import fr.waveme.backend.utils.UrlShorter;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,19 +35,22 @@ public class PostController {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
+    private final JwtUtils jwtUtils;
 
     public PostController(
             MinioService minioService,
             UserRepository userRepository,
             PostRepository postRepository,
             CommentRepository commentRepository,
-            ReplyRepository replyRepository
+            ReplyRepository replyRepository,
+            JwtUtils jwtUtils
     ) {
         this.minioService = minioService;
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         this.replyRepository = replyRepository;
+        this.jwtUtils = jwtUtils;
     }
 
     @PostMapping("/upload-image")
@@ -60,8 +64,6 @@ public class PostController {
         try {
             ipAddress = ipAddress != null ? ipAddress : "unknown";
             RateLimiter.checkRateLimit("post:" + ipAddress);
-
-            JwtUtils jwtUtils = new JwtUtils();
 
             if (file == null || file.isEmpty()) {
                 return ResponseEntity.badRequest().body("File is missing");
@@ -80,7 +82,7 @@ public class PostController {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
             Post post = new Post();
-            post.setUser(user);
+            post.setUserId(user.getId());
             post.setDescription(description);
             post.setUpVote(0);
             post.setDownVote(0);
@@ -114,10 +116,12 @@ public class PostController {
 
             try (InputStream inputStream = minioService.downloadImage(bucketName, objectName)) {
                 byte[] imageBytes = inputStream.readAllBytes();
+
                 return ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + objectName + "\"")
                         .contentType(MediaType.IMAGE_JPEG)
                         .body(imageBytes);
+
             } catch (Exception e) {
                 logger.error("Error during image download: {}", e.getMessage(), e);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -135,8 +139,6 @@ public class PostController {
             @RequestParam String content,
             @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
     ) {
-
-        JwtUtils jwtUtils = new JwtUtils();
         try {
             ipAddress = ipAddress != null ? ipAddress : "unknown";
             RateLimiter.checkRateLimit("post:" + ipAddress);
@@ -155,9 +157,9 @@ public class PostController {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
 
             Comment comment = new Comment();
-            comment.setUserId(userId);
+            comment.setUserId(user.getId());
             comment.setDescription(content);
-            comment.setPost(post);
+            comment.setPostId(post.getId());
             comment.setUpVote(0);
             comment.setDownVote(0);
 
@@ -172,9 +174,9 @@ public class PostController {
     @PostMapping("/comments/{commentId}/reply")
     public Reply addReplyToComment(
             @PathVariable Long commentId,
-            @RequestParam String userId,
             @RequestParam String content,
-            @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
+            @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress,
+            @RequestHeader("Authorization") String authorizationHeader
     ) {
         try {
             ipAddress = ipAddress != null ? ipAddress : "unknown";
@@ -182,11 +184,15 @@ public class PostController {
 
             Comment comment = commentRepository.findById(commentId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+
+            String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+            Long user = jwtUtils.getUserIdFromJwtToken(token);
+
             Reply reply = new Reply();
 
-            reply.setUserId(userId);
+            reply.setUserId(user);
             reply.setDescription(content);
-            reply.setComment(comment);
+            reply.setCommentId(comment.getId());
             reply.setUpVote(0);
             reply.setDownVote(0);
 
