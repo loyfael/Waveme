@@ -1,12 +1,11 @@
-import { DarkTheme, DefaultTheme } from '@react-navigation/native';
+import { Context as ResponsiveContext } from 'react-responsive';
+import matchMedia from '@expo/match-media';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
 import React from 'react';
 import { AuthProvider } from '@/context/AuthContext';
 
@@ -14,7 +13,6 @@ import { AuthProvider } from '@/context/AuthContext';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     Quicksand: require('../assets/fonts/Quicksand-VariableFont_wght.ttf'),
   });
@@ -30,13 +28,15 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-      </AuthProvider>
-    </ThemeProvider>
+    <ResponsiveContext.Provider value={matchMedia}>
+      <ThemeProvider>
+        <AuthProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </AuthProvider>
+      </ThemeProvider>
+    </ResponsiveContext.Provider>
   );
 }

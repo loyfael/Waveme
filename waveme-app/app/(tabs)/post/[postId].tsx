@@ -16,6 +16,7 @@ import { ThemedTextInput } from "@/components/theme/ThemedTextInput";
 import { IoSend } from "react-icons/io5";
 import { Loading } from "@/components/Loading";
 import ReportModal from "@/components/ReportModal";
+import { useMediaQuery } from "react-responsive";
 
 export default function PostScreen() {
   useWebTitle('Post de user')
@@ -49,6 +50,7 @@ export default function PostScreen() {
   })
 
   const areaBackgroundColor = useThemeColor({}, 'areaBackground')
+  const isSmallScreen = useMediaQuery({ query: '(max-width: 1200px)' })
 
   const handleOpenReportModal = (
     contentType: "post" | "comment",
@@ -122,7 +124,7 @@ export default function PostScreen() {
           },
           {
             id: 2,
-            message: "Tu as taure",
+            message: "Tu as taure et je vais te le prouver avec un pavé assez long pour que tu aies la flemme de lire, et surtout afin que Brice puisse tester le fonctionnement du responsive du site quand il y a des retours à la ligne, ce qui serait fort possible au vu de l'utilisateur moyen de Reddit",
             user: {
               id: 6,
               userName: "hater2",
@@ -194,14 +196,14 @@ export default function PostScreen() {
           {/* Comments */}
           <ThemedView style={styles.comments}>
             <View style={styles.addComment}>
-              <View style={styles.commentInputContainer}>
+              <View style={isSmallScreen ? styles.commentInputContainerSmallScreen : styles.commentInputContainer}>
                 <ThemedTextInput
                   value={input}
                   onChangeText={setInput}
                   placeholder="Ajouter un commentaire..."
                   autoFocus
                   multiline
-                  numberOfLines={1}
+                  numberOfLines={isSmallScreen ? 3 : 2}
                   style={styles.commentInput}
                 />
               </View>
@@ -283,7 +285,11 @@ const localStyles = StyleSheet.create({
   },
 
   commentInputContainer: {
-    width: 850,
+    width: 750,
+  },
+
+  commentInputContainerSmallScreen: {
+    width: 450,
   },
 
   commentInput: {
