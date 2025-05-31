@@ -45,13 +45,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(Long userId, String pseudo, String email, String password, String profileImg) {
+    public UserDto updateUser(Long userId, String pseudo, String email, String password) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User is not found with id: " + userId));
 
         user.setPseudo(pseudo);
         user.setEmail(email);
-        user.setProfileImg(profileImg);
         user.setPassword(password);
 
         User updatedUser = userRepository.save(user);
