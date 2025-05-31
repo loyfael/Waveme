@@ -1,8 +1,8 @@
 package fr.waveme.backend.social.crud.controller;
 
 import fr.waveme.backend.security.jwt.JwtUtils;
+import fr.waveme.backend.social.crud.dto.UserSocialPublicDto;
 import fr.waveme.backend.social.crud.dto.pub.PostPublicDto;
-import fr.waveme.backend.social.crud.exception.UserNotFoundException;
 import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.PostRepository;
 import fr.waveme.backend.social.crud.repository.ReplyRepository;
@@ -51,7 +51,7 @@ public class UserInfoController {
     RateLimiter.checkRateLimit("post:" + ipAddress);
 
     String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
-    String userId = jwtUtils.getUserIdFromJwtToken(token);
+    String userId = jwtUtils.getSocialUserIdFromJwtToken(token);
 
     List<PostPublicDto> posts = postRepository.findByUserId(userId).stream()
             .map(post -> new PostPublicDto(
@@ -66,13 +66,11 @@ public class UserInfoController {
   }
 
   @GetMapping("me")
-  public ResponseEntity<UserPublicDto> getCurrentUser(@RequestHeader("Authorization") String authorizationHeader) {
+  public ResponseEntity<UserSocialPublicDto> getCurrentUser(@RequestHeader("Authorization") String authorizationHeader) {
 
     String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
-    Long userId = Long.valueOf(jwtUtils.getUserIdFromJwtToken(token));
+    Long userId = Long.valueOf(jwtUtils.getSocialUserIdFromJwtToken(token));
 
-    User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
     int postUpvotes = postRepository.findByUser(user).stream()
             .mapToInt(p -> p.getUpVote() != null ? p.getUpVote() : 0).sum();
@@ -86,7 +84,7 @@ public class UserInfoController {
     int totalUpvotes = postUpvotes + commentUpvotes + replyUpvotes;
     int totalPosts = postRepository.findByUser(user).size();
 
-    UserPublicDto dto = new UserPublicDto(
+    UserSocialPublicDto dto = new UserSocialPublicDto(
             user.getId(),
             user.getPseudo(),
             user.getProfileImg(),

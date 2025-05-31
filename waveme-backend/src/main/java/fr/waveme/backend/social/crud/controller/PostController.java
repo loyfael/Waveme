@@ -1,10 +1,7 @@
 package fr.waveme.backend.social.crud.controller;
 
-import fr.waveme.backend.social.crud.models.Comment;
 import fr.waveme.backend.social.crud.models.Post;
-import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.PostRepository;
-import fr.waveme.backend.social.crud.repository.ReplyRepository;
 import fr.waveme.backend.social.crud.service.MinioService;
 import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.utils.RateLimiter;
@@ -60,7 +57,7 @@ public class PostController {
             logger.info("Received file: {}, bucket: {}", file.getOriginalFilename(), bucketName);
 
             String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
-            String userId = jwtUtils.getUserIdFromJwtToken(token);
+            String userId = jwtUtils.getSocialUserIdFromJwtToken(token);
 
             Post post = new Post();
             post.setUserId(userId);

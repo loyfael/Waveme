@@ -3,6 +3,7 @@ package fr.waveme.backend.bridge.service;
 import fr.waveme.backend.auth.crud.dto.pub.UserPublicDto;
 import fr.waveme.backend.social.crud.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,7 +22,7 @@ public class BridgeService {
     UserPublicDto userPublicDto = restTemplate.getForObject(url, UserPublicDto.class);
 
     if (userPublicDto == null) {
-      throw new UserNotFoundException("User not found with ID: " + userId);
+      throw new UserNotFoundException(HttpStatus.NOT_FOUND, "User not found with ID: " + userId);
     }
 
     return userPublicDto;
