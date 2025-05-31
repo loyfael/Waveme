@@ -1,19 +1,41 @@
-spring.application.name=backend
-spring.datasource.url=jdbc:postgresql://localhost:5432/your-db-name
-spring.datasource.username=your-username
-spring.datasource.password=your-password
+# MongoDB
+spring.data.mongodb.uri=mongodb://admin:your-password@localhost:27017/waveme?authSource=admin
+spring.data.mongodb.database=waveme
+spring.data.mongodb.repositories.enabled=true
+
+# PostgreSQL
+spring.datasource.url=jdbc:postgresql://localhost:5432/waveme
+spring.datasource.username=admin
+spring.datasource.password=your-postgres-password
+spring.datasource.driver-class-name=org.postgresql.Driver
 spring.jpa.hibernate.ddl-auto=update
+spring.jpa.open-in-view=false
 
-server.address=0.0.0.0
-server.port=<yourport>
+# Logging
+logging.level.root=WARN
+logging.level.org.springframework.security=ERROR
 
-# MinIO (storage)
-minio.endpoint=http://localhost:8900
-minio.access-key=admin
-minio.secret-key=<yourPassword>
-minio.bucket-name=<yourBucketName>
+# HikariCP (connection pool)
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.idle-timeout=30000
+spring.datasource.hikari.pool-name=HikariPool-Auth
+spring.datasource.hikari.max-lifetime=2000000
+spring.datasource.hikari.connection-timeout=30000
+spring.datasource.hikari.auto-commit=true
+spring.datasource.hikari.transaction-isolation=TRANSACTION_READ_COMMITTED
 
-#JWT
-waveme.app.jwtSecret=your-secret
+# JWT
+waveme.app.jwtSecret=your-jwt-secret-key
 waveme.app.jwtExpirationMs=86400000
 waveme.app.jwtCookieName=jwtCookie
+
+# MinIO (stockage d'images, fichiers)
+minio.endpoint=http://localhost:9000
+minio.access-key=minio
+minio.secret-key=your-minio-secret-key
+minio.bucket-name=waveme
+
+# Server
+server.address=0.0.0.0
+server.port=8081

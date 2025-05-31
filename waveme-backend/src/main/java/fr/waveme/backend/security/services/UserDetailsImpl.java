@@ -1,7 +1,7 @@
 package fr.waveme.backend.security.services;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import fr.waveme.backend.crud.models.User;
+import fr.waveme.backend.auth.crud.models.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;

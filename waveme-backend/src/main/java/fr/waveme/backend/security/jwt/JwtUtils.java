@@ -31,40 +31,6 @@ public class JwtUtils {
     @Value("${waveme.app.jwtCookieName}")
     private String token;
 
-    public String getJwtFromCookies(HttpServletRequest request) {
-        try {
-            Cookie cookie = WebUtils.getCookie(request, token);
-            if (cookie != null) {
-                logger.debug("JWT found in cookie: {}", cookie.getValue());
-                return cookie.getValue();
-            } else {
-                logger.warn("No JWT cookie named '{}' found in request.", token);
-            }
-        } catch (Exception e) {
-            logger.error("[getJwtFromCookies] Error extracting JWT: {}", e.getMessage(), e);
-        }
-        return null;
-    }
-
-    public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
-        try {
-            if (userPrincipal == null) {
-                logger.warn("[generateJwt] User principal is null, returning clean cookie.");
-                return getCleanJwt();
-            }
-            String jwt = generateTokenFromUser(userPrincipal);
-            logger.debug("[generateJwt] JWT generated for user {}: {}", userPrincipal.getUsername(), jwt);
-            return ResponseCookie.from(token, jwt)
-                    .path("/api")
-                    .maxAge(24 * 60 * 60)
-                    .httpOnly(true)
-                    .build();
-        } catch (Exception e) {
-            logger.error("[generateJwt] Error: {}", e.getMessage(), e);
-            return getCleanJwt();
-        }
-    }
-
     public ResponseCookie getCleanJwt() {
         try {
             logger.info("[getCleanJwt] Returning clean JWT cookie.");
@@ -91,20 +57,16 @@ public class JwtUtils {
         }
     }
 
-    public Long getUserIdFromJwtToken(String token) {
-        try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(key())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-
-            return claims.get("id", Integer.class).longValue();
-        } catch (Exception e) {
-            logger.error("[JwtUtils] Cannot extract userId from token: {}", e.getMessage(), e);
-            return null;
-        }
+    public String getUserIdFromJwtToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        Object idObj = claims.get("id");
+        return idObj != null ? idObj.toString() : null;
     }
+
 
     public boolean validateJwtToken(String authToken) {
         try {
