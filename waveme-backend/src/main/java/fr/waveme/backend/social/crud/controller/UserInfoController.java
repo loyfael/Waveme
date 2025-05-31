@@ -2,6 +2,7 @@ package fr.waveme.backend.social.crud.controller;
 
 import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.social.crud.dto.pub.PostPublicDto;
+import fr.waveme.backend.social.crud.exception.UserNotFoundException;
 import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.PostRepository;
 import fr.waveme.backend.social.crud.repository.ReplyRepository;
@@ -9,8 +10,10 @@ import fr.waveme.backend.social.crud.service.MinioService;
 import fr.waveme.backend.utils.RateLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -62,41 +65,37 @@ public class UserInfoController {
     return ResponseEntity.ok(posts);
   }
 
-//  @GetMapping("me")
-//  public ResponseEntity<UserPublicDto> getCurrentUser(@RequestHeader("Authorization") String authorizationHeader) {
-//
-//    String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
-//    Long userId = jwtUtils.getUserIdFromJwtToken(token);
-//
-//    if (userId == null) {
-//      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token: user ID not found");
-//    }
-//
-//    User user = userRepository.findById(userId)
-//            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-//
-//    int postUpvotes = postRepository.findByUser(user).stream()
-//            .mapToInt(p -> p.getUpVote() != null ? p.getUpVote() : 0).sum();
-//
-//    int commentUpvotes = commentRepository.findByUserId(user.getId()).stream()
-//            .mapToInt(c -> c.getUpVote() != null ? c.getUpVote() : 0).sum();
-//
-//    int replyUpvotes = replyRepository.findByUserId(user.getId().toString()).stream()
-//            .mapToInt(r -> r.getUpVote() != null ? r.getUpVote() : 0).sum();
-//
-//    int totalUpvotes = postUpvotes + commentUpvotes + replyUpvotes;
-//    int totalPosts = postRepository.findByUser(user).size();
-//
-//    UserPublicDto dto = new UserPublicDto(
-//            user.getId(),
-//            user.getPseudo(),
-//            user.getProfileImg(),
-//            totalUpvotes,
-//            totalPosts,
-//            user.getCreatedAt(),
-//            user.getUpdatedAt()
-//    );
-//
-//    return ResponseEntity.ok(dto);
-//  }
+  @GetMapping("me")
+  public ResponseEntity<UserPublicDto> getCurrentUser(@RequestHeader("Authorization") String authorizationHeader) {
+
+    String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+    Long userId = Long.valueOf(jwtUtils.getUserIdFromJwtToken(token));
+
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+    int postUpvotes = postRepository.findByUser(user).stream()
+            .mapToInt(p -> p.getUpVote() != null ? p.getUpVote() : 0).sum();
+
+    int commentUpvotes = commentRepository.findByUserId(user.getId()).stream()
+            .mapToInt(c -> c.getUpVote() != null ? c.getUpVote() : 0).sum();
+
+    int replyUpvotes = replyRepository.findByUserId(user.getId().toString()).stream()
+            .mapToInt(r -> r.getUpVote() != null ? r.getUpVote() : 0).sum();
+
+    int totalUpvotes = postUpvotes + commentUpvotes + replyUpvotes;
+    int totalPosts = postRepository.findByUser(user).size();
+
+    UserPublicDto dto = new UserPublicDto(
+            user.getId(),
+            user.getPseudo(),
+            user.getProfileImg(),
+            totalUpvotes,
+            totalPosts,
+            user.getCreatedAt(),
+            user.getUpdatedAt()
+    );
+
+    return ResponseEntity.ok(dto);
+  }
 }
