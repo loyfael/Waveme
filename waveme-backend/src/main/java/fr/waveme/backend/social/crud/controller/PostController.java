@@ -29,21 +29,15 @@ public class PostController {
     private static final Logger logger = LoggerFactory.getLogger(PostController.class);
     private final MinioService minioService;
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
-    private final ReplyRepository replyRepository;
     private final JwtUtils jwtUtils;
 
     public PostController(
             MinioService minioService,
             PostRepository postRepository,
-            CommentRepository commentRepository,
-            ReplyRepository replyRepository,
             JwtUtils jwtUtils
     ) {
         this.minioService = minioService;
         this.postRepository = postRepository;
-        this.commentRepository = commentRepository;
-        this.replyRepository = replyRepository;
         this.jwtUtils = jwtUtils;
     }
 
