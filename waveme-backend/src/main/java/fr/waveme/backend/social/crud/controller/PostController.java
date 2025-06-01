@@ -1,10 +1,7 @@
 package fr.waveme.backend.social.crud.controller;
 
-import fr.waveme.backend.social.crud.models.Comment;
 import fr.waveme.backend.social.crud.models.Post;
-import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.PostRepository;
-import fr.waveme.backend.social.crud.repository.ReplyRepository;
 import fr.waveme.backend.social.crud.service.MinioService;
 import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.utils.RateLimiter;
@@ -29,21 +26,15 @@ public class PostController {
     private static final Logger logger = LoggerFactory.getLogger(PostController.class);
     private final MinioService minioService;
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
-    private final ReplyRepository replyRepository;
     private final JwtUtils jwtUtils;
 
     public PostController(
             MinioService minioService,
             PostRepository postRepository,
-            CommentRepository commentRepository,
-            ReplyRepository replyRepository,
             JwtUtils jwtUtils
     ) {
         this.minioService = minioService;
         this.postRepository = postRepository;
-        this.commentRepository = commentRepository;
-        this.replyRepository = replyRepository;
         this.jwtUtils = jwtUtils;
     }
 
@@ -66,7 +57,7 @@ public class PostController {
             logger.info("Received file: {}, bucket: {}", file.getOriginalFilename(), bucketName);
 
             String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
-            String userId = jwtUtils.getUserIdFromJwtToken(token);
+            String userId = jwtUtils.getSocialUserIdFromJwtToken(token);
 
             Post post = new Post();
             post.setUserId(userId);
@@ -88,7 +79,7 @@ public class PostController {
         }
     }
 
-    @GetMapping("/download-image")
+    @GetMapping("/get/{id}")
     public ResponseEntity<byte[]> downloadImage(
             @RequestParam("objectName") String objectName,
             @RequestParam("bucket") String bucketName,

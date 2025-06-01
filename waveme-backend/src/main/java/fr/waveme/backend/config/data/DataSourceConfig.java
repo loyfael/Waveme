@@ -1,4 +1,4 @@
-package fr.waveme.backend.config;
+package fr.waveme.backend.config.data;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;

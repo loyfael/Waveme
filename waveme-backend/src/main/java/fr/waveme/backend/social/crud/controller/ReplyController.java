@@ -38,7 +38,7 @@ public class ReplyController {
     ipAddress = ipAddress != null ? ipAddress : "unknown";
     RateLimiter.checkRateLimit("reply:" + ipAddress);
 
-    String userId = jwtUtils.getUserIdFromJwtToken(authorizationHeader.replace("Bearer ", ""));
+    String userId = jwtUtils.getSocialUserIdFromJwtToken(authorizationHeader.replace("Bearer ", ""));
     commentRepository.findById(commentId.toString()).orElseThrow(
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
 

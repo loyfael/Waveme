@@ -38,7 +38,7 @@ public class CommentController {
     ipAddress = ipAddress != null ? ipAddress : "unknown";
     RateLimiter.checkRateLimit("post:" + ipAddress);
 
-    String userId = jwtUtils.getUserIdFromJwtToken(authorizationHeader.replace("Bearer ", "")); // Si tu stockes userId en String
+    String userId = jwtUtils.getSocialUserIdFromJwtToken(authorizationHeader.replace("Bearer ", "")); // Si tu stockes userId en String
     postRepository.findById(postId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
 
     Comment comment = new Comment();

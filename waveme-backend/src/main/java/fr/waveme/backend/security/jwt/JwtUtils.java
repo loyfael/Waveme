@@ -7,15 +7,12 @@ import java.util.Date;
 import fr.waveme.backend.security.services.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.WebUtils;
 
 @Component
 public class JwtUtils {
@@ -57,7 +54,13 @@ public class JwtUtils {
         }
     }
 
-    public String getUserIdFromJwtToken(String token) {
+    /**
+     * Extracts the social user ID from the JWT token.
+     *
+     * @param token The JWT token.
+     * @return The social user ID as a String, or null if not found.
+     */
+    public String getSocialUserIdFromJwtToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build()
@@ -67,7 +70,37 @@ public class JwtUtils {
         return idObj != null ? idObj.toString() : null;
     }
 
+    /**
+     * Extracts the authenticated user ID from the JWT token.
+     *
+     * @param token The JWT token.
+     * @return The authenticated user ID as a Long.
+     * @throws IllegalArgumentException if the ID claim is missing or not a valid Long.
+     */
+    public Long getAuthUserIdFromJwtToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        Object idObj = claims.get("id");
+        if (idObj == null) {
+            throw new IllegalArgumentException("ID claim is missing from JWT");
+        }
 
+        try {
+            return Long.valueOf(idObj.toString());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("ID claim in JWT is not a valid Long");
+        }
+    }
+
+    /**
+     * Validates the JWT token.
+     *
+     * @param authToken The JWT token to validate.
+     * @return true if the token is valid, false otherwise.
+     */
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
@@ -85,22 +118,6 @@ public class JwtUtils {
             logger.error("[validateJwtToken] Unexpected error: {}", e.getMessage(), e);
         }
         return false;
-    }
-
-    public String generateTokenFromUsername(String username) {
-        try {
-            String token = Jwts.builder()
-                    .setSubject(username)
-                    .setIssuedAt(new Date())
-                    .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                    .signWith(key(), SignatureAlgorithm.HS512)
-                    .compact();
-            logger.debug("[generateTokenFromUsername] JWT for username {}: {}", username, token);
-            return token;
-        } catch (Exception e) {
-            logger.error("[generateTokenFromUsername] Error: {}", e.getMessage(), e);
-            return null;
-        }
     }
 
     public String generateTokenFromUser(UserDetailsImpl userPrincipal) {
@@ -133,7 +150,7 @@ public class JwtUtils {
         }
     }
 
-    public String getJwtCookieName() {
+    public String getJwtTokenName() {
         return token;
     }
 }

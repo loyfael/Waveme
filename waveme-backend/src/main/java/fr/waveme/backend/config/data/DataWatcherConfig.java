@@ -1,4 +1,4 @@
-package fr.waveme.backend.config;
+package fr.waveme.backend.config.data;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;

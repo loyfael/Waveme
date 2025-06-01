@@ -17,5 +17,4 @@ public class UserDto {
     private String pseudo;
     private String email;
     private String password;
-    private String profileImg;
 }
