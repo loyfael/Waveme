@@ -1,19 +1,25 @@
 package fr.waveme.backend.social.crud.controller;
 
+import fr.waveme.backend.auth.crud.dto.pub.UserPublicDto;
+import fr.waveme.backend.auth.crud.models.User;
 import fr.waveme.backend.security.jwt.JwtUtils;
-import fr.waveme.backend.social.crud.dto.UserSocialPublicDto;
+import fr.waveme.backend.social.crud.dto.UserProfileDto;
 import fr.waveme.backend.social.crud.dto.pub.PostPublicDto;
+import fr.waveme.backend.social.crud.dto.pub.UserSocialPublicDto;
+import fr.waveme.backend.social.crud.exception.UserNotFoundException;
+import fr.waveme.backend.social.crud.models.UserProfile;
 import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.PostRepository;
 import fr.waveme.backend.social.crud.repository.ReplyRepository;
+import fr.waveme.backend.social.crud.repository.UserProfileRepository;
 import fr.waveme.backend.social.crud.service.MinioService;
+import fr.waveme.backend.social.crud.service.UserProfileService;
 import fr.waveme.backend.utils.RateLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -22,22 +28,28 @@ import java.util.List;
 public class UserInfoController {
 
   private static final Logger logger = LoggerFactory.getLogger(PostController.class);
+  private final UserProfileRepository userProfileRepository;
   private final PostRepository postRepository;
   private final CommentRepository commentRepository;
   private final ReplyRepository replyRepository;
   private final JwtUtils jwtUtils;
+  private final UserProfileService userProfileService;
 
   public UserInfoController(
           MinioService minioService,
           PostRepository postRepository,
           CommentRepository commentRepository,
           ReplyRepository replyRepository,
-          JwtUtils jwtUtils
+          JwtUtils jwtUtils,
+          UserProfileRepository userProfileRepository,
+          UserProfileService userProfileService
   ) {
     this.postRepository = postRepository;
     this.commentRepository = commentRepository;
     this.replyRepository = replyRepository;
     this.jwtUtils = jwtUtils;
+    this.userProfileRepository = userProfileRepository;
+    this.userProfileService = userProfileService;
   }
 
   @GetMapping("{id}/posts")
@@ -66,34 +78,73 @@ public class UserInfoController {
   }
 
   @GetMapping("me")
-  public ResponseEntity<UserSocialPublicDto> getCurrentUser(@RequestHeader("Authorization") String authorizationHeader) {
+  public ResponseEntity<UserProfileDto> getCurrentUser(@RequestHeader("Authorization") String authorizationHeader) {
 
     String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
-    Long userId = Long.valueOf(jwtUtils.getSocialUserIdFromJwtToken(token));
+    Long authUserId = Long.valueOf(jwtUtils.getSocialUserIdFromJwtToken(token));
 
+    // Récupération des stats Social
+    String userIdStr = String.valueOf(authUserId);
+    UserProfile userSocial = userProfileRepository.findById(userIdStr)
+            .orElseThrow(() -> new RuntimeException("User not found in social repository"));
 
-    int postUpvotes = postRepository.findByUser(user).stream()
+    int postUpvotes = postRepository.findByUserId(userIdStr).stream()
             .mapToInt(p -> p.getUpVote() != null ? p.getUpVote() : 0).sum();
-
-    int commentUpvotes = commentRepository.findByUserId(user.getId()).stream()
+    int commentUpvotes = commentRepository.findByUserId(userIdStr).stream()
             .mapToInt(c -> c.getUpVote() != null ? c.getUpVote() : 0).sum();
-
-    int replyUpvotes = replyRepository.findByUserId(user.getId().toString()).stream()
+    int replyUpvotes = replyRepository.findByUserId(userIdStr).stream()
             .mapToInt(r -> r.getUpVote() != null ? r.getUpVote() : 0).sum();
+    int totalPosts = postRepository.findByUserId(userIdStr).size();
 
-    int totalUpvotes = postUpvotes + commentUpvotes + replyUpvotes;
-    int totalPosts = postRepository.findByUser(user).size();
-
-    UserSocialPublicDto dto = new UserSocialPublicDto(
-            user.getId(),
-            user.getPseudo(),
-            user.getProfileImg(),
-            totalUpvotes,
-            totalPosts,
-            user.getCreatedAt(),
-            user.getUpdatedAt()
+    UserProfileDto dto = new UserProfileDto(
+            userSocial.getId(),
+            userSocial.getAuthUserId(),
+            userSocial.getPseudo(),
+            userSocial.getEmail(),
+            userSocial.getProfileImg(),
+            userSocial.getTotalUpVotes(),
+            userSocial.getTotalPosts(),
+            userSocial.getTotalComments(),
+            userSocial.getCreatedAt(),
+            userSocial.getUpdatedAt()
     );
 
     return ResponseEntity.ok(dto);
+  }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<UserSocialPublicDto> getUserById(
+          @PathVariable Long id,
+          @RequestHeader("Authorization") String authorizationHeader,
+          @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
+  ) {
+    ipAddress = ipAddress != null ? ipAddress : "unknown";
+
+    RateLimiter.checkRateLimit("post:" + ipAddress);
+
+    // Validate JWT token (implementation not shown)
+    String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+    Long userId = jwtUtils.getAuthUserIdFromJwtToken(token);
+
+    UserProfile userProfile = userProfileRepository.findById(id.toString())
+            .orElseThrow(() -> new UserNotFoundException(HttpStatus.NOT_FOUND, "User not found"));
+
+    UserSocialPublicDto dto = new UserSocialPublicDto(
+            userProfile.getId(),
+            userProfile.getPseudo(),
+            userProfile.getTotalPosts(),
+            userProfile.getTotalComments(),
+            userProfile.getTotalUpVotes(),
+            userProfile.getProfileImg(),
+            userProfile.getCreatedAt(),
+            userProfile.getUpdatedAt()
+    );
+    return ResponseEntity.ok(dto);
+  }
+
+  @PostMapping
+  public ResponseEntity<UserProfileDto> createUser(@RequestBody UserProfileDto dto) {
+
+    return ResponseEntity.ok(userProfileService.save(dto));
   }
 }
