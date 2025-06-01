@@ -12,12 +12,11 @@ import React, { useContext, useState } from "react";
 import { Pressable, TouchableOpacity, View } from "react-native";
 
 export default function Login() {
-  useWebTitle('Connexion')
-
   const [credentials, setCredentials] = useState<LoginCredentials>({ pseudo: '', password: '' })
   const [invalidTooltip, setInvalidTooltip] = useState<InvalidTooltip>({ display: false, field: '', message: '' })
   const [invalidMessage, setInvalidMessage] = useState("")
-
+  
+  useWebTitle('Connexion')
   const router = useRouter()
   const { reloadUser } = useContext(AuthContext)
 

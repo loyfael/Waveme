@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Loading } from "./Loading";
 import { ThemedView } from "./theme/ThemedView";
-import { Animated, View, Image, Pressable } from "react-native";
+import { Animated, View, Image, Pressable, ImageSourcePropType } from "react-native";
 import { BiSolidDownArrowAlt, BiSolidUpArrowAlt } from "react-icons/bi";
 import { Colors } from "@/constants/Colors";
 import { fadeButtonToClicked, fadeButtonToIdle } from "@/utils/animateButton";
 import { ChatDotsFill } from "react-bootstrap-icons";
-import { Entypo } from "@expo/vector-icons";
+import { Entypo, MaterialIcons } from "@expo/vector-icons";
 import { memeStyle } from "@/constants/commonStyles";
 import { ThemedText } from "./theme/ThemedText";
 import { useAnimatedButton } from "@/hooks/useAnimatedButton";
@@ -14,6 +14,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { Post } from "@/types";
 import { useRouter } from "expo-router";
 import ReportModal from "./ReportModal";
+import { createLocalUriFromBackUri } from "@/utils/api";
 
 type PostListProps = {
   isLoading: boolean,
@@ -26,6 +27,8 @@ export default function PostList(props: PostListProps) {
   const [reportedContent, setReportedContent] = useState<"post" | "comment">("post")
   const [reportedUser, setReportedUser] = useState("")
   const [reportedMessage, setReportedMessage] = useState<string | null>(null)
+  const [loadedImages, setLoadedImages] = useState<{ [key: string]: string }>({})
+  const [loadedProfilePictures, setLoadedProfilePictures] = useState<{ [key: string]: string }>({})
 
   const AnimatedButton = Animated.createAnimatedComponent(Pressable)
 
@@ -50,6 +53,7 @@ export default function PostList(props: PostListProps) {
   })
 
   const areaBackgroundColor = useThemeColor({}, 'areaBackground')
+  const iconColor = useThemeColor({}, "icon")
 
   const handleOpenReportModal = (
     contentType: "post" | "comment",
@@ -62,35 +66,68 @@ export default function PostList(props: PostListProps) {
     setReportModalOpen(true)
   }
 
+  useEffect(() => {
+    const loadAllImages = async () => {
+      let loadingImages: { [key: string]: string } = {}
+      let loadingProfilePictures: { [key: string]: string } = {}
+      await Promise.all(
+        props.posts.map(async (post) => {
+          const dataUri = await createLocalUriFromBackUri(post.imageUrl, "post")
+          loadingImages[post.postUniqueId] = dataUri
+          if (post.user.profileImg) {
+            const profilePictureDataUri = await createLocalUriFromBackUri(post.user.profileImg, "profile")
+            loadedProfilePictures[post.user.id] = profilePictureDataUri
+          }
+        })
+      )
+      setLoadedImages(loadingImages)
+      setLoadedProfilePictures(loadingProfilePictures)
+    }
+    loadAllImages()
+
+    // Clean up the images on unmount
+    return () => {
+      Object.values(loadedImages).forEach((image) => {
+        URL.revokeObjectURL(image)
+      })
+    }
+  }, [props.posts])
+
   return (
     <>
       {!props.isLoading ? props.posts.map((post) => (
-        <ThemedView key={post.id} style={styles.postWrapper}>
+        <ThemedView key={post.postUniqueId} style={styles.postWrapper}>
           {/* Profile and post title */}
           <View style={styles.postProfile}>
-            {post.user.userPfp ? (
-              <Pressable onPress={() => { router.push(`/user/${"23"/*TODO: Post user id*/}`) }}>
-                <Image source={post.user.userPfp} style={styles.profilePicture} />
-              </Pressable>
-            ) : null}
+            <Pressable onPress={() => { router.push(`/user/${post.user.id}`) }}>
+              {loadedProfilePictures[post.user.id] ? (
+                <Image source={{ uri: loadedProfilePictures[post.user.id] }} style={styles.profilePicture} />
+              ) : (
+                <MaterialIcons name="account-circle" size={40} color={iconColor} style={styles.profilePicture} />
+              )}
+            </Pressable>
             <View style={styles.profileText}>
-              <Pressable onPress={() => { router.push(`/user/${"23"/*TODO: Post user id*/}`) }}>
-                <ThemedText type="defaultBold">{post.user.userName}</ThemedText>
+              <Pressable onPress={() => { router.push(`/user/${post.user.id}`) }}>
+                <ThemedText type="defaultBold">{post.user.pseudo}</ThemedText>
               </Pressable>
-              {post.title ? (
-                <ThemedText>{post.title}</ThemedText>
+              {post.description ? (
+                <ThemedText>{post.description}</ThemedText>
               ) : ''}
             </View>
           </View>
 
           <View style={styles.postMeme}>
-            <Image source={post.meme} style={{ ...styles.memeImage, backgroundColor: areaBackgroundColor }} resizeMode='contain' />
+            <Image
+              source={{ uri: loadedImages?.[post.postUniqueId] }}
+              style={{ ...styles.memeImage, backgroundColor: areaBackgroundColor }}
+              resizeMode='contain'
+            />
             <View style={styles.memeActionBar}>
               <View style={styles.barLeft}>
                 <AnimatedButton
                   onPressIn={() => fadeButtonToClicked(animatedButton1)}
                   onPressOut={() => fadeButtonToIdle(animatedButton1)}
-                  onPress={() => { handleOpenReportModal("post", post.user.userName, post.title) }}>
+                  onPress={() => { handleOpenReportModal("post", post.user.pseudo, post.description) }}>
                   <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor1 }}>
                     <Entypo name="flag" size={36} color={Colors.common.memeActionBar} />
                   </Animated.View>
@@ -100,7 +137,7 @@ export default function PostList(props: PostListProps) {
                 <AnimatedButton
                   onPressIn={() => fadeButtonToClicked(animatedButton2)}
                   onPressOut={() => fadeButtonToIdle(animatedButton2)}
-                  onPress={() => { router.push(`/post/${"11"/*TODO: post id*/}`) }}>
+                  onPress={() => { router.push(`/post/${post.postUniqueId}`) }}>
                   <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor2 }}>
                     <ChatDotsFill color={Colors.common.memeActionBar} size={30} />
                   </Animated.View>
@@ -130,7 +167,7 @@ export default function PostList(props: PostListProps) {
             setVisible={setReportModalOpen}
             reportedContent={reportedContent}
             userName={reportedUser}
-            id={"11"/*TODO: post id*/}
+            id={post.postUniqueId}
             message={reportedMessage}
           />
         </ThemedView>

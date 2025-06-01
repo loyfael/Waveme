@@ -99,6 +99,8 @@ export const authStyle = StyleSheet.create({
 
 export const genericButtonStyle = StyleSheet.create({
   genericButton: {
+    display: "flex",
+    alignItems: "center",
     backgroundColor: Colors.common.button,
     paddingHorizontal: 25,
     paddingVertical: 8,

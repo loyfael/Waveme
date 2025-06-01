@@ -109,6 +109,46 @@ public class UserInfoController {
     return ResponseEntity.ok(posts);
   }
 
+  @GetMapping("{id}/comments")
+  public ResponseEntity<List<CommentSummaryDto>> getUserComments(
+          @PathVariable Long id,
+          @RequestHeader("Authorization") String authorizationHeader,
+          @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
+  ) {
+    ipAddress = ipAddress != null ? ipAddress : "unknown";
+
+    String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+    String userId = jwtUtils.getSocialUserIdFromJwtToken(token);
+
+    List<CommentSummaryDto> comments = commentRepository.findByUserId(userId).stream()
+            .map(comment -> {
+              UserProfile profile = userProfileRepository.findById(comment.getUserId())
+                      .orElseThrow(() -> new RuntimeException("User profile not found"));
+
+              UserSimpleInfoDto userDto = new UserSimpleInfoDto(
+                      profile.getId(),
+                      profile.getPseudo(),
+                      profile.getProfileImg()
+              );
+
+              return new CommentSummaryDto(
+                      comment.getId(),
+                      comment.getCommentUniqueId(),
+                      comment.getPostId(),
+                      comment.getDescription(),
+                      comment.getUpVote(),
+                      comment.getDownVote(),
+                      comment.getUpVote() - comment.getDownVote(),
+                      comment.getCreatedAt() != null
+                              ? comment.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
+                              : Instant.EPOCH
+              );
+            })
+            .toList();
+
+    return ResponseEntity.ok(comments);
+  }
+
   /**
    * Retrieves the current user's profile information.
    *
@@ -214,6 +254,8 @@ public class UserInfoController {
             commentEntities.stream()
                     .map(comment -> new CommentSummaryDto(
                             comment.getId(),
+                            comment.getCommentUniqueId(),
+                            comment.getPostId(),
                             comment.getDescription(),
                             comment.getUpVote(),
                             comment.getDownVote(),

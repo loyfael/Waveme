@@ -12,10 +12,6 @@ import React, { useState } from "react";
 import { Pressable, View, TouchableOpacity } from 'react-native'
 
 export default function Signup() {
-  useWebTitle('Inscription')
-
-  const router = useRouter()
-
   const [credentials, setCredentials] = useState<SignupCredentials>({
     username: '',
     email: '',
@@ -24,6 +20,9 @@ export default function Signup() {
   })
   const [invalidTooltip, setInvalidTooltip] = useState<InvalidTooltip>({ display: false, field: '', message: '' })
   const [invalidMessage, setInvalidMessage] = useState("")
+  
+  useWebTitle('Inscription')
+  const router = useRouter()
 
   const handleSubmit = async (): Promise<void> => {
     const missingFields = getMissingFields(credentials)

@@ -1,11 +1,33 @@
 import { NewPost } from "@/types";
 import { refreshAuthIfNeeded } from "./AuthToken";
 import axios from "axios";
-import { POST_URL } from "@/constants/API";
+import { API_URL, BASE_SERVER_URL, POST_URL } from "@/constants/API";
+import { payloadToFormData } from "@/utils/api";
 
 export async function createPost(payload: NewPost) {
+  const formData = payloadToFormData(payload)
   return refreshAuthIfNeeded(() => {
-    return axios.post(`${POST_URL}/upload-image`, payload)
+    return axios.post(`${POST_URL}/upload-image`, formData)
+  })
+}
+
+export async function getFeed() {
+  refreshAuthIfNeeded(() => {
+    return axios.get(`${API_URL}/feed`)
+  })
+}
+
+export async function getPost(postId: string) {
+  return refreshAuthIfNeeded(() => {
+    return axios.get(`${POST_URL}/get/${postId}`)
+  })
+}
+
+export async function getPostImage(postUri: string) {
+  return refreshAuthIfNeeded(() => {
+    return axios.get(`${BASE_SERVER_URL}${postUri}`, {
+    responseType: 'arraybuffer',
+  })
   })
 }
 
@@ -16,50 +38,14 @@ export async function downloadImage() {
   })
 }
 
-export async function addComment(content: string, postId: number) {
-  return refreshAuthIfNeeded(() => {
-    return axios.post(`${POST_URL}/${postId}/comments`, { content })
-  })
-}
-
-export async function addReply(content: string, commentId: number) {
-  return refreshAuthIfNeeded(() => {
-    return axios.post(`${POST_URL}/comments/${commentId}/reply`, { content })
-  })
-}
-
-export async function upvotePost(postId: number) {
+export async function upvotePost(postId: string) {
   return refreshAuthIfNeeded(() => {
     return axios.post(`${POST_URL}/${postId}/vote`, { upvote: true })
   })
 }
 
-export async function downvotePost(postId: number) {
+export async function downvotePost(postId: string) {
   return refreshAuthIfNeeded(() => {
     return axios.post(`${POST_URL}/${postId}/vote`, { upvote: false })
-  })
-}
-
-export async function upvoteComment(commentId: number) {
-  return refreshAuthIfNeeded(() => {
-    return axios.post(`${POST_URL}/comments/${commentId}/vote`, { upvote: true })
-  })
-}
-
-export async function downvoteComment(commentId: number) {
-  return refreshAuthIfNeeded(() => {
-    return axios.post(`${POST_URL}/comments/${commentId}/vote`, { upvote: false })
-  })
-}
-
-export async function upvoteReply(replyId: number) {
-  return refreshAuthIfNeeded(() => {
-    return axios.post(`${POST_URL}/replies/${replyId}/vote`, { upvote: true })
-  })
-}
-
-export async function downvoteReply(replyId: number) {
-  return refreshAuthIfNeeded(() => {
-    return axios.post(`${POST_URL}/replies/${replyId}/vote`, { upvote: false })
   })
 }

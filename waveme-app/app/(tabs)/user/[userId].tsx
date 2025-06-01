@@ -3,89 +3,98 @@ import { ThemedText } from "@/components/theme/ThemedText";
 import { Colors } from "@/constants/Colors";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useWebTitle } from "@/hooks/useWebTitle";
+import { getUser } from "@/services/UserAPI";
+import { SimpleComment, SimplePost } from "@/types";
+import { createLocalUriFromBackUri } from "@/utils/api";
+import { MaterialIcons } from "@expo/vector-icons";
+import dayjs from "dayjs";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Image, Pressable, ImageSourcePropType, TouchableOpacity } from "react-native";
 import { useMediaQuery } from "react-responsive";
 
+type User = {
+  id: number,
+  pseudo: string,
+  profileImg: string | null,
+  totalUpVote: number,
+  totalPosts: number,
+  totalComments: number,
+  createdAt: string,
+  updatedAt: string,
+  latestPosts: SimplePost[],
+  latestComments: SimpleComment[],
+}
+
 export default function UserScreen() {
-  useWebTitle('user')
-
   const [user, setUser] = useState<User | null>()
+  const [loadedProfilePicture, setLoadedProfilePicture] = useState<string>("")
 
-  type SimplePost = {
-    id: number,
-    title: string | null,
-    upvotes: number,
-  }
-
-  type SimpleComment = {
-    id: number,
-    message: string,
-    upvotes: number,
-  }
-
-  type User = {
-    name: string,
-    pfp: ImageSourcePropType | undefined,
-    upvotes: number,
-    latestPosts: SimplePost[],
-    latestComments: SimpleComment[],
-  }
-
+  useWebTitle(user?.pseudo ?? "Utilisateur")
   const router = useRouter()
   const { userId } = useLocalSearchParams()
   const isSmallScreen = useMediaQuery({ query: '(max-width: 1200px)' })
   const areaBackgroundColor = useThemeColor({}, "areaBackground")
+  const iconColor = useThemeColor({}, "icon")
 
   useEffect(() => {
-    // TODO: API call    
-    setUser({
-      name: "Beuteu34",
-      pfp: require('@/assets/images/pfp.png'),
-      upvotes: 50,
-      latestPosts: [{
-        id: 34,
-        title: "meme",
-        upvotes: 47,
-      },
-      {
-        id: 35,
-        title: "meme (nul)",
-        upvotes: -512,
-      }],
-      latestComments: [{
-        id: 111,
-        message: "ouais c'est marrant",
-        upvotes: 3,
-      }],
-    })
+    const handleFetchUser = async () => {
+      await getUser(userId as string)
+        .catch((err) => {
+          console.error(err);
+        })
+        .then((response) => {
+          setUser(response.data)
+        })
+    }
+    handleFetchUser()
   }, [userId])
+
+  useEffect(() => {
+    if (user && user.profileImg) {
+      const fetchProfilePicture = async () => {
+        const dataUri = await createLocalUriFromBackUri(user.profileImg as string, "profile")
+        setLoadedProfilePicture(dataUri)
+      }
+      fetchProfilePicture()
+    }
+  }, [user])
 
   return (
     <>
       {user ? (
         <>
           <View style={styles.userWrapper}>
-            <Image source={user.pfp} style={styles.userPfp} />
-            <ThemedText type="title">{user.name}</ThemedText>
-            <ThemedText>Score : {user.upvotes}</ThemedText>
+            {user?.profileImg ? (
+              <Image source={{ uri: loadedProfilePicture }} style={styles.userPfp} />
+            ) : (
+              <MaterialIcons name="account-circle" size={200} color={iconColor} style={styles.userPfp} />
+            )}
+            <ThemedText type="title">{user.pseudo}</ThemedText>
+            <ThemedText>Date de création : {dayjs(user.createdAt).format("DD/MM/YYYY")}</ThemedText>
+            <ThemedText>Dernière activité : {dayjs(user.updatedAt).format("DD/MM/YYYY")}</ThemedText>
+            <ThemedText>Score : {user.totalUpVote}</ThemedText>
+            <ThemedText>Nombre de posts : {user.totalPosts}</ThemedText>
+            <ThemedText>Nombre de commentaires : {user.totalComments}</ThemedText>
           </View>
           <View style={isSmallScreen ? styles.activityWrapperSmallScreen : styles.activityWrapper}>
-            {/* Don't mind that error, the linter must get confused by dynamic values */}
-            {/* If you don't see an error, ignore these comments as well */}
-            <Pressable style={{ ...styles.activityBlock, borderColor: areaBackgroundColor }} onPress={() => { router.push(`/user/${userId}/posts`) }}>
+            <Pressable
+              style={isSmallScreen
+                ? { ...styles.activityBlockSmallScreen, borderColor: areaBackgroundColor }
+                : { ...styles.activityBlock, borderColor: areaBackgroundColor }}
+              onPress={() => { router.push(`/user/${userId}/posts`) }}
+            >
               <ThemedText type="subtitle">Derniers posts</ThemedText>
-              {typeof user === "object" ? (
+              {user?.latestPosts ? (
                 <>
                   <View style={styles.latestActivityList}>
                     {user.latestPosts.map((post) => (
-                      <TouchableOpacity key={post.id} onPress={() => { router.push(`/post/${"11"/*TODO: Replace with postId*/}`) }} style={styles.latestPost}>
+                      <TouchableOpacity key={post.id} onPress={() => { router.push(`/post/${post.postUniqueId}`) }} style={styles.latestPost}>
                         <ThemedText>
-                          {post.title}
+                          {post.description}
                         </ThemedText>
-                        <ThemedText type="defaultBold" style={{ color: post.upvotes > 0 ? Colors.common.upvote : Colors.common.downvote }}>
-                          {post.upvotes > 0 ? "+" : ""}{post.upvotes}
+                        <ThemedText type="defaultBold" style={{ color: post.voteSum >= 0 ? Colors.common.upvote : Colors.common.downvote }}>
+                          {post.voteSum > 0 ? "+" : ""}{post.voteSum}
                         </ThemedText>
                       </TouchableOpacity>
                     ))}
@@ -94,19 +103,23 @@ export default function UserScreen() {
                 </>
               ) : (<ThemedText>Cet utilisateur n'a rien posté.</ThemedText>)}
             </Pressable>
-            {/* Same here */}
-            <Pressable style={{ ...styles.activityBlock, borderColor: areaBackgroundColor }} onPress={() => { router.push(`/user/${userId}/comments`) }}>
+            <Pressable
+              style={isSmallScreen
+                ? { ...styles.activityBlockSmallScreen, borderColor: areaBackgroundColor }
+                : { ...styles.activityBlock, borderColor: areaBackgroundColor }}
+              onPress={() => { router.push(`/user/${userId}/comments`) }}
+            >
               <ThemedText type="subtitle">Derniers commentaires</ThemedText>
-              {typeof user === "object" ? (
+              {user?.latestComments ? (
                 <>
                   <View style={styles.latestActivityList}>
                     {user.latestComments.map((comment) => (
-                      <TouchableOpacity key={comment.id} onPress={() => { router.push(`/post/${"11"/*TODO: Replace with postId*/}`) }} style={styles.latestPost}>
+                      <TouchableOpacity key={comment.id} onPress={() => { router.push(`/post/${comment.postId}`) }} style={styles.latestPost}>
                         <ThemedText>
-                          {comment.message}
+                          {comment.content}
                         </ThemedText>
-                        <ThemedText type="defaultBold" style={{ color: comment.upvotes >= 0 ? Colors.common.upvote : Colors.common.downvote }}>
-                          {comment.upvotes > 0 ? "+" : ""}{comment.upvotes}
+                        <ThemedText type="defaultBold" style={{ color: comment.voteSum >= 0 ? Colors.common.upvote : Colors.common.downvote }}>
+                          {comment.voteSum > 0 ? "+" : ""}{comment.voteSum}
                         </ThemedText>
                       </TouchableOpacity>
                     ))}

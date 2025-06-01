@@ -161,6 +161,7 @@ public class PostController {
 
                                 return new ReplyAndUserPublicDto(
                                         reply.getId(),
+                                        reply.getReplyUniqueId(),
                                         reply.getDescription(),
                                         reply.getUpVote(),
                                         reply.getDownVote(),
@@ -174,6 +175,7 @@ public class PostController {
 
                     return new CommentAndUserPublicDto(
                             comment.getId(),
+                            comment.getCommentUniqueId(),
                             comment.getDescription(),
                             comment.getUpVote(),
                             comment.getDownVote(),
