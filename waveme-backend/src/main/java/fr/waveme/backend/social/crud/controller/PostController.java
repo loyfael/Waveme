@@ -79,7 +79,7 @@ public class PostController {
         }
     }
 
-    @GetMapping("/download-image")
+    @GetMapping("/get/{id}")
     public ResponseEntity<byte[]> downloadImage(
             @RequestParam("objectName") String objectName,
             @RequestParam("bucket") String bucketName,
