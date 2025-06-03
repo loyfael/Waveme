@@ -10,4 +10,6 @@ public interface PostRepository extends MongoRepository<Post, String> {
     Optional<Post> findByImageUrl(String imageUrl);
     Optional<Post> findByImageUrlContaining(String partOfImageUrl);
     List<Post> findByUserId(String userId);
+    List<Post> findAllByUserId(String userId);
+    Optional<Post> findByIdAndUserId(String postId, String userId);
 }

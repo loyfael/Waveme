@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -127,5 +128,27 @@ public class PostController {
 
         postRepository.save(post);
         return ResponseEntity.ok("Vote recorded");
+    }
+
+    @GetMapping("/all/{userId}")
+    public ResponseEntity<?> getAllPostsByUserId(@PathVariable String userId) {
+        try {
+            List<Post> posts = postRepository.findAllByUserId(userId);
+            return ResponseEntity.ok(posts);
+        } catch (Exception e) {
+            logger.error("Error fetching posts for userId {}: {}", userId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching posts: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{userId}/{postId}")
+    public ResponseEntity<Post> getPostByUserIdAndPostId(
+            @PathVariable String userId,
+            @PathVariable String postId
+    ) {
+        return postRepository.findByIdAndUserId(postId, userId)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
     }
 }
