@@ -10,6 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
+/**
+ * UserServiceImpl is the implementation of the UserService interface.
+ * It provides methods for creating, retrieving, updating, and deleting users.
+ * This service interacts with the UserRepository to perform database operations
+ * and uses UserMapper to convert between User and UserDto objects.
+ */
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
