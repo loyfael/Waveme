@@ -7,6 +7,11 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * UserPublicDto is a Data Transfer Object (DTO) that represents a public view of a user.
+ * It contains fields for user identification, pseudo, email, and timestamps for creation and update.
+ * This DTO is used to transfer user data in a public context, such as in API responses.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
