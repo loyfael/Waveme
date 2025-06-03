@@ -11,6 +11,12 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+/**
+ * User is an entity class that represents a user in the application.
+ * It contains fields for user identification, pseudo, email, password, roles,
+ * and timestamps for creation and update.
+ * This class is used to manage user data in the authentication module.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
