@@ -10,6 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * ReplyController handles the CRUD operations for replies to comments,
+ * including adding replies and voting on replies.
+ */
 @RestController
 @RequestMapping("/api/replies")
 public class ReplyController {

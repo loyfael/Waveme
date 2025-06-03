@@ -18,6 +18,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * AuthTokenFilter is a custom filter that checks for JWT tokens in the Authorization header
+ * of incoming HTTP requests. If a valid token is found, it authenticates the user and sets
+ * the security context accordingly.
+ * This filter extends OncePerRequestFilter to ensure it is executed once per request.
+ */
 public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Autowired

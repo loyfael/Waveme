@@ -4,6 +4,10 @@ import lombok.Getter;
 
 import java.time.Instant;
 
+/**
+ * PostPublicDto represents a public data transfer object for posts in the social media application.
+ * It contains fields for post ID, description, image URL, and creation timestamp.
+ */
 @Getter
 public class PostPublicDto {
     private final String id;

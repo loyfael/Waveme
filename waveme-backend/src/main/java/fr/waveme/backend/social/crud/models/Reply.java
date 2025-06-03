@@ -9,6 +9,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
+/**
+ * Reply represents a reply to a comment in the social media application.
+ * It contains fields for reply ID, user ID, upvotes, downvotes, description,
+ * a reference to the parent comment, and timestamps for creation and update.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

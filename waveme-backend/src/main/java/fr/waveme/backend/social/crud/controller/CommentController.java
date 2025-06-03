@@ -10,6 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * CommentController handles the CRUD operations for comments on posts,
+ * including adding comments and voting on comments.
+ */
 @RestController
 @RequestMapping("/api/comments")
 public class CommentController {

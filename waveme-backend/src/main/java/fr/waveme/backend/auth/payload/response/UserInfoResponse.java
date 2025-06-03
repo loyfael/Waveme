@@ -5,6 +5,11 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * UserInfoResponse is a class that represents the response payload for user information.
+ * It contains fields for user ID, pseudo, email, roles, and JWT token.
+ * This class is used to send user details back to the client after successful authentication or profile retrieval.
+ */
 @Getter
 public class UserInfoResponse {
     @Setter

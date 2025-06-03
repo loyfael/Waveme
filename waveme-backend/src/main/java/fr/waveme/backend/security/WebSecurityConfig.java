@@ -22,9 +22,11 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import java.util.List;
 
 /**
- * Configuration de sécurité de l'application avec Spring Security.
- * Cette classe configure l'authentification, la gestion des sessions, les politiques CORS,
- * et définit un filtre pour gérer les jetons JWT.
+ * WebSecurityConfig is the configuration class for Spring Security.
+ * It defines the security settings for the application, including authentication,
+ * authorization, and CORS (Cross-Origin Resource Sharing) policies.
+ * * This class is annotated with @Configuration to indicate that it provides Spring configuration,
+ * * and @EnableMethodSecurity to enable method-level security annotations like @PreAuthorize.
  */
 @Configuration
 @EnableMethodSecurity // Active les annotations de sécurité sur les méthodes, comme @PreAuthorize

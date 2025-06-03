@@ -11,6 +11,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
+/**
+ * Report represents a report in the social media application.
+ * It contains fields for report ID, reporter ID, references to comment and reply,
+ * reason for the report, description, status of the report, and timestamps for creation and update.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

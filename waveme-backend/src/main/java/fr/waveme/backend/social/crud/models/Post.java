@@ -9,6 +9,11 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Post represents a post in the social media application.
+ * It contains fields for post ID, user ID, image URL, upvotes, downvotes,
+ * description, short URL, a list of comment IDs, and timestamps for creation and update.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

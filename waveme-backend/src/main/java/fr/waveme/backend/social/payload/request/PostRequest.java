@@ -5,6 +5,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * PostRequest represents the request payload for creating or updating a post.
+ * It contains fields for the image URL, description, upvote count, and downvote count.
+ * The upvote and downvote counts are initialized to 0 by default.
+ */
 @Getter
 @Setter
 public class PostRequest {

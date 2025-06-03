@@ -15,6 +15,11 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
+
+/**
+ * MinioServiceImpl provides methods to upload and download images using MinIO.
+ * It implements the MinioService interface and uses MinioClient for interactions with the MinIO server.
+ */
 @Service
 public class MinioServiceImpl implements MinioService {
     private final MinioClient minioClient;

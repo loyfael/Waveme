@@ -4,6 +4,10 @@ import fr.waveme.backend.social.crud.dto.UserProfileDto;
 import fr.waveme.backend.social.crud.models.UserProfile;
 import org.springframework.stereotype.Component;
 
+/**
+ * UserProfileMapper is a component that maps between UserProfile entities and UserProfileDto objects.
+ * It provides methods to convert from entity to DTO and vice versa.
+ */
 @Component
 public class UserProfileMapper {
 

@@ -5,6 +5,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 
+/**
+ * MinioService provides methods to upload and download images using MinIO.
+ * It defines the contract for interacting with MinIO for image storage.
+ */
 public interface MinioService {
 
     /**

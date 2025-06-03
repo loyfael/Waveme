@@ -10,6 +10,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Comment represents a comment in the social media application.
+ * It contains fields for comment ID, user ID, upvotes, downvotes, description,
+ * a reference to the parent post, and a list of reply IDs.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

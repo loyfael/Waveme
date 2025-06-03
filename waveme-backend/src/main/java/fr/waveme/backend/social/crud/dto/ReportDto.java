@@ -9,6 +9,11 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * ReportDto represents a data transfer object for reports in the social media application.
+ * It contains fields for report ID, reporter ID, comment ID, reply ID, reason, description, status,
+ * and timestamps for creation and last update.
+ */
 @Data
 @Builder
 @NoArgsConstructor

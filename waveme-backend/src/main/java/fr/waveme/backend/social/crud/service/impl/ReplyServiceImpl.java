@@ -6,6 +6,10 @@ import fr.waveme.backend.social.crud.service.ReplyService;
 
 import java.util.List;
 
+/**
+ * ReplyServiceImpl provides the implementation of the ReplyService interface.
+ * It contains methods to create, retrieve, update, and delete replies.
+ */
 public class ReplyServiceImpl implements ReplyService {
     @Override
     public ReplyDto createReply(ReplyDto replyDto) {

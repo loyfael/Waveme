@@ -5,7 +5,10 @@ import fr.waveme.backend.social.crud.models.Comment;
 import fr.waveme.backend.social.crud.service.CommentService;
 
 import java.util.List;
-
+/**
+ * CommentServiceImpl provides the implementation of the CommentService interface.
+ * It contains methods to create, retrieve, update, and delete comments.
+ */
 public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto createComment(CommentDto commentDto) {

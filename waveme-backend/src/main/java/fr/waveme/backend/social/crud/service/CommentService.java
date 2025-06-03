@@ -5,6 +5,10 @@ import fr.waveme.backend.social.crud.models.Comment;
 
 import java.util.List;
 
+/**
+ * CommentService provides methods to perform CRUD operations on Comment entities.
+ * It contains methods to create, retrieve, update, and delete comments.
+ */
 public interface CommentService {
     CommentDto createComment(CommentDto commentDto);
     CommentDto getCommentById(Long commentId);

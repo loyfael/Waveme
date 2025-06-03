@@ -7,6 +7,10 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * CommentDto represents a data transfer object for comments in the social media application.
+ * It contains fields for comment ID, user ID, upvotes, downvotes, description, and a list of reply IDs.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

@@ -23,6 +23,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * UserInfoController handles user-related operations such as fetching user posts,
+ * user profile information, and creating new user profiles.
+ */
 @RestController
 @RequestMapping("/api/user")
 public class UserInfoController {

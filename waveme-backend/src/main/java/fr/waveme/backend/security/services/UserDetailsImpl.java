@@ -13,8 +13,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * `UserDetailsImpl` implémente `UserDetails` pour représenter un utilisateur authentifié dans
- * le contexte de Spring Security. Elle stocke les informations de l'utilisateur et ses autorisations.
+ * UserDetailsImpl is a custom implementation of Spring Security's UserDetails interface.
+ * It represents the authenticated user details in the application.
+ * It contains user information such as ID, username, email, password, and authorities (roles).
+ * * This class is used by Spring Security to perform authentication and authorization.
  */
 public class UserDetailsImpl implements UserDetails {
 

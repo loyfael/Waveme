@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * `UserDetailsServiceImpl` implémente `UserDetailsService` pour fournir une logique de chargement
- * des détails de l'utilisateur à partir de la base de données en utilisant le `pseudo`.
- * Elle est utilisée par Spring Security pour authentifier l'utilisateur et charger ses détails.
+ * UserDetailsServiceImpl is an implementation of the UserDetailsService interface.
+ * It is used by Spring Security to load user-specific data during authentication.
+ * This service retrieves user details from the database using the UserRepository.
  */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {

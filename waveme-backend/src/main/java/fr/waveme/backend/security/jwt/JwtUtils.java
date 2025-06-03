@@ -14,6 +14,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
+/**
+ * JwtUtils provides utility methods for handling JSON Web Tokens (JWT).
+ * It includes methods for generating, validating, and extracting information from JWTs.
+ * This class is annotated with @Component to allow Spring to manage it as a bean.
+ */
 @Component
 public class JwtUtils {
 

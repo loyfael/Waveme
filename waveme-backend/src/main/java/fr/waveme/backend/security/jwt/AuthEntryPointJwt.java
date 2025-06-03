@@ -16,9 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Classe `AuthEntryPointJwt` implémente `AuthenticationEntryPoint` pour gérer les erreurs d'authentification
- * dans une application sécurisée avec JWT. Elle personnalise la réponse HTTP en cas d'échec d'authentification
- * (comme une tentative d'accès non autorisé).
+ * AuthEntryPointJwt is a custom implementation of the AuthenticationEntryPoint interface.
+ * Used to handle unauthorized access attempts by returning a JSON response.
+ * It logs the error and sends a structured JSON response
+ * containing the error details when an authentication exception occurs.
  */
 @Component
 public class AuthEntryPointJwt implements AuthenticationEntryPoint {

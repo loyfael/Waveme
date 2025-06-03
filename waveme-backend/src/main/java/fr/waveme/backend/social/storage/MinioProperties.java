@@ -3,6 +3,10 @@ package fr.waveme.backend.social.storage;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+/**
+ * MinioProperties holds the configuration properties for connecting to MinIO.
+ * It is annotated with @ConfigurationProperties to bind properties from application.properties or application.yml.
+ */
 @Component
 @ConfigurationProperties(prefix = "minio")
 public class MinioProperties {

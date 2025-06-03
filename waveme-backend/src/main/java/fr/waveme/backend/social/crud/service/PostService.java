@@ -5,6 +5,10 @@ import fr.waveme.backend.social.crud.models.Post;
 
 import java.util.List;
 
+/**
+ * PostService provides methods to perform CRUD operations on Post entities.
+ * It contains methods to create, retrieve, update, and delete posts.
+ */
 public interface PostService {
     PostDto createPost(PostDto postDto);
     PostDto getPostById(Long postId);

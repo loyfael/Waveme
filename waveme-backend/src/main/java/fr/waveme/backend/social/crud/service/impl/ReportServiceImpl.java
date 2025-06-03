@@ -17,6 +17,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * ReportServiceImpl provides the implementation of the ReportService interface.
+ * It handles CRUD operations for reports, including creating, retrieving, updating, and deleting reports.
+ */
 @Service
 @RequiredArgsConstructor
 public class ReportServiceImpl implements ReportService {

@@ -11,6 +11,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
+/**
+ * UserProfile represents a user's profile in the social media application.
+ * It contains fields for user ID, authentication user ID, pseudo, email,
+ * profile image, total upvotes, total posts, total comments, and timestamps
+ * for creation and update.
+ */
 @Data
 @Builder
 @NoArgsConstructor

@@ -6,6 +6,10 @@ import fr.waveme.backend.social.crud.service.PostService;
 
 import java.util.List;
 
+/**
+ * PostServiceImpl provides the implementation of the PostService interface.
+ * It contains methods to create, retrieve, update, and delete posts.
+ */
 public class PostServiceImpl implements PostService {
     @Override
     public PostDto createPost(PostDto postDto) {

@@ -20,6 +20,10 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.util.List;
 
+/**
+ * PostController handles the CRUD operations for posts, including image uploads,
+ * downloads, voting, and fetching posts by user ID.
+ */
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {

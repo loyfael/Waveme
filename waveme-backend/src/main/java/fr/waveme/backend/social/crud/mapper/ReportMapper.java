@@ -6,6 +6,10 @@ import fr.waveme.backend.social.crud.models.Reply;
 import fr.waveme.backend.social.crud.models.Report;
 import org.springframework.stereotype.Component;
 
+/**
+ * ReportMapper is a component that maps between Report entities and ReportDto objects.
+ * It provides methods to convert a Report to a ReportDto and vice versa.
+ */
 @Component
 public class ReportMapper {
 

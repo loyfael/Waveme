@@ -4,6 +4,11 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+/**
+ * UserProfileDto represents a data transfer object for user profiles in the social media application.
+ * It contains fields for user ID, authentication ID, pseudo, email, profile image URL,
+ * total upvotes, total posts, total comments, and timestamps for creation and last update.
+ */
 @Data
 @Builder
 @NoArgsConstructor

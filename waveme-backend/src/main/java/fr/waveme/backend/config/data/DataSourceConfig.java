@@ -12,6 +12,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * DataSourceConfig is a Spring component that implements CommandLineRunner.
+ * It is responsible for initializing and verifying connections to various data sources
+ * such as PostgreSQL, MongoDB, and Minio when the application starts.
+ */
 @Component
 public class DataSourceConfig implements CommandLineRunner {
 

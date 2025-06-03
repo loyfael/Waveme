@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * UserProfileServiceImpl provides the implementation of the UserProfileService interface.
+ * It handles CRUD operations for user profiles, including creating, retrieving, updating, and deleting user profiles.
+ */
 @Service
 @RequiredArgsConstructor
 public class UserProfileServiceImpl implements UserProfileService {

@@ -5,6 +5,10 @@ import fr.waveme.backend.social.crud.models.Reply;
 
 import java.util.List;
 
+/**
+ * ReplyService provides methods to perform CRUD operations on Reply entities.
+ * It contains methods to create, retrieve, update, and delete replies.
+ */
 public interface ReplyService {
     ReplyDto createReply(ReplyDto replyDto);
     ReplyDto getReById(Long ReplyId);
