@@ -4,6 +4,11 @@ import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * RegisterRequest is a class that represents the request payload for user registration.
+ * It contains fields for the user's pseudo, email, and password, all of which are required.
+ * This class is used to validate the input data when a user attempts to register.
+ */
 @Getter
 @Setter
 public class RegisterRequest {
