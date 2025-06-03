@@ -7,7 +7,6 @@ import fr.waveme.backend.auth.crud.repository.RoleRepository;
 import fr.waveme.backend.auth.crud.repository.UserRepository;
 import fr.waveme.backend.auth.payload.request.LoginRequest;
 import fr.waveme.backend.auth.payload.request.RegisterRequest;
-import fr.waveme.backend.auth.payload.request.UserProfileRegisterRequest;
 import fr.waveme.backend.auth.payload.response.MessageResponse;
 import fr.waveme.backend.auth.payload.response.UserInfoResponse;
 import fr.waveme.backend.security.jwt.JwtUtils;
@@ -28,7 +27,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -36,6 +34,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * AuthController handles user authentication and registration.
+ * It provides endpoints for user registration, login, and logout.
+ * This controller uses Spring Security for authentication management
+ * and interacts with the UserRepository and RoleRepository for user data.
+ */
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
