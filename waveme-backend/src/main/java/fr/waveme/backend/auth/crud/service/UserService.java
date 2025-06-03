@@ -5,6 +5,11 @@ import fr.waveme.backend.auth.crud.models.User;
 
 import java.util.List;
 
+/**
+ * UserService is an interface that defines the contract for user-related operations in the application.
+ * It provides methods for creating, retrieving, updating, and deleting users.
+ * This service is used to manage user data and business logic related to user operations.
+ */
 public interface UserService {
     UserDto createUser(UserDto userDto);
     UserDto getUserById(Long userId);
