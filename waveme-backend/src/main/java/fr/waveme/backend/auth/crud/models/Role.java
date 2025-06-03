@@ -9,6 +9,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Role is an entity class that represents a user role in the application.
+ * It contains fields for the role's ID and name, which is an enumerated type ERole.
+ * This class is used to manage user roles in the authentication module.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
