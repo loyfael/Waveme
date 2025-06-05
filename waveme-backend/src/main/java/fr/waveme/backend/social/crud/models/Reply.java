@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,9 @@ import java.time.LocalDateTime;
 public class Reply {
     @Id
     private String id;
+
+    @Indexed(unique = true)
+    private Long replyUniqueId;
 
     private String userId;
     private Integer upVote;

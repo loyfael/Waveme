@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -25,11 +26,14 @@ public class Comment {
     private String id;
     private String userId;
 
+    @Indexed(unique = true)
+    private Long commentUniqueId;
+
     private Integer upVote;
     private Integer downVote;
     private String description;
 
-    private String postId; // référence au post parent
+    private Long postId; // référence au post parent
     private List<Long> replyIds; // références aux réponses
 
     private LocalDateTime createdAt;

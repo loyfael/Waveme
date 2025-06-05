@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +25,9 @@ public class Post {
     @Id
     private String id;
     private String userId; // refering to the user who created the post
+
+    @Indexed(unique = true)
+    private Long postUniqueId;
 
     private String imageUrl;
     private Integer upVote;

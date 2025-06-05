@@ -2,6 +2,7 @@ package fr.waveme.backend.social.crud.controller;
 
 import fr.waveme.backend.social.crud.models.Post;
 import fr.waveme.backend.social.crud.repository.PostRepository;
+import fr.waveme.backend.social.crud.sequence.SequenceGeneratorService;
 import fr.waveme.backend.social.crud.service.MinioService;
 import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.utils.RateLimiter;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -32,15 +34,18 @@ public class PostController {
     private final MinioService minioService;
     private final PostRepository postRepository;
     private final JwtUtils jwtUtils;
+    private SequenceGeneratorService sequenceGenerator;
 
     public PostController(
             MinioService minioService,
             PostRepository postRepository,
-            JwtUtils jwtUtils
+            JwtUtils jwtUtils,
+            SequenceGeneratorService sequenceGeneratorService
     ) {
         this.minioService = minioService;
         this.postRepository = postRepository;
         this.jwtUtils = jwtUtils;
+        this.sequenceGenerator = sequenceGeneratorService;
     }
 
     @PostMapping("/upload-image")
@@ -66,12 +71,20 @@ public class PostController {
 
             Post post = new Post();
             post.setUserId(userId);
+            post.setPostUniqueId(sequenceGenerator.generateSequence("post_sequence")); // ✅ une seule fois
             post.setDescription(description);
             post.setUpVote(0);
             post.setDownVote(0);
+            post.setCreatedAt(LocalDateTime.now());
+            post.setUpdatedAt(LocalDateTime.now());
 
+            // ✅ Upload l’image
             String url = minioService.uploadImage(file, bucketName, post);
             logger.info("File uploaded successfully to MinIO. URL: {}", url);
+
+            // ✅ Définir l’image et sauvegarder
+            post.setImageUrl(url);
+            postRepository.save(post);
 
             UrlShorter urlShorter = new UrlShorter();
             String shortUrl = urlShorter.generateShortUrl(url);
@@ -84,18 +97,30 @@ public class PostController {
         }
     }
 
+
     @GetMapping("/get/{id}")
-    public ResponseEntity<byte[]> downloadImage(
-            @RequestParam("objectName") String objectName,
-            @RequestParam("bucket") String bucketName,
+    public ResponseEntity<byte[]> downloadImageByPostId(
+            @PathVariable("id") Long postUniqueId,
             @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
     ) {
         try {
             ipAddress = ipAddress != null ? ipAddress : "unknown";
             RateLimiter.checkRateLimit("post:" + ipAddress);
 
-            postRepository.findByImageUrlContaining(objectName)
+            Post post = postRepository.findByPostUniqueId(postUniqueId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+            String imageUrl = post.getImageUrl();
+            String bucketName;
+            String objectName;
+
+            try {
+                String[] parts = imageUrl.split("/");
+                bucketName = parts[3]; // waveme
+                objectName = parts[4].split("\\?")[0]; // 1749...webp
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Malformed image URL in post");
+            }
 
             try (InputStream inputStream = minioService.downloadImage(bucketName, objectName)) {
                 byte[] imageBytes = inputStream.readAllBytes();
@@ -149,7 +174,7 @@ public class PostController {
     @GetMapping("/{userId}/{postId}")
     public ResponseEntity<Post> getPostByUserIdAndPostId(
             @PathVariable String userId,
-            @PathVariable String postId
+            @PathVariable int postId
     ) {
         return postRepository.findByIdAndUserId(postId, userId)
                 .map(ResponseEntity::ok)

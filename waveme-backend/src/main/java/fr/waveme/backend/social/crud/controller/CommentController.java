@@ -34,7 +34,7 @@ public class CommentController {
 
   @PostMapping("/{postId}")
   public Comment addCommentToPost(
-          @PathVariable String postId,
+          @PathVariable Long postId,
           @RequestParam String content,
           @RequestHeader("Authorization") String authorizationHeader,
           @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
@@ -43,7 +43,7 @@ public class CommentController {
     RateLimiter.checkRateLimit("post:" + ipAddress);
 
     String userId = jwtUtils.getSocialUserIdFromJwtToken(authorizationHeader.replace("Bearer ", "")); // Si tu stockes userId en String
-    postRepository.findById(postId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+    postRepository.findByPostUniqueId(postId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
 
     Comment comment = new Comment();
     comment.setUserId(userId);

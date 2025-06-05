@@ -15,4 +15,5 @@ public interface ReplyRepository extends MongoRepository<Reply, Long> {
     Optional<Reply> findByDescription(String description);
     Optional<Reply> findByDescriptionContaining(String partOfDescription);
     List<Reply> findByUserId(String userId);
+    Optional<Reply> findByReplyUniqueId(Long replyId);
 }
