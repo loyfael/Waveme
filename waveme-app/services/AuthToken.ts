@@ -28,7 +28,6 @@ export async function refreshAuthIfNeeded(call: Function) {
         return call()
       }
       clearTokens()
-      window.location.href = `/${window.location.href.split('/')[3]}/login`
       return error
     }
 

@@ -27,9 +27,9 @@ export async function authenticate(credentials: LoginCredentials) {
         throw response
       }
       // We stock the token on local storage
-      setLocalStorage('authToken', response.data.jwtCookie)
+      setLocalStorage('authToken', response.data.jwt)
       // We add token to axios header
-      setAxiosToken(response.data.jwtCookie)
+      setAxiosToken(response.data.jwt)
       return response.data.token
     })
 }
