@@ -36,6 +36,11 @@ minio.access-key=minio
 minio.secret-key=your-minio-secret-key
 minio.bucket-name=waveme
 
+# File Upload Size Limits
+spring.servlet.multipart.max-file-size=20MB
+spring.servlet.multipart.max-request-size=20MB
+server.tomcat.max-http-post-size=20971520
+
 # Server
 server.address=0.0.0.0
 server.port=8081
