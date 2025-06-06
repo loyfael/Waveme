@@ -71,7 +71,7 @@ public class PostController {
 
             Post post = new Post();
             post.setUserId(userId);
-            post.setPostUniqueId(sequenceGenerator.generateSequence("post_sequence")); // ✅ une seule fois
+            post.setPostUniqueId(sequenceGenerator.generateSequence("post_sequence"));
             post.setDescription(description);
             post.setUpVote(0);
             post.setDownVote(0);

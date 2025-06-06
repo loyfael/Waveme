@@ -1,14 +1,18 @@
 package fr.waveme.backend.social.crud.controller;
 
+import fr.waveme.backend.social.crud.models.Comment;
 import fr.waveme.backend.social.crud.models.Reply;
 import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.ReplyRepository;
 import fr.waveme.backend.security.jwt.JwtUtils;
+import fr.waveme.backend.social.crud.sequence.SequenceGeneratorService;
 import fr.waveme.backend.utils.RateLimiter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.time.LocalDateTime;
 
 /**
  * ReplyController handles the CRUD operations for replies to comments,
@@ -21,20 +25,24 @@ public class ReplyController {
   private final ReplyRepository replyRepository;
   private final CommentRepository commentRepository;
   private final JwtUtils jwtUtils;
+  private final SequenceGeneratorService sequenceGenerator;
 
   public ReplyController(
           ReplyRepository replyRepository,
           CommentRepository commentRepository,
-          JwtUtils jwtUtils
+          JwtUtils jwtUtils,
+          SequenceGeneratorService sequenceGenerator
   ) {
     this.replyRepository = replyRepository;
     this.commentRepository = commentRepository;
     this.jwtUtils = jwtUtils;
+    this.sequenceGenerator = sequenceGenerator;
   }
 
-  @PostMapping("/{commentId}")
+
+  @PostMapping("/{commentUniqueId}")
   public Reply addReplyToComment(
-          @PathVariable Long commentId,
+          @PathVariable Long commentUniqueId,
           @RequestParam String content,
           @RequestHeader("Authorization") String authorizationHeader,
           @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
@@ -43,15 +51,20 @@ public class ReplyController {
     RateLimiter.checkRateLimit("reply:" + ipAddress);
 
     String userId = jwtUtils.getSocialUserIdFromJwtToken(authorizationHeader.replace("Bearer ", ""));
-    commentRepository.findById(commentId.toString()).orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+
+    Comment comment = commentRepository.findByCommentUniqueId(commentUniqueId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
 
     Reply reply = new Reply();
+    reply.setReplyUniqueId(sequenceGenerator.generateSequence("reply_sequence")); // 🆕
     reply.setUserId(userId);
-    reply.setCommentId(commentId);
+    reply.setCommentId(comment.getCommentUniqueId());
     reply.setDescription(content);
     reply.setUpVote(0);
     reply.setDownVote(0);
+    reply.setCreatedAt(LocalDateTime.now());
+    reply.setUpdatedAt(LocalDateTime.now());
+
     return replyRepository.save(reply);
   }
 
