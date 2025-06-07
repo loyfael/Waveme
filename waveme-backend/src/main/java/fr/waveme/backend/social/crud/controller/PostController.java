@@ -1,7 +1,9 @@
 package fr.waveme.backend.social.crud.controller;
 
 import fr.waveme.backend.social.crud.models.Post;
+import fr.waveme.backend.social.crud.models.reaction.PostVote;
 import fr.waveme.backend.social.crud.repository.PostRepository;
+import fr.waveme.backend.social.crud.repository.react.PostVoteRepository;
 import fr.waveme.backend.social.crud.sequence.SequenceGeneratorService;
 import fr.waveme.backend.social.crud.service.MinioService;
 import fr.waveme.backend.security.jwt.JwtUtils;
@@ -20,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Map;
 
 /**
  * PostController handles the CRUD operations for posts, including image uploads,
@@ -33,17 +35,20 @@ public class PostController {
     private static final Logger logger = LoggerFactory.getLogger(PostController.class);
     private final MinioService minioService;
     private final PostRepository postRepository;
+    private final PostVoteRepository postVoteRepository;
     private final JwtUtils jwtUtils;
-    private SequenceGeneratorService sequenceGenerator;
+    private final SequenceGeneratorService sequenceGenerator;
 
     public PostController(
             MinioService minioService,
             PostRepository postRepository,
+            PostVoteRepository postVoteRepository,
             JwtUtils jwtUtils,
             SequenceGeneratorService sequenceGeneratorService
     ) {
         this.minioService = minioService;
         this.postRepository = postRepository;
+        this.postVoteRepository = postVoteRepository;
         this.jwtUtils = jwtUtils;
         this.sequenceGenerator = sequenceGeneratorService;
     }
@@ -140,44 +145,44 @@ public class PostController {
         }
     }
 
-    @PostMapping("/{postId}/vote")
+    @PostMapping("/{postUniqueId}/vote")
     public ResponseEntity<?> votePost(
-            @PathVariable String postId,
+            @PathVariable Long postUniqueId,
             @RequestParam boolean upvote,
-            @RequestHeader(value = "X-Forwarded-For", required = false) String clientIp
+            @RequestHeader("Authorization") String authorizationHeader
     ) {
-        clientIp = clientIp != null ? clientIp : "unknown";
-        RateLimiter.checkRateLimit("post:" + postId + ":" + clientIp);
+        String token = authorizationHeader.replace("Bearer ", "");
+        String userId = jwtUtils.getSocialUserIdFromJwtToken(token);
 
-        Post post = postRepository.findById(postId)
+        if (postVoteRepository.existsByPostIdAndUserId(postUniqueId, userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Vous avez déjà voté pour ce post.");
+        }
+
+        Post post = postRepository.findByPostUniqueId(postUniqueId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        // Enregistrer le vote
+        PostVote vote = new PostVote();
+        vote.setPostId(postUniqueId);
+        vote.setUserId(userId);
+        vote.setUpvote(upvote);
+        postVoteRepository.save(vote);
 
         if (upvote) post.setUpVote(post.getUpVote() + 1);
         else post.setDownVote(post.getDownVote() + 1);
 
         postRepository.save(post);
-        return ResponseEntity.ok("Vote recorded");
+        return ResponseEntity.ok("Vote enregistré");
     }
 
-    @GetMapping("/all/{userId}")
-    public ResponseEntity<?> getAllPostsByUserId(@PathVariable String userId) {
-        try {
-            List<Post> posts = postRepository.findAllByUserId(userId);
-            return ResponseEntity.ok(posts);
-        } catch (Exception e) {
-            logger.error("Error fetching posts for userId {}: {}", userId, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error fetching posts: " + e.getMessage());
-        }
-    }
-
-    @GetMapping("/{userId}/{postId}")
-    public ResponseEntity<Post> getPostByUserIdAndPostId(
-            @PathVariable String userId,
-            @PathVariable int postId
-    ) {
-        return postRepository.findByIdAndUserId(postId, userId)
-                .map(ResponseEntity::ok)
+    @GetMapping("/{postUniqueId}/votes")
+    public ResponseEntity<?> getPostVotes(@PathVariable Long postUniqueId) {
+        Post post = postRepository.findByPostUniqueId(postUniqueId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        return ResponseEntity.ok(Map.of(
+                "upVote", post.getUpVote(),
+                "downVote", post.getDownVote()
+        ));
     }
 }
