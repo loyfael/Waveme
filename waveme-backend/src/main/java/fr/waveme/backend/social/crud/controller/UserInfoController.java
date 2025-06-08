@@ -74,7 +74,9 @@ public class UserInfoController {
                     post.getId(),
                     post.getDescription(),
                     post.getImageUrl(),
-                    post.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toInstant()
+                    post.getCreatedAt() != null
+                            ? post.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toInstant()
+                            : java.time.Instant.EPOCH
             ))
             .toList();
 
