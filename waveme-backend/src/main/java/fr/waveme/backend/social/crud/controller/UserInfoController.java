@@ -4,10 +4,10 @@ import fr.waveme.backend.auth.crud.dto.pub.UserPublicDto;
 import fr.waveme.backend.auth.crud.models.User;
 import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.social.crud.dto.UserProfileDto;
-import fr.waveme.backend.social.crud.dto.pub.PostPublicDto;
-import fr.waveme.backend.social.crud.dto.pub.UserInPostPublicDto;
-import fr.waveme.backend.social.crud.dto.pub.UserSocialPublicDto;
+import fr.waveme.backend.social.crud.dto.pub.*;
 import fr.waveme.backend.social.crud.exception.UserNotFoundException;
+import fr.waveme.backend.social.crud.models.Comment;
+import fr.waveme.backend.social.crud.models.Post;
 import fr.waveme.backend.social.crud.models.UserProfile;
 import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.PostRepository;
@@ -22,6 +22,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 
 /**
@@ -137,15 +139,39 @@ public class UserInfoController {
           @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
   ) {
     ipAddress = ipAddress != null ? ipAddress : "unknown";
-
     RateLimiter.checkRateLimit("post:" + ipAddress);
 
-    // Validate JWT token (implementation not shown)
     String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
     Long userId = jwtUtils.getAuthUserIdFromJwtToken(token);
 
     UserProfile userProfile = userProfileRepository.findById(id.toString())
             .orElseThrow(() -> new UserNotFoundException(HttpStatus.NOT_FOUND, "User not found"));
+
+    // Récupération des 3 derniers posts
+    List<Post> postEntities = postRepository.findTop3ByUserIdOrderByCreatedAtDesc(id.toString());
+    List<PostSummaryDto> latestPosts = postEntities.isEmpty() ? null :
+            postEntities.stream()
+                    .map(post -> new PostSummaryDto(
+                            post.getId(),
+                            post.getImageUrl(),
+                            post.getCreatedAt() != null
+                                    ? post.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
+                                    : Instant.EPOCH
+                    ))
+                    .toList();
+
+    // Récupération des 3 derniers commentaires
+    List<Comment> commentEntities = commentRepository.findTop3ByUserIdOrderByCreatedAtDesc(id.toString());
+    List<CommentSummaryDto> latestComments = commentEntities.isEmpty() ? null :
+            commentEntities.stream()
+                    .map(comment -> new CommentSummaryDto(
+                            comment.getId(),
+                            comment.getDescription(),
+                            comment.getCreatedAt() != null
+                                    ? comment.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
+                                    : Instant.EPOCH
+                    ))
+                    .toList();
 
     UserSocialPublicDto dto = new UserSocialPublicDto(
             userProfile.getId(),
@@ -155,14 +181,11 @@ public class UserInfoController {
             userProfile.getTotalUpVotes(),
             userProfile.getProfileImg(),
             userProfile.getCreatedAt(),
-            userProfile.getUpdatedAt()
+            userProfile.getUpdatedAt(),
+            latestPosts,
+            latestComments
     );
+
     return ResponseEntity.ok(dto);
-  }
-
-  @PostMapping
-  public ResponseEntity<UserProfileDto> createUser(@RequestBody UserProfileDto dto) {
-
-    return ResponseEntity.ok(userProfileService.save(dto));
   }
 }

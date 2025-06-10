@@ -15,4 +15,5 @@ public interface CommentRepository extends MongoRepository<Comment, String> {
     Optional<Comment> findByDescriptionContaining(String partOfDescription);
     List<Comment> findByUserId(String userId);
     Optional<Comment> findByCommentUniqueId(Long commentUniqueId);
+    List<Comment> findTop3ByUserIdOrderByCreatedAtDesc(String userId);
 }

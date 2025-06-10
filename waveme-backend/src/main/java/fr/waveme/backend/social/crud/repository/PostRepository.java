@@ -17,4 +17,6 @@ public interface PostRepository extends MongoRepository<Post, String> {
     List<Post> findAllByUserId(String userId);
     Optional<Post> findByIdAndUserId(int postId, String userId);
     Optional<Post> findByPostUniqueId(Long postId);
+    List<Post> findTop3ByUserIdOrderByCreatedAtDesc(String userId);
+
 }
