@@ -14,12 +14,14 @@ public class PostPublicDto {
     private final String description;
     private final String imageUrl;
     private final Instant createdAt;
+    private final UserInPostPublicDto user;
 
-    public PostPublicDto(String id, String description, String imageUrl, Instant createdAt) {
+    public PostPublicDto(String id, String description, String imageUrl, Instant createdAt, UserInPostPublicDto user) {
         this.id = id;
         this.description = description;
         this.imageUrl = imageUrl;
         this.createdAt = createdAt;
+        this.user = user;
     }
 
 }

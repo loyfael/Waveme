@@ -5,6 +5,7 @@ import fr.waveme.backend.auth.crud.models.User;
 import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.social.crud.dto.UserProfileDto;
 import fr.waveme.backend.social.crud.dto.pub.PostPublicDto;
+import fr.waveme.backend.social.crud.dto.pub.UserInPostPublicDto;
 import fr.waveme.backend.social.crud.dto.pub.UserSocialPublicDto;
 import fr.waveme.backend.social.crud.exception.UserNotFoundException;
 import fr.waveme.backend.social.crud.models.UserProfile;
@@ -62,7 +63,6 @@ public class UserInfoController {
           @RequestHeader("Authorization") String authorizationHeader,
           @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
   ) {
-
     ipAddress = ipAddress != null ? ipAddress : "unknown";
     RateLimiter.checkRateLimit("post:" + ipAddress);
 
@@ -70,14 +70,26 @@ public class UserInfoController {
     String userId = jwtUtils.getSocialUserIdFromJwtToken(token);
 
     List<PostPublicDto> posts = postRepository.findByUserId(userId).stream()
-            .map(post -> new PostPublicDto(
-                    post.getId(),
-                    post.getDescription(),
-                    post.getImageUrl(),
-                    post.getCreatedAt() != null
-                            ? post.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toInstant()
-                            : java.time.Instant.EPOCH
-            ))
+            .map(post -> {
+              UserProfile profile = userProfileRepository.findById(post.getUserId())
+                      .orElseThrow(() -> new RuntimeException("User profile not found"));
+
+              UserInPostPublicDto userDto = new UserInPostPublicDto(
+                      profile.getId(),
+                      profile.getPseudo(),
+                      profile.getProfileImg()
+              );
+
+              return new PostPublicDto(
+                      post.getId(),
+                      post.getDescription(),
+                      post.getImageUrl(),
+                      post.getCreatedAt() != null
+                              ? post.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toInstant()
+                              : java.time.Instant.EPOCH,
+                      userDto
+              );
+            })
             .toList();
 
     return ResponseEntity.ok(posts);
