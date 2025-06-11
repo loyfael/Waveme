@@ -1,5 +1,6 @@
 package fr.waveme.backend.social.crud.controller;
 
+import fr.waveme.backend.social.crud.dto.pub.PostMetadataDto;
 import fr.waveme.backend.social.crud.models.Post;
 import fr.waveme.backend.social.crud.models.reaction.PostVote;
 import fr.waveme.backend.social.crud.repository.PostRepository;
@@ -21,7 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Map;
 
 /**
@@ -103,46 +106,30 @@ public class PostController {
     }
 
 
-    @GetMapping("/get/{id}")
-    public ResponseEntity<byte[]> downloadImageByPostId(
-            @PathVariable("id") Long postUniqueId,
+    @GetMapping("/get/{postUniqueId}")
+    public ResponseEntity<PostMetadataDto> getPostMetadata(
+            @PathVariable("postUniqueId") Long postUniqueId,
             @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
     ) {
-        try {
-            ipAddress = ipAddress != null ? ipAddress : "unknown";
-            RateLimiter.checkRateLimit("post:" + ipAddress);
+        ipAddress = ipAddress != null ? ipAddress : "unknown";
+        RateLimiter.checkRateLimit("post:" + ipAddress);
 
-            Post post = postRepository.findByPostUniqueId(postUniqueId)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+        Post post = postRepository.findByPostUniqueId(postUniqueId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
 
-            String imageUrl = post.getImageUrl();
-            String bucketName;
-            String objectName;
+        PostMetadataDto dto = new PostMetadataDto(
+                post.getId(),
+                post.getPostUniqueId(),
+                "/api/posts/get/" + post.getId(),
+                post.getDescription(),
+                post.getUpVote(),
+                post.getDownVote(),
+                post.getCreatedAt() != null
+                        ? post.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
+                        : Instant.EPOCH
+        );
 
-            try {
-                String[] parts = imageUrl.split("/");
-                bucketName = parts[3]; // waveme
-                objectName = parts[4].split("\\?")[0]; // 1749...webp
-            } catch (Exception e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Malformed image URL in post");
-            }
-
-            try (InputStream inputStream = minioService.downloadImage(bucketName, objectName)) {
-                byte[] imageBytes = inputStream.readAllBytes();
-
-                return ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + objectName + "\"")
-                        .contentType(MediaType.IMAGE_JPEG)
-                        .body(imageBytes);
-
-            } catch (Exception e) {
-                logger.error("Error during image download: {}", e.getMessage(), e);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(("Error during image download: " + e.getMessage()).getBytes());
-            }
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
-        }
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping("/{postUniqueId}/vote")

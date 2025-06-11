@@ -152,7 +152,8 @@ public class UserInfoController {
             postEntities.stream()
                     .map(post -> new PostSummaryDto(
                             post.getId(),
-                            post.getImageUrl(),
+                            post.getPostUniqueId(),
+                            "/api/image/get/" + post.getId(),
                             post.getDescription(),
                             post.getUpVote(),
                             post.getDownVote(),
