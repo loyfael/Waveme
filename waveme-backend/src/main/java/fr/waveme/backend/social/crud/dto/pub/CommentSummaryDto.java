@@ -10,5 +10,8 @@ import java.time.Instant;
 public class CommentSummaryDto {
   private final String id;
   private final String content;
+  private final int voteSum;
+  private final int upVote;
+  private final int downVote;
   private final Instant createdAt;
 }

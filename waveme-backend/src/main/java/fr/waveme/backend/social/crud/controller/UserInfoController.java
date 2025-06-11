@@ -147,26 +147,31 @@ public class UserInfoController {
     UserProfile userProfile = userProfileRepository.findById(id.toString())
             .orElseThrow(() -> new UserNotFoundException(HttpStatus.NOT_FOUND, "User not found"));
 
-    // Récupération des 3 derniers posts
     List<Post> postEntities = postRepository.findTop3ByUserIdOrderByCreatedAtDesc(id.toString());
     List<PostSummaryDto> latestPosts = postEntities.isEmpty() ? null :
             postEntities.stream()
                     .map(post -> new PostSummaryDto(
                             post.getId(),
                             post.getImageUrl(),
+                            post.getDescription(),
+                            post.getUpVote(),
+                            post.getDownVote(),
+                            post.getUpVote() - post.getDownVote(),
                             post.getCreatedAt() != null
                                     ? post.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
                                     : Instant.EPOCH
                     ))
                     .toList();
 
-    // Récupération des 3 derniers commentaires
     List<Comment> commentEntities = commentRepository.findTop3ByUserIdOrderByCreatedAtDesc(id.toString());
     List<CommentSummaryDto> latestComments = commentEntities.isEmpty() ? null :
             commentEntities.stream()
                     .map(comment -> new CommentSummaryDto(
                             comment.getId(),
                             comment.getDescription(),
+                            comment.getUpVote(),
+                            comment.getDownVote(),
+                            comment.getUpVote() - comment.getDownVote(),
                             comment.getCreatedAt() != null
                                     ? comment.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
                                     : Instant.EPOCH
@@ -188,4 +193,5 @@ public class UserInfoController {
 
     return ResponseEntity.ok(dto);
   }
+
 }

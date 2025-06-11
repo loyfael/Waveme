@@ -10,5 +10,9 @@ import java.time.Instant;
 public class PostSummaryDto {
   private final String id;
   private final String imageUrl;
+  private final String description;
+  private final int voteSum;
+  private final int upVote;
+  private final int downVote;
   private final Instant createdAt;
 }
