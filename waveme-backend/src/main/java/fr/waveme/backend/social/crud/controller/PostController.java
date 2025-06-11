@@ -120,7 +120,7 @@ public class PostController {
         PostMetadataDto dto = new PostMetadataDto(
                 post.getId(),
                 post.getPostUniqueId(),
-                "/api/posts/get/" + post.getId(),
+                "/api/image/get/" + post.getId(),
                 post.getDescription(),
                 post.getUpVote(),
                 post.getDownVote(),
