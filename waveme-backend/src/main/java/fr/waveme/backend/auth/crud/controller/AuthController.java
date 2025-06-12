@@ -100,7 +100,7 @@ public class AuthController {
 
         // Création directe du profil Social dans MongoDB via le service
         UserProfileDto socialProfile = new UserProfileDto();
-        socialProfile.setId(String.valueOf(savedUser.getId()));    // Correspond à l'ID de l'utilisateur
+        socialProfile.setId(String.valueOf(savedUser.getId())); // Correspond à l'ID de l'utilisateur
         socialProfile.setAuthId(savedUser.getId());
         socialProfile.setPseudo(savedUser.getPseudo());
         socialProfile.setEmail(savedUser.getEmail());

@@ -1,5 +1,6 @@
 package fr.waveme.backend.social.crud.dto.pub;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.Instant;
@@ -9,19 +10,14 @@ import java.time.Instant;
  * It contains fields for post ID, description, image URL, and creation timestamp.
  */
 @Getter
+@AllArgsConstructor
 public class PostPublicDto {
-    private final String id;
+    private final Long postUniqueId;
     private final String description;
     private final String imageUrl;
     private final Instant createdAt;
+    private final int upVote;
+    private final int downVote;
+    private final int voteSum;
     private final UserInPostPublicDto user;
-
-    public PostPublicDto(String id, String description, String imageUrl, Instant createdAt, UserInPostPublicDto user) {
-        this.id = id;
-        this.description = description;
-        this.imageUrl = imageUrl;
-        this.createdAt = createdAt;
-        this.user = user;
-    }
-
 }

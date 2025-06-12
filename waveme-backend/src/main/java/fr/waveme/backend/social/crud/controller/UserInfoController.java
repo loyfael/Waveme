@@ -83,12 +83,15 @@ public class UserInfoController {
               );
 
               return new PostPublicDto(
-                      post.getId(),
+                      post.getPostUniqueId(), // public identifier
                       post.getDescription(),
-                      post.getImageUrl(),
+                      "/api/image/get/" + post.getId(), // internal image endpoint
                       post.getCreatedAt() != null
                               ? post.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toInstant()
                               : java.time.Instant.EPOCH,
+                      post.getUpVote(),
+                      post.getDownVote(),
+                      post.getUpVote() - post.getDownVote(), // voteSum
                       userDto
               );
             })
@@ -102,19 +105,23 @@ public class UserInfoController {
 
     String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
     Long authUserId = Long.valueOf(jwtUtils.getSocialUserIdFromJwtToken(token));
-
-    // Récupération des stats Social
     String userIdStr = String.valueOf(authUserId);
+
+    // Récupération du profil
     UserProfile userSocial = userProfileRepository.findById(userIdStr)
             .orElseThrow(() -> new RuntimeException("User not found in social repository"));
 
+    // Recalculs dynamiques
     int postUpvotes = postRepository.findByUserId(userIdStr).stream()
             .mapToInt(p -> p.getUpVote() != null ? p.getUpVote() : 0).sum();
     int commentUpvotes = commentRepository.findByUserId(userIdStr).stream()
             .mapToInt(c -> c.getUpVote() != null ? c.getUpVote() : 0).sum();
     int replyUpvotes = replyRepository.findByUserId(userIdStr).stream()
             .mapToInt(r -> r.getUpVote() != null ? r.getUpVote() : 0).sum();
+
+    int totalUpvotes = postUpvotes + commentUpvotes + replyUpvotes;
     int totalPosts = postRepository.findByUserId(userIdStr).size();
+    int totalComments = commentRepository.findByUserId(userIdStr).size();
 
     UserProfileDto dto = new UserProfileDto(
             userSocial.getId(),
@@ -122,9 +129,9 @@ public class UserInfoController {
             userSocial.getPseudo(),
             userSocial.getEmail(),
             userSocial.getProfileImg(),
-            userSocial.getTotalUpVotes(),
-            userSocial.getTotalPosts(),
-            userSocial.getTotalComments(),
+            totalUpvotes,
+            totalPosts,
+            totalComments,
             userSocial.getCreatedAt(),
             userSocial.getUpdatedAt()
     );
@@ -142,12 +149,27 @@ public class UserInfoController {
     RateLimiter.checkRateLimit("post:" + ipAddress);
 
     String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
-    Long userId = jwtUtils.getAuthUserIdFromJwtToken(token);
+    Long requesterId = jwtUtils.getAuthUserIdFromJwtToken(token);
 
-    UserProfile userProfile = userProfileRepository.findById(id.toString())
+    String userId = String.valueOf(id);
+
+    UserProfile userProfile = userProfileRepository.findById(userId)
             .orElseThrow(() -> new UserNotFoundException(HttpStatus.NOT_FOUND, "User not found"));
 
-    List<Post> postEntities = postRepository.findTop3ByUserIdOrderByCreatedAtDesc(id.toString());
+    // Recalcul dynamique des stats
+    int totalPosts = postRepository.findByUserId(userId).size();
+    int totalComments = commentRepository.findByUserId(userId).size();
+
+    int postUpvotes = postRepository.findByUserId(userId).stream()
+            .mapToInt(p -> p.getUpVote() != null ? p.getUpVote() : 0).sum();
+    int commentUpvotes = commentRepository.findByUserId(userId).stream()
+            .mapToInt(c -> c.getUpVote() != null ? c.getUpVote() : 0).sum();
+    int replyUpvotes = replyRepository.findByUserId(userId).stream()
+            .mapToInt(r -> r.getUpVote() != null ? r.getUpVote() : 0).sum();
+    int totalUpvotes = postUpvotes + commentUpvotes + replyUpvotes;
+
+    // Derniers posts
+    List<Post> postEntities = postRepository.findTop3ByUserIdOrderByCreatedAtDesc(userId);
     List<PostSummaryDto> latestPosts = postEntities.isEmpty() ? null :
             postEntities.stream()
                     .map(post -> new PostSummaryDto(
@@ -164,7 +186,8 @@ public class UserInfoController {
                     ))
                     .toList();
 
-    List<Comment> commentEntities = commentRepository.findTop3ByUserIdOrderByCreatedAtDesc(id.toString());
+    // Derniers commentaires
+    List<Comment> commentEntities = commentRepository.findTop3ByUserIdOrderByCreatedAtDesc(userId);
     List<CommentSummaryDto> latestComments = commentEntities.isEmpty() ? null :
             commentEntities.stream()
                     .map(comment -> new CommentSummaryDto(
@@ -182,9 +205,9 @@ public class UserInfoController {
     UserSocialPublicDto dto = new UserSocialPublicDto(
             userProfile.getId(),
             userProfile.getPseudo(),
-            userProfile.getTotalPosts(),
-            userProfile.getTotalComments(),
-            userProfile.getTotalUpVotes(),
+            totalPosts,
+            totalComments,
+            totalUpvotes,
             userProfile.getProfileImg(),
             userProfile.getCreatedAt(),
             userProfile.getUpdatedAt(),
@@ -194,5 +217,4 @@ public class UserInfoController {
 
     return ResponseEntity.ok(dto);
   }
-
 }
