@@ -30,12 +30,11 @@ public interface MinioService {
     InputStream downloadImage(String bucketName, String objectName);
 
     /**
-        * Upload a raw image file to MinIO.
-        *
-        * @param file       the file to upload
-        * @param bucketName the bucket name
-        * @param objectName the name of the object to store
-        * @return the name of the object stored
+     * Upload a raw image file to MinIO.
+     *
+     * @param file       the file to upload
+     * @param bucketName the bucket name
+     * @param objectName the name of the object to store
      */
-    String uploadRawImage(MultipartFile file, String bucketName, String objectName);
+    void uploadRawImage(MultipartFile file, String bucketName, String objectName);
 }

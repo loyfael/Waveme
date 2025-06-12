@@ -305,6 +305,4 @@ public class UserInfoController {
               .body("Error during profile image upload: " + e.getMessage());
     }
   }
-
-
 }

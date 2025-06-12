@@ -61,6 +61,7 @@ public class ImageController {
       ProfileImage image = profileImageRepository.findById(id)
               .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Image not found"));
       bucketName = image.getBucketName();
+      objectName = image.getMinioObjectName();
     }
 
     try (InputStream inputStream = minioService.downloadImage(bucketName, objectName)) {

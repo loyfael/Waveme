@@ -90,7 +90,7 @@ public class MinioServiceImpl implements MinioService {
     }
 
     @Override
-    public String uploadRawImage(MultipartFile file, String bucketName, String objectName) {
+    public void uploadRawImage(MultipartFile file, String bucketName, String objectName) {
         try {
             if (objectName == null || objectName.isBlank()) {
                 objectName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
@@ -105,7 +105,6 @@ public class MinioServiceImpl implements MinioService {
                             .build()
             );
 
-            return minioProperties.getEndpoint() + "/" + bucketName + "/" + objectName;
         } catch (Exception e) {
             throw new RuntimeException("Failed to upload profile image: " + e.getMessage(), e);
         }
