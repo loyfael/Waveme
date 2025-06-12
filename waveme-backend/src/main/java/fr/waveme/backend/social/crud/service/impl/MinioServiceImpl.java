@@ -3,6 +3,7 @@ package fr.waveme.backend.social.crud.service.impl;
 import fr.waveme.backend.social.crud.models.Post;
 import fr.waveme.backend.social.crud.repository.PostRepository;
 import fr.waveme.backend.social.crud.service.MinioService;
+import fr.waveme.backend.social.storage.MinioProperties;
 import io.minio.*;
 import io.minio.errors.MinioException;
 import io.minio.http.Method;
@@ -24,10 +25,12 @@ import java.util.Optional;
 public class MinioServiceImpl implements MinioService {
     private final MinioClient minioClient;
     private final PostRepository postRepository;
+    private final MinioProperties minioProperties;
 
-    public MinioServiceImpl(MinioClient minioClient, PostRepository postRepository) {
+    public MinioServiceImpl(MinioClient minioClient, PostRepository postRepository, MinioProperties minioProperties) {
         this.minioClient = minioClient;
         this.postRepository = postRepository;
+        this.minioProperties = minioProperties;
     }
 
     @Override
@@ -83,6 +86,28 @@ public class MinioServiceImpl implements MinioService {
             );
         } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
             throw new RuntimeException("Error downloading image: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public String uploadRawImage(MultipartFile file, String bucketName, String objectName) {
+        try {
+            if (objectName == null || objectName.isBlank()) {
+                objectName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            }
+
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .stream(file.getInputStream(), file.getSize(), -1)
+                            .contentType(file.getContentType())
+                            .build()
+            );
+
+            return minioProperties.getEndpoint() + "/" + bucketName + "/" + objectName;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload profile image: " + e.getMessage(), e);
         }
     }
 }

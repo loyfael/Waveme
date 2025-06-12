@@ -8,11 +8,9 @@ import fr.waveme.backend.social.crud.dto.pub.*;
 import fr.waveme.backend.social.crud.exception.UserNotFoundException;
 import fr.waveme.backend.social.crud.models.Comment;
 import fr.waveme.backend.social.crud.models.Post;
+import fr.waveme.backend.social.crud.models.ProfileImage;
 import fr.waveme.backend.social.crud.models.UserProfile;
-import fr.waveme.backend.social.crud.repository.CommentRepository;
-import fr.waveme.backend.social.crud.repository.PostRepository;
-import fr.waveme.backend.social.crud.repository.ReplyRepository;
-import fr.waveme.backend.social.crud.repository.UserProfileRepository;
+import fr.waveme.backend.social.crud.repository.*;
 import fr.waveme.backend.social.crud.service.MinioService;
 import fr.waveme.backend.social.crud.service.UserProfileService;
 import fr.waveme.backend.utils.RateLimiter;
@@ -21,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -40,7 +40,8 @@ public class UserInfoController {
   private final CommentRepository commentRepository;
   private final ReplyRepository replyRepository;
   private final JwtUtils jwtUtils;
-  private final UserProfileService userProfileService;
+  private final MinioService minioService;
+  private final ProfileImageRepository profileImageRepository;
 
   public UserInfoController(
           MinioService minioService,
@@ -49,16 +50,25 @@ public class UserInfoController {
           ReplyRepository replyRepository,
           JwtUtils jwtUtils,
           UserProfileRepository userProfileRepository,
-          UserProfileService userProfileService
+          ProfileImageRepository profileImageRepository
   ) {
     this.postRepository = postRepository;
     this.commentRepository = commentRepository;
     this.replyRepository = replyRepository;
     this.jwtUtils = jwtUtils;
     this.userProfileRepository = userProfileRepository;
-    this.userProfileService = userProfileService;
+    this.minioService = minioService;
+    this.profileImageRepository = profileImageRepository;
   }
 
+  /**
+   * Retrieves a list of posts made by a specific user.
+   *
+   * @param id The ID of the user whose posts are to be retrieved.
+   * @param authorizationHeader The authorization header containing the JWT token.
+   * @param ipAddress The IP address of the requester (optional).
+   * @return A response entity containing a list of public post data transfer objects.
+   */
   @GetMapping("{id}/posts")
   public ResponseEntity<List<PostPublicDto>> getUserPosts(
           @PathVariable Long id,
@@ -100,6 +110,12 @@ public class UserInfoController {
     return ResponseEntity.ok(posts);
   }
 
+  /**
+   * Retrieves the current user's profile information.
+   *
+   * @param authorizationHeader The authorization header containing the JWT token.
+   * @return A response entity containing the user profile data or an error message.
+   */
   @GetMapping("me")
   public ResponseEntity<UserProfileDto> getCurrentUser(@RequestHeader("Authorization") String authorizationHeader) {
 
@@ -139,6 +155,14 @@ public class UserInfoController {
     return ResponseEntity.ok(dto);
   }
 
+  /**
+   * Retrieves a user profile by ID.
+   *
+   * @param id The ID of the user.
+   * @param authorizationHeader The authorization header containing the JWT token.
+   * @param ipAddress The IP address of the requester (optional).
+   * @return A response entity containing the user profile data or an error message.
+   */
   @GetMapping("/{id}")
   public ResponseEntity<UserSocialPublicDto> getUserById(
           @PathVariable Long id,
@@ -217,4 +241,70 @@ public class UserInfoController {
 
     return ResponseEntity.ok(dto);
   }
+
+  /**
+   * Uploads a profile image for a user.
+   *
+   * @param userId            The ID of the user.
+   * @param file              The image file to upload.
+   * @param bucketName        The name of the MinIO bucket.
+   * @param authorizationHeader The authorization header containing the JWT token.
+   * @param ipAddress         The IP address of the requester (optional).
+   * @return A response entity containing the URL of the uploaded image or an error message.
+   */
+  @PostMapping("/profile-image")
+  public ResponseEntity<String> uploadProfileImage(
+          @RequestParam("userId") String userId,
+          @RequestParam("file") MultipartFile file,
+          @RequestParam("bucket") String bucketName,
+          @RequestHeader("Authorization") String authorizationHeader,
+          @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
+  ) {
+    ipAddress = ipAddress != null ? ipAddress : "unknown";
+    RateLimiter.checkRateLimit("profile:" + ipAddress);
+
+    if (file == null || file.isEmpty()) {
+      return ResponseEntity.badRequest().body("File is missing");
+    }
+
+    String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+    String requesterId = jwtUtils.getSocialUserIdFromJwtToken(token);
+
+    if (!requesterId.equals(userId)) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Unauthorized to modify this profile.");
+    }
+
+    UserProfile user = userProfileRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+    try {
+      // ✅ Nom unique du fichier
+      String objectName = "profile_" + userId + "_" + System.currentTimeMillis();
+
+      // ✅ Upload vers MinIO
+      minioService.uploadRawImage(file, bucketName, objectName);
+
+      // ✅ Sauvegarde dans MongoDB
+      ProfileImage imageMeta = new ProfileImage();
+      imageMeta.setMinioObjectName(objectName);
+      imageMeta.setBucketName(bucketName);
+
+      ProfileImage savedImage = profileImageRepository.save(imageMeta);
+
+      // ✅ Construction de l’URL logique avec l’ID Mongo
+      String imageAccessUrl = "http://localhost:9998/api/image/get/" + savedImage.getId();
+
+      // ✅ Mise à jour du profil
+      user.setProfileImg(imageAccessUrl);
+      userProfileRepository.save(user);
+
+      return ResponseEntity.ok(imageAccessUrl);
+    } catch (Exception e) {
+      logger.error("Error during profile image upload: {}", e.getMessage(), e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body("Error during profile image upload: " + e.getMessage());
+    }
+  }
+
+
 }
