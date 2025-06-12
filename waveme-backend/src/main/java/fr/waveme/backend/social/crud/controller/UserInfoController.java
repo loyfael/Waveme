@@ -76,7 +76,6 @@ public class UserInfoController {
           @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
   ) {
     ipAddress = ipAddress != null ? ipAddress : "unknown";
-    RateLimiter.checkRateLimit("post:" + ipAddress);
 
     String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
     String userId = jwtUtils.getSocialUserIdFromJwtToken(token);
@@ -170,7 +169,6 @@ public class UserInfoController {
           @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
   ) {
     ipAddress = ipAddress != null ? ipAddress : "unknown";
-    RateLimiter.checkRateLimit("post:" + ipAddress);
 
     String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
     Long requesterId = jwtUtils.getAuthUserIdFromJwtToken(token);

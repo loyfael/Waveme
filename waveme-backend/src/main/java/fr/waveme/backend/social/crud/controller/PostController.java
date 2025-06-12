@@ -112,7 +112,6 @@ public class PostController {
             @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
     ) {
         ipAddress = ipAddress != null ? ipAddress : "unknown";
-        RateLimiter.checkRateLimit("post:" + ipAddress);
 
         Post post = postRepository.findByPostUniqueId(postUniqueId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));

@@ -40,7 +40,6 @@ public class ImageController {
           @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
   ) {
     ipAddress = ipAddress != null ? ipAddress : "unknown";
-    RateLimiter.checkRateLimit("image:" + ipAddress);
 
     String bucketName;
     String objectName = id;
