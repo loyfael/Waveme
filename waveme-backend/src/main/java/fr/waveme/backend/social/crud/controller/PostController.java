@@ -1,9 +1,13 @@
 package fr.waveme.backend.social.crud.controller;
 
-import fr.waveme.backend.social.crud.dto.pub.PostMetadataDto;
+import fr.waveme.backend.social.crud.dto.pub.*;
 import fr.waveme.backend.social.crud.models.Post;
+import fr.waveme.backend.social.crud.models.UserProfile;
 import fr.waveme.backend.social.crud.models.reaction.PostVote;
+import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.PostRepository;
+import fr.waveme.backend.social.crud.repository.ReplyRepository;
+import fr.waveme.backend.social.crud.repository.UserProfileRepository;
 import fr.waveme.backend.social.crud.repository.react.PostVoteRepository;
 import fr.waveme.backend.social.crud.sequence.SequenceGeneratorService;
 import fr.waveme.backend.social.crud.service.MinioService;
@@ -11,9 +15,7 @@ import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.utils.RateLimiter;
 import fr.waveme.backend.utils.UrlShorter;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,10 +23,10 @@ import org.springframework.web.server.ResponseStatusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,19 +43,28 @@ public class PostController {
     private final PostVoteRepository postVoteRepository;
     private final JwtUtils jwtUtils;
     private final SequenceGeneratorService sequenceGenerator;
+    private final CommentRepository commentRepository;
+    private final ReplyRepository replyRepository;
+    private final UserProfileRepository userProfileRepository;
 
     public PostController(
             MinioService minioService,
             PostRepository postRepository,
             PostVoteRepository postVoteRepository,
             JwtUtils jwtUtils,
-            SequenceGeneratorService sequenceGeneratorService
+            SequenceGeneratorService sequenceGeneratorService,
+            CommentRepository commentRepository,
+            ReplyRepository replyRepository,
+            UserProfileRepository userProfileRepository
     ) {
         this.minioService = minioService;
         this.postRepository = postRepository;
         this.postVoteRepository = postVoteRepository;
         this.jwtUtils = jwtUtils;
         this.sequenceGenerator = sequenceGeneratorService;
+        this.commentRepository = commentRepository;
+        this.replyRepository = replyRepository;
+        this.userProfileRepository = userProfileRepository;
     }
 
     @PostMapping("/upload-image")
@@ -105,27 +116,61 @@ public class PostController {
         }
     }
 
-
     @GetMapping("/get/{postUniqueId}")
-    public ResponseEntity<PostMetadataDto> getPostMetadata(
-            @PathVariable("postUniqueId") Long postUniqueId,
-            @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
+    public ResponseEntity<PostPublicDto> getPostMetadata(
+            @PathVariable("postUniqueId") Long postUniqueId
     ) {
-        ipAddress = ipAddress != null ? ipAddress : "unknown";
-
         Post post = postRepository.findByPostUniqueId(postUniqueId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
 
-        PostMetadataDto dto = new PostMetadataDto(
-                post.getId(),
+        UserProfile userProfile = userProfileRepository.findById(post.getUserId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User profile not found"));
+
+        UserInPostPublicDto userDto = new UserInPostPublicDto(
+                userProfile.getId(),
+                userProfile.getPseudo(),
+                userProfile.getProfileImg()
+        );
+
+        List<CommentPublicDto> commentDtos = commentRepository.findAllByPostId(post.getPostUniqueId()).stream()
+                .map(comment -> {
+                    List<ReplyPublicDto> replyDtos = replyRepository.findAllByCommentId(comment.getCommentUniqueId()).stream()
+                            .map(reply -> new ReplyPublicDto(
+                                    reply.getId(),
+                                    reply.getDescription(),
+                                    reply.getUpVote(),
+                                    reply.getDownVote(),
+                                    reply.getUserId(),
+                                    reply.getCreatedAt() != null
+                                            ? reply.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
+                                            : Instant.EPOCH
+                            )).toList();
+
+                    return new CommentPublicDto(
+                            comment.getId(),
+                            comment.getDescription(),
+                            comment.getUserId(),
+                            comment.getUpVote(),
+                            comment.getDownVote(),
+                            comment.getCreatedAt() != null
+                                    ? comment.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
+                                    : Instant.EPOCH,
+                            replyDtos
+                    );
+                }).toList();
+
+        PostPublicDto dto = new PostPublicDto(
                 post.getPostUniqueId(),
-                "/api/image/get/" + post.getId(),
                 post.getDescription(),
-                post.getUpVote(),
-                post.getDownVote(),
+                "/api/image/get/" + post.getId(),
                 post.getCreatedAt() != null
                         ? post.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
-                        : Instant.EPOCH
+                        : Instant.EPOCH,
+                post.getUpVote(),
+                post.getDownVote(),
+                post.getUpVote() - post.getDownVote(),
+                userDto,
+                commentDtos
         );
 
         return ResponseEntity.ok(dto);
