@@ -126,36 +126,59 @@ public class PostController {
         UserProfile userProfile = userProfileRepository.findById(post.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User profile not found"));
 
-        UserInPostPublicDto userDto = new UserInPostPublicDto(
+        UserSimpleInfoDto userDto = new UserSimpleInfoDto(
                 userProfile.getId(),
                 userProfile.getPseudo(),
                 userProfile.getProfileImg()
         );
 
-        List<CommentPublicDto> commentDtos = commentRepository.findAllByPostId(post.getPostUniqueId()).stream()
+        List<CommentAndUserPublicDto> commentDtos = commentRepository.findAllByPostId(post.getPostUniqueId()).stream()
                 .map(comment -> {
-                    List<ReplyPublicDto> replyDtos = replyRepository.findAllByCommentId(comment.getCommentUniqueId()).stream()
-                            .map(reply -> new ReplyPublicDto(
-                                    reply.getId(),
-                                    reply.getDescription(),
-                                    reply.getUpVote(),
-                                    reply.getDownVote(),
-                                    reply.getUserId(),
-                                    reply.getCreatedAt() != null
-                                            ? reply.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
-                                            : Instant.EPOCH
-                            )).toList();
+                    // ⬇️ Get user info for comment author
+                    UserProfile commentAuthor = userProfileRepository.findById(comment.getUserId())
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User profile not found"));
 
-                    return new CommentPublicDto(
+                    UserSimpleInfoDto commentUserDto = new UserSimpleInfoDto(
+                            commentAuthor.getId(),
+                            commentAuthor.getPseudo(),
+                            commentAuthor.getProfileImg()
+                    );
+
+                    List<ReplyAndUserPublicDto> replyDtos = replyRepository.findAllByCommentId(comment.getCommentUniqueId()).stream()
+                            .map(reply -> {
+                                // ⬇️ Get user info for reply author
+                                UserProfile replyAuthor = userProfileRepository.findById(reply.getUserId())
+                                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User profile not found"));
+
+                                UserSimpleInfoDto replyUserDto = new UserSimpleInfoDto(
+                                        replyAuthor.getId(),
+                                        replyAuthor.getPseudo(),
+                                        replyAuthor.getProfileImg()
+                                );
+
+                                return new ReplyAndUserPublicDto(
+                                        reply.getId(),
+                                        reply.getDescription(),
+                                        reply.getUpVote(),
+                                        reply.getDownVote(),
+                                        reply.getUserId(),
+                                        reply.getCreatedAt() != null
+                                                ? reply.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
+                                                : Instant.EPOCH,
+                                        replyUserDto
+                                );
+                            }).toList();
+
+                    return new CommentAndUserPublicDto(
                             comment.getId(),
                             comment.getDescription(),
-                            comment.getUserId(),
                             comment.getUpVote(),
                             comment.getDownVote(),
+                            comment.getUserId(),
                             comment.getCreatedAt() != null
                                     ? comment.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
                                     : Instant.EPOCH,
-                            replyDtos
+                            commentUserDto
                     );
                 }).toList();
 

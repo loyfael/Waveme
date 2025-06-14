@@ -20,6 +20,6 @@ public class PostPublicDto {
   private final int upVote;
   private final int downVote;
   private final int voteSum;
-  private final UserInPostPublicDto user;
-  private final List<CommentPublicDto> comments;
+  private final UserSimpleInfoDto user;
+  private final List<CommentAndUserPublicDto> comments;
 }

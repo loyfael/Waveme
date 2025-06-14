@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.Instant;
-import java.util.List;
 
 /**
  * PostPublicDto represents a public data transfer object for posts in the social media application.
@@ -20,5 +19,5 @@ public class PostOnlyPublicDto {
     private final int upVote;
     private final int downVote;
     private final int voteSum;
-    private final UserInPostPublicDto user;
+    private final UserSimpleInfoDto user;
 }

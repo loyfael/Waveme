@@ -82,7 +82,7 @@ public class UserInfoController {
               UserProfile profile = userProfileRepository.findById(post.getUserId())
                       .orElseThrow(() -> new RuntimeException("User profile not found"));
 
-              UserInPostPublicDto userDto = new UserInPostPublicDto(
+              UserSimpleInfoDto userDto = new UserSimpleInfoDto(
                       profile.getId(),
                       profile.getPseudo(),
                       profile.getProfileImg()
