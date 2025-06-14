@@ -1,7 +1,5 @@
 package fr.waveme.backend.social.crud.controller;
 
-import fr.waveme.backend.auth.crud.dto.pub.UserPublicDto;
-import fr.waveme.backend.auth.crud.models.User;
 import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.social.crud.dto.UserProfileDto;
 import fr.waveme.backend.social.crud.dto.pub.*;
@@ -12,7 +10,6 @@ import fr.waveme.backend.social.crud.models.ProfileImage;
 import fr.waveme.backend.social.crud.models.UserProfile;
 import fr.waveme.backend.social.crud.repository.*;
 import fr.waveme.backend.social.crud.service.MinioService;
-import fr.waveme.backend.social.crud.service.UserProfileService;
 import fr.waveme.backend.utils.RateLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +67,7 @@ public class UserInfoController {
    * @return A response entity containing a list of public post data transfer objects.
    */
   @GetMapping("{id}/posts")
-  public ResponseEntity<List<PostPublicDto>> getUserPosts(
+  public ResponseEntity<List<PostOnlyPublicDto>> getUserPosts(
           @PathVariable Long id,
           @RequestHeader("Authorization") String authorizationHeader,
           @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
@@ -80,7 +77,7 @@ public class UserInfoController {
     String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
     String userId = jwtUtils.getSocialUserIdFromJwtToken(token);
 
-    List<PostPublicDto> posts = postRepository.findByUserId(userId).stream()
+    List<PostOnlyPublicDto> posts = postRepository.findByUserId(userId).stream()
             .map(post -> {
               UserProfile profile = userProfileRepository.findById(post.getUserId())
                       .orElseThrow(() -> new RuntimeException("User profile not found"));
@@ -91,7 +88,7 @@ public class UserInfoController {
                       profile.getProfileImg()
               );
 
-              return new PostPublicDto(
+              return new PostOnlyPublicDto(
                       post.getPostUniqueId(), // public identifier
                       post.getDescription(),
                       "/api/image/get/" + post.getId(), // internal image endpoint
