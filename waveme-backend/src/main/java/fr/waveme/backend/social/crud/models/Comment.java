@@ -33,8 +33,8 @@ public class Comment {
     private Integer downVote;
     private String description;
 
-    private Long postId; // référence au post parent
-    private List<Long> replyIds; // références aux réponses
+    private Long postId;
+    private List<Long> replyIds;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
