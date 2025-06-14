@@ -1,5 +1,6 @@
 package fr.waveme.backend.social.crud.controller;
 
+import fr.waveme.backend.social.crud.dto.pub.CommentPublicDto;
 import fr.waveme.backend.social.crud.models.Comment;
 import fr.waveme.backend.social.crud.models.Post;
 import fr.waveme.backend.social.crud.models.reaction.CommentVote;
@@ -14,7 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -52,11 +56,8 @@ public class CommentController {
   public Comment addCommentToPost(
           @PathVariable Long postUniqueId,
           @RequestParam String content,
-          @RequestHeader("Authorization") String authorizationHeader,
-          @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
+          @RequestHeader("Authorization") String authorizationHeader
   ) {
-    ipAddress = ipAddress != null ? ipAddress : "unknown";
-    RateLimiter.checkRateLimit("post:" + ipAddress);
 
     String userId = jwtUtils.getSocialUserIdFromJwtToken(authorizationHeader.replace("Bearer ", ""));
 
@@ -114,5 +115,24 @@ public class CommentController {
             "upVote", comment.getUpVote(),
             "downVote", comment.getDownVote()
     ));
+  }
+
+  @GetMapping("/getall/{postUniqueId}")
+  public ResponseEntity<List<CommentPublicDto>> getCommentsByPostId(@PathVariable Long postUniqueId) {
+    List<CommentPublicDto> comments = commentRepository.findAllByPostId(postUniqueId).stream()
+            .map(comment -> new CommentPublicDto(
+                    comment.getId(),
+                    comment.getDescription(),
+                    comment.getUserId(),
+                    comment.getUpVote(),
+                    comment.getDownVote(),
+                    comment.getCreatedAt() != null
+                            ? comment.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
+                            : Instant.EPOCH,
+                    List.of()
+            ))
+            .toList();
+
+    return ResponseEntity.ok(comments);
   }
 }

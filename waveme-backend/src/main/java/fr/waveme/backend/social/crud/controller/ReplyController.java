@@ -1,5 +1,6 @@
 package fr.waveme.backend.social.crud.controller;
 
+import fr.waveme.backend.social.crud.dto.pub.ReplyPublicDto;
 import fr.waveme.backend.social.crud.models.Comment;
 import fr.waveme.backend.social.crud.models.Reply;
 import fr.waveme.backend.social.crud.models.reaction.ReplyVote;
@@ -14,7 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -113,5 +117,24 @@ public class ReplyController {
             "downVote", reply.getDownVote()
     ));
   }
+
+  @GetMapping("/getall/{commentUniqueId}")
+  public ResponseEntity<List<ReplyPublicDto>> getRepliesByCommentId(@PathVariable Long commentUniqueId) {
+    List<ReplyPublicDto> replies = replyRepository.findAllByCommentId(commentUniqueId).stream()
+            .map(reply -> new ReplyPublicDto(
+                    reply.getId(),
+                    reply.getDescription(),
+                    reply.getUpVote(),
+                    reply.getDownVote(),
+                    reply.getUserId(),
+                    reply.getCreatedAt() != null
+                            ? reply.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
+                            : Instant.EPOCH
+            ))
+            .toList();
+
+    return ResponseEntity.ok(replies);
+  }
+
 }
 
