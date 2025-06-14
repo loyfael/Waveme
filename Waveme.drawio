@@ -1,0 +1,183 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36" version="27.1.5">
+  <diagram name="Page-1" id="lnJr8IrKAb51Mjj0m5E3">
+    <mxGraphModel dx="2583" dy="1386" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-14" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#1ba1e2;fontColor=#ffffff;strokeColor=#006EAF;" vertex="1" parent="1">
+          <mxGeometry y="290" width="810" height="810" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-15" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;Post&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;div style=&quot;height:2px;&quot;&gt;&amp;nbsp;- id: long&lt;br&gt;&amp;nbsp;- userId: String&lt;br&gt;&amp;nbsp;- postUniqueId: Long&lt;br&gt;&amp;nbsp;- imageUrl: String&lt;br&gt;&amp;nbsp;- upVote: Int&lt;br&gt;&amp;nbsp;- downVote: Int&lt;br&gt;&amp;nbsp;- description: String&lt;br&gt;&amp;nbsp;- shortUrl: String&lt;br&gt;&amp;nbsp;- commentIds: Long[]&lt;br&gt;&amp;nbsp;- createdAt&lt;br&gt;&amp;nbsp;- updatedAt&lt;br&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;height:2px;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;height:2px;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;height:2px;&quot;&gt;&lt;br&gt;&lt;/div&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="10" y="605" width="140" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-17" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;Comment&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;div style=&quot;height:2px;&quot;&gt;&amp;nbsp;- id: String&lt;br&gt;&amp;nbsp;- userId: String&lt;br&gt;&amp;nbsp;- commentUniqueId: Long&lt;br&gt;&amp;nbsp;- upVote: Int&lt;br&gt;&amp;nbsp;- downVote: Int&lt;br&gt;&amp;nbsp;- description: String&lt;br&gt;&amp;nbsp;- postId: Long&lt;br&gt;&amp;nbsp;- replyIds: Long[]&lt;br&gt;&amp;nbsp;- createdAt: DateTime&lt;br&gt;&amp;nbsp;- updatedAt: DateTime&lt;br&gt;&lt;br&gt;&lt;/div&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="260" y="605" width="160" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="375" y="710" as="sourcePoint" />
+            <mxPoint x="375" y="710" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-19" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;UserProfile&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;div style=&quot;height:2px;&quot;&gt;&amp;nbsp;- id : String&lt;br&gt;&amp;nbsp;- authUserId: Long&lt;br&gt;&amp;nbsp;- email: String&lt;br&gt;&amp;nbsp;- profileImg: String&lt;br&gt;&amp;nbsp;- totalUpVotes: Int&lt;br&gt;&amp;nbsp;- totalPosts: Int&lt;br&gt;&amp;nbsp;- totalComments: Int&lt;br&gt;&amp;nbsp;- createdAt: DateTime&lt;br&gt;&amp;nbsp;- updatedAt: DateTime&lt;/div&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="270" y="335" width="140" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-20" value="&lt;font style=&quot;font-size: 26px;&quot;&gt;SOCIAL&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="377" y="295" width="56" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-24" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;Reply&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;div style=&quot;height:2px;&quot;&gt;&amp;nbsp;- id: String&lt;br&gt;&amp;nbsp;- userId: String&lt;br&gt;&amp;nbsp;- replyUniqueId: Long&lt;br&gt;&amp;nbsp;- upVote: Int&lt;br&gt;&amp;nbsp;- downVote: Int&lt;br&gt;&amp;nbsp;- description: String&lt;br&gt;&amp;nbsp;- commentId: Long&lt;br&gt;&amp;nbsp;- createdAt: DateTime&lt;br&gt;&amp;nbsp;- updatedAt: DateTime&lt;br&gt;&lt;br&gt;&lt;/div&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="540" y="605" width="160" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-25" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;exitX=1.003;exitY=0.709;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.001;entryY=0.329;entryDx=0;entryDy=0;entryPerimeter=0;strokeColor=light-dark(#000000,#F6FF00);" edge="1" parent="1" source="1IoYAIDRRS7hd5OuvuMM-15" target="1IoYAIDRRS7hd5OuvuMM-17">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="140" y="765" as="sourcePoint" />
+            <mxPoint x="250" y="769.7" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="408.2199999999998" y="865.6800000000001" />
+              <mxPoint x="300" y="955" />
+              <mxPoint x="230" y="965" />
+              <mxPoint x="820" y="1081" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-26" value="One to many" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="1IoYAIDRRS7hd5OuvuMM-25">
+          <mxGeometry x="0.0356" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-28" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;exitX=0.997;exitY=0.691;exitDx=0;exitDy=0;exitPerimeter=0;entryX=-0.004;entryY=0.337;entryDx=0;entryDy=0;entryPerimeter=0;strokeColor=light-dark(#000000,#F6FF00);" edge="1" parent="1" source="1IoYAIDRRS7hd5OuvuMM-17" target="1IoYAIDRRS7hd5OuvuMM-24">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="450" y="829" as="sourcePoint" />
+            <mxPoint x="570" y="735" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="718.2199999999998" y="929.6800000000001" />
+              <mxPoint x="610" y="1019" />
+              <mxPoint x="540" y="1029" />
+              <mxPoint x="1130" y="1145" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-29" value="One to many" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="1IoYAIDRRS7hd5OuvuMM-28">
+          <mxGeometry x="0.0356" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-50" value="" style="fontSize=12;html=1;endArrow=ERzeroToMany;startArrow=ERmandOne;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="1IoYAIDRRS7hd5OuvuMM-19">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="10" y="411.8" as="sourcePoint" />
+            <mxPoint x="80" y="605" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-54" value="" style="fontSize=12;html=1;endArrow=ERzeroToMany;startArrow=ERmandOne;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="1IoYAIDRRS7hd5OuvuMM-19">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="880" y="525" as="sourcePoint" />
+            <mxPoint x="620" y="605" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-55" value="" style="fontSize=12;html=1;endArrow=ERzeroToMany;startArrow=ERmandOne;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="1IoYAIDRRS7hd5OuvuMM-19">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="600" y="525" as="sourcePoint" />
+            <mxPoint x="340" y="605" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-56" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;ProfileImage&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;div style=&quot;height:2px;&quot;&gt;&amp;nbsp;- Id: String&lt;br&gt;&amp;nbsp;- minioObjectName: String&lt;br&gt;&amp;nbsp;- bucketName: String&lt;/div&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="630" y="335" width="160" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-58" value="Contain userId" style="ellipse;whiteSpace=wrap;html=1;fillColor=#a20025;fontColor=#ffffff;strokeColor=#6F0000;" vertex="1" parent="1">
+          <mxGeometry x="520" y="380" width="120" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-59" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERmandOne;startArrow=ERmandOne;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="1IoYAIDRRS7hd5OuvuMM-19" target="1IoYAIDRRS7hd5OuvuMM-56">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="600" y="535" as="sourcePoint" />
+            <mxPoint x="700" y="435" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="650" y="485" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-72" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;ReplyVote&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;div style=&quot;height:2px;&quot;&gt;&amp;nbsp;- id: String&lt;br&gt;&amp;nbsp;{ unique(replyId: Long userId: String)}&lt;br&gt;&lt;br&gt;&lt;/div&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="540" y="855" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-73" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;CommentVote&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;div style=&quot;height:2px;&quot;&gt;&amp;nbsp;- id: String&lt;br&gt;&amp;nbsp;{ unique(commentId: Long, userId: String)}&lt;br&gt;&lt;br&gt;&lt;/div&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="260" y="855" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-74" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;PostVote&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;div style=&quot;height:2px;&quot;&gt;&amp;nbsp;- id: String&lt;br&gt;&amp;nbsp;{ unique (postId: Long, userId: String) }&lt;br&gt;&lt;br&gt;&lt;/div&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="10" y="855" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-75" value="UserProfile&lt;br&gt;{unique: userId}" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="1025" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-76" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" target="1IoYAIDRRS7hd5OuvuMM-73">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="340" y="1025" as="sourcePoint" />
+            <mxPoint x="400" y="955" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-77" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" target="1IoYAIDRRS7hd5OuvuMM-72" source="1IoYAIDRRS7hd5OuvuMM-75">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="340" y="985" as="sourcePoint" />
+            <mxPoint x="339.8299999999999" y="935" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-78" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="340" y="1025" as="sourcePoint" />
+            <mxPoint x="100.17000000000007" y="935" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="100" y="1026" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-82" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="650" y="55" as="sourcePoint" />
+            <mxPoint x="650" y="75" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-83" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a20025;fontColor=#ffffff;strokeColor=#6F0000;" vertex="1" parent="1">
+          <mxGeometry width="640" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-84" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;User&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;div style=&quot;height:2px;&quot;&gt;&amp;nbsp;- id : long&lt;br&gt;&amp;nbsp;- pseudo: string&lt;br&gt;&amp;nbsp;- email: char&lt;br&gt;&amp;nbsp;- password: string&lt;br&gt;&amp;nbsp;- roles: EROLE&lt;br&gt;&amp;nbsp;- createdAt: DateTime&lt;br&gt;&amp;nbsp;- updatedAt: DateTime&lt;/div&gt;&lt;div style=&quot;height:2px;&quot;&gt;&lt;br&gt;&lt;/div&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry y="70" width="140" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-85" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;exitX=0.997;exitY=0.138;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.001;entryY=0.312;entryDx=0;entryDy=0;entryPerimeter=0;strokeColor=light-dark(#000000,#F6FF00);" edge="1" parent="1" target="1IoYAIDRRS7hd5OuvuMM-87">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="140.0000000000001" y="102.29999999999995" as="sourcePoint" />
+            <mxPoint x="358.8800000000001" y="100.00000000000006" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="408.22" y="202.98000000000002" />
+              <mxPoint x="300" y="292.29999999999995" />
+              <mxPoint x="230" y="302.29999999999995" />
+              <mxPoint x="820" y="418.29999999999995" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-86" value="One to many" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="1IoYAIDRRS7hd5OuvuMM-85">
+          <mxGeometry x="0.0356" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-87" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;ROLE&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;div style=&quot;height:2px;&quot;&gt;&amp;nbsp;- id: long&lt;br&gt;&amp;nbsp;- name: EROLE&lt;/div&gt;&lt;div style=&quot;height:2px;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;height:2px;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;height:2px;&quot;&gt;&lt;br&gt;&lt;/div&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="250" y="70" width="140" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-88" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;EROLE&lt;br&gt;&amp;lt;&amp;lt; enum &amp;gt;&amp;gt;&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;div style=&quot;height:2px;&quot;&gt;&amp;nbsp;- ROLE_USER&lt;br&gt;&amp;nbsp;- ROLE_MODERATOR&lt;br&gt;&amp;nbsp;- ROLE_ADMIN&lt;/div&gt;&lt;div style=&quot;height:2px;&quot;&gt;&lt;br&gt;&lt;/div&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="500" y="70" width="140" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-89" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERmandOne;startArrow=ERmandOne;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fillColor=#a20025;strokeColor=light-dark(#6F0000,#FFF600);" edge="1" parent="1" target="1IoYAIDRRS7hd5OuvuMM-88">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="390" y="130" as="sourcePoint" />
+            <mxPoint x="410" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-90" value="One to one" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="1IoYAIDRRS7hd5OuvuMM-89">
+          <mxGeometry x="0.069" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1IoYAIDRRS7hd5OuvuMM-91" value="&lt;font style=&quot;font-size: 26px;&quot;&gt;AUTH&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="305" y="10" width="35" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
