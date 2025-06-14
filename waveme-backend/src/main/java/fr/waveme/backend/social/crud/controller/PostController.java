@@ -1,6 +1,9 @@
 package fr.waveme.backend.social.crud.controller;
 
 import fr.waveme.backend.social.crud.dto.pub.*;
+import fr.waveme.backend.social.crud.dto.pub.comment.CommentAndUserPublicDto;
+import fr.waveme.backend.social.crud.dto.pub.post.PostPublicDto;
+import fr.waveme.backend.social.crud.dto.pub.reply.ReplyAndUserPublicDto;
 import fr.waveme.backend.social.crud.models.Post;
 import fr.waveme.backend.social.crud.models.UserProfile;
 import fr.waveme.backend.social.crud.models.reaction.PostVote;

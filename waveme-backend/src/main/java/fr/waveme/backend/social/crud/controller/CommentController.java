@@ -1,6 +1,6 @@
 package fr.waveme.backend.social.crud.controller;
 
-import fr.waveme.backend.social.crud.dto.pub.CommentPublicDto;
+import fr.waveme.backend.social.crud.dto.pub.comment.CommentPublicDto;
 import fr.waveme.backend.social.crud.models.Comment;
 import fr.waveme.backend.social.crud.models.Post;
 import fr.waveme.backend.social.crud.models.reaction.CommentVote;
@@ -9,8 +9,6 @@ import fr.waveme.backend.social.crud.repository.PostRepository;
 import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.social.crud.repository.react.CommentVoteRepository;
 import fr.waveme.backend.social.crud.sequence.SequenceGeneratorService;
-import fr.waveme.backend.utils.RateLimiter;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;

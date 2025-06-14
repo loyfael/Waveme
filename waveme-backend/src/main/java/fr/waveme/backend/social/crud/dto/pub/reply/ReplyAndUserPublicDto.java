@@ -1,5 +1,6 @@
-package fr.waveme.backend.social.crud.dto.pub;
+package fr.waveme.backend.social.crud.dto.pub.reply;
 
+import fr.waveme.backend.social.crud.dto.pub.UserSimpleInfoDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -7,7 +8,7 @@ import java.time.Instant;
 
 @Getter
 @AllArgsConstructor
-public class CommentAndUserPublicDto {
+public class ReplyAndUserPublicDto {
   private final String id;
   private final String content;
   private final int upVote;

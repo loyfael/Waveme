@@ -1,6 +1,6 @@
 package fr.waveme.backend.social.crud.controller;
 
-import fr.waveme.backend.social.crud.dto.pub.ReplyPublicDto;
+import fr.waveme.backend.social.crud.dto.pub.reply.ReplyPublicDto;
 import fr.waveme.backend.social.crud.models.Comment;
 import fr.waveme.backend.social.crud.models.Reply;
 import fr.waveme.backend.social.crud.models.reaction.ReplyVote;

@@ -1,5 +1,7 @@
-package fr.waveme.backend.social.crud.dto.pub;
+package fr.waveme.backend.social.crud.dto.pub.post;
 
+import fr.waveme.backend.social.crud.dto.pub.UserSimpleInfoDto;
+import fr.waveme.backend.social.crud.dto.pub.comment.CommentAndUserPublicDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

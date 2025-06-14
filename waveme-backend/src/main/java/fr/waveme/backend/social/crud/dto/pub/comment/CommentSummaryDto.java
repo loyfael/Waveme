@@ -1,4 +1,4 @@
-package fr.waveme.backend.social.crud.dto.pub;
+package fr.waveme.backend.social.crud.dto.pub.comment;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

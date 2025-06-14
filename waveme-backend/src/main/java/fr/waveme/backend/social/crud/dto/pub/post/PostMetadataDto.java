@@ -1,4 +1,4 @@
-package fr.waveme.backend.social.crud.dto.pub;
+package fr.waveme.backend.social.crud.dto.pub.post;
 
 import lombok.Getter;
 
