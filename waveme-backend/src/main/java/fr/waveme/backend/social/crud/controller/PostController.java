@@ -181,7 +181,8 @@ public class PostController {
                             comment.getCreatedAt() != null
                                     ? comment.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
                                     : Instant.EPOCH,
-                            commentUserDto
+                            commentUserDto,
+                            replyDtos
                     );
                 }).toList();
 
