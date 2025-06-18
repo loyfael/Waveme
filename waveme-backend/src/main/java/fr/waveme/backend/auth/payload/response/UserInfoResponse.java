@@ -31,4 +31,11 @@ public class UserInfoResponse {
         this.pseudo = pseudo;
     }
 
+    public String getUsername() {
+        return pseudo;
+    }
+
+    public String getToken() {
+        return jwt;
+    }
 }
