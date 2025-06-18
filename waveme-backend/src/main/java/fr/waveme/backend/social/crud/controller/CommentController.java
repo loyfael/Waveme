@@ -36,6 +36,16 @@ public class CommentController {
   private final SequenceGeneratorService sequenceGenerator;
   private final CommentVoteRepository commentVoteRepository;
 
+  /**
+   * Constructor for CommentController.
+   * Permit to post comments to a post, vote on comments, and retrieve comments for a post.
+   *
+   * @param commentRepository      Repository for managing comments.
+   * @param commentVoteRepository  Repository for managing comment votes.
+   * @param postRepository         Repository for managing posts.
+   * @param jwtUtils               Utility for handling JWT tokens.
+   * @param sequenceGenerator      Service for generating unique sequences for comments.
+   */
   public CommentController(
           CommentRepository commentRepository,
           CommentVoteRepository commentVoteRepository,
