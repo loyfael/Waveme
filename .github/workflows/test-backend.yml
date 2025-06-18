@@ -62,6 +62,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Run tests with Maven
+        working-directory: waveme-backend
         run: mvn test
         env:
           SPRING_PROFILES_ACTIVE: test
