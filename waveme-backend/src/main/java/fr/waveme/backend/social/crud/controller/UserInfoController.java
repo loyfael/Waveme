@@ -290,7 +290,7 @@ public class UserInfoController {
       ProfileImage savedImage = profileImageRepository.save(imageMeta);
 
       // ✅ Construction de l’URL logique avec l’ID Mongo
-      String imageAccessUrl = "http://localhost:9998/api/image/get/" + savedImage.getId();
+      String imageAccessUrl = "/image/get/" + savedImage.getId();
 
       // ✅ Mise à jour du profil
       user.setProfileImg(imageAccessUrl);
