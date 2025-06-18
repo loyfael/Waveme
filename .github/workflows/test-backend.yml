@@ -1,10 +1,8 @@
-name: Test Backend
-
 on:
   push:
-    branches: [ main, develop ]
+    branches:
+      - main
   pull_request:
-    branches: [ main, develop ]
 
 jobs:
   test:
@@ -30,20 +28,6 @@ jobs:
         ports:
           - 27017:27017
 
-      minio:
-        image: minio/minio
-        ports:
-          - 9000:9000
-        env:
-          MINIO_ROOT_USER: minioadmin
-          MINIO_ROOT_PASSWORD: minioadmin
-        options: >-
-          --health-cmd="curl -f http://localhost:9000/minio/health/live || exit 1"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-          --entrypoint=["minio","server","/data"]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -53,6 +37,21 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+
+      - name: Start MinIO container manually
+        run: |
+          docker run -d --name minio \
+            -p 9000:9000 -p 9001:9001 \
+            -e MINIO_ROOT_USER=minioadmin \
+            -e MINIO_ROOT_PASSWORD=minioadmin \
+            minio/minio:RELEASE.2023-12-02T10-51-33Z \
+            server /data --console-address ":9001"
+
+      - name: Wait for MinIO to be ready
+        run: |
+          for i in {1..10}; do
+            curl -f http://localhost:9000/minio/health/live && break || sleep 2
+          done
 
       - name: Cache Maven packages
         uses: actions/cache@v4
