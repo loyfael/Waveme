@@ -8,6 +8,17 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+
+/**
+ * This service is responsible for generating unique sequences for entities in the MongoDB database.
+ * It uses a MongoDB collection to keep track of the current sequence number for each entity type.
+ * The `generateSequence` method increments the sequence number for a given sequence name
+ * and returns the new sequence value.
+ * Usage:
+ * To use this service, inject it into your component and call the `generateSequence` method
+ * with the desired sequence name. The method will return the next sequence number,
+ * which can be used as a unique identifier for new entities.
+ */
 @Service
 public class SequenceGeneratorService {
 
