@@ -1,0 +1,46 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/waveme
+    username: waveme
+    password: waveme
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      minimum-idle: 2
+      maximum-pool-size: 5
+      idle-timeout: 30000
+      pool-name: HikariPool-Test
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      auto-commit: true
+      transaction-isolation: TRANSACTION_READ_COMMITTED
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/waveme
+      database: waveme
+      repositories:
+        enabled: true
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+waveme:
+  app:
+    jwtSecret: test-jwt-secret
+    jwtExpirationMs: 86400000
+    jwtCookieName: jwtCookie
+
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: waveme
+
+server:
+  address: 0.0.0.0
+  port: 8081
+
+logging:
+  level:
+    root: WARN
+    org.springframework.security: ERROR

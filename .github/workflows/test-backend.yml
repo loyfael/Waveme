@@ -38,7 +38,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Start MinIO container manually
+      - name: Start MinIO container
         run: |
           docker run -d --name minio \
             -p 9000:9000 -p 9001:9001 \
@@ -66,10 +66,3 @@ jobs:
         run: mvn test
         env:
           SPRING_PROFILES_ACTIVE: test
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/waveme
-          SPRING_DATASOURCE_USERNAME: waveme
-          SPRING_DATASOURCE_PASSWORD: waveme
-          SPRING_DATA_MONGODB_URI: mongodb://localhost:27017/waveme
-          MINIO_ENDPOINT: http://localhost:9000
-          MINIO_ACCESS_KEY: minioadmin
-          MINIO_SECRET_KEY: minioadmin
