@@ -25,4 +25,4 @@ COPY --from=build /app/target/*.jar app.jar
 EXPOSE 9080
 
 # Commande pour exécuter l'application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Dspring.config.location=classpath:/application.properties", "-jar", "app.jar"]

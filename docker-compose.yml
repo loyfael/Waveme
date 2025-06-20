@@ -24,19 +24,21 @@ services:
     depends_on:
       - postgres
 
-  # backend:
-  #   container_name: waveme-backend
-  #   build:
-  #     context: ./waveme-backend
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "9080:9080"
-  #   environment:
-  #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
-  #     SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-  #     SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-  #   depends_on:
-  #     - postgres
+  backend:
+    container_name: waveme-backend
+    build:
+      context: ./waveme-backend
+      dockerfile: Dockerfile
+    ports:
+      - "9080:9080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@localhost:27017/waveme?authSource=admin
+    depends_on:
+      - postgres
+      - mongodb
 
   minio:
     container_name: waveme-minio
