@@ -20,11 +20,11 @@ public class ReportMapper {
 
     return ReportDto.builder()
             .id(report.getId())
-            .reporterId(report.getReporterId()) // Long
+            .reporterId(report.getReporterId())
             .reportedUserId(report.getReportedUserId())
-            .postId(report.getPost() != null ? report.getPost().getPostUniqueId() : null)
-            .commentId(report.getComment() != null ? report.getComment().getCommentUniqueId() : null)
-            .replyId(report.getReply() != null ? report.getReply().getReplyUniqueId() : null)
+            .postId(report.getPostId())
+            .commentId(report.getCommentId())
+            .replyId(report.getReplyId())
             .reason(report.getReason())
             .description(report.getDescription())
             .status(report.getStatus())
@@ -33,23 +33,16 @@ public class ReportMapper {
             .build();
   }
 
-  public Report toEntity(ReportDto dto, Comment comment, Reply reply, Post post) {
+  public Report toEntity(ReportDto dto) {
     if (dto == null) return null;
-
-    Long reportedUserId = null;
-    if (comment != null) {
-      reportedUserId = Long.valueOf(comment.getUserId());
-    } else if (reply != null) {
-      reportedUserId = Long.valueOf(reply.getUserId());
-    }
 
     return Report.builder()
             .id(dto.getId())
             .reporterId(dto.getReporterId())
-            .comment(comment)
-            .post(post)
-            .reply(reply)
-            .reportedUserId(dto.getReportedUserId() != null ? dto.getReportedUserId() : reportedUserId)
+            .reportedUserId(dto.getReportedUserId())
+            .postId(dto.getPostId())
+            .commentId(dto.getCommentId())
+            .replyId(dto.getReplyId())
             .reason(dto.getReason())
             .description(dto.getDescription())
             .status(dto.getStatus() != null ? dto.getStatus() : EReportStatus.PENDING)

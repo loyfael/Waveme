@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
 @Document(collection = "reports")
 public class Report {
 
-
   @Id
   private String id;
 
@@ -34,14 +33,11 @@ public class Report {
 
   private Long reportedUserId;
 
-  @DBRef
-  private Comment comment;
+  private Long postId;
 
-  @DBRef
-  private Reply reply;
+  private Long commentId;
 
-  @DBRef
-  private Post post;
+  private Long replyId;
 
   private EReportReason reason;
 

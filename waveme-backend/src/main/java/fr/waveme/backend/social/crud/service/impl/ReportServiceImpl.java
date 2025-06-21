@@ -36,16 +36,43 @@ public class ReportServiceImpl implements ReportService {
 
   @Override
   public ReportDto createReport(ReportDto dto) {
-    Comment comment = dto.getCommentId() != null ? commentRepository.findById(String.valueOf(dto.getCommentId())).orElse(null) : null;
-    Reply reply = dto.getReplyId() != null ? replyRepository.findById(dto.getReplyId()).orElse(null) : null;
-    Post post = dto.getPostId() != null ? postRepository.findById(String.valueOf(dto.getPostId())).orElse(null) : null;
 
-    Report report = reportMapper.toEntity(dto, comment, reply, post);
+    // Sécurité métier : un seul type de contenu signalé à la fois
+    int nonNullTargets = 0;
+    if (dto.getPostId() != null) nonNullTargets++;
+    if (dto.getCommentId() != null) nonNullTargets++;
+    if (dto.getReplyId() != null) nonNullTargets++;
+    if (dto.getReportedUserId() != null) nonNullTargets++;
 
-    if (report.getReporterId() != null && report.getReporterId().equals(report.getReportedUserId())) {
-      throw new UserAutoReportException("Vous ne pouvez pas signaler votre propre contenu.");
+    if (nonNullTargets != 1) {
+      throw new IllegalArgumentException("Un report doit cibler uniquement un post, un commentaire, une réponse OU un utilisateur.");
     }
 
+    // Extraction automatique du reportedUserId si nécessaire
+    if (dto.getCommentId() != null) {
+      Comment comment = commentRepository.findByCommentUniqueId(dto.getCommentId()).orElseThrow();
+      dto.setCommentId(comment.getCommentUniqueId());
+      dto.setReportedUserId(Long.valueOf(comment.getUserId()));
+    }
+
+    if (dto.getReplyId() != null) {
+      Reply reply = replyRepository.findByReplyUniqueId(dto.getReplyId()).orElseThrow();
+      dto.setReplyId(reply.getReplyUniqueId());
+      dto.setReportedUserId(Long.valueOf(reply.getUserId()));
+    }
+
+    if (dto.getPostId() != null) {
+      Post post = postRepository.findByPostUniqueId(dto.getPostId()).orElseThrow();
+      dto.setPostId(post.getPostUniqueId());
+      dto.setReportedUserId(Long.valueOf(post.getUserId()));
+    }
+
+    // Empêcher l'auto-signalement
+//    if (dto.getReporterId() != null && dto.getReporterId().equals(dto.getReportedUserId())) {
+//      throw new UserAutoReportException("Vous ne pouvez pas signaler votre propre contenu.");
+//    }
+
+    Report report = reportMapper.toEntity(dto);
     return reportMapper.toDto(reportRepository.save(report));
   }
 
