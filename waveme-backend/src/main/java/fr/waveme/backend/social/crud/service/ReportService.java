@@ -1,6 +1,7 @@
 package fr.waveme.backend.social.crud.service;
 
 import fr.waveme.backend.social.crud.dto.ReportDto;
+import fr.waveme.backend.social.crud.models.Report;
 
 import java.util.List;
 
@@ -10,8 +11,10 @@ import java.util.List;
  */
 public interface ReportService {
   ReportDto createReport(ReportDto reportDto);
-  ReportDto getReportById(String id); // changé de Long à String
+  ReportDto getReportById(String id);
+  Report getByUniqueReportId(Long reportUniqueId);
   List<ReportDto> getAllReports();
-  void deleteReport(String id); // changé de Long à String
-  ReportDto updateStatus(String id, String newStatus); // changé de Long à String
+  void deleteReport(String id);
+  ReportDto updateStatus(String id, String newStatus);
+  List<ReportDto> getReportsByReportedUserId(String reportedUserId);
 }

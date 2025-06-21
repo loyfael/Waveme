@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 public class ReportDto {
   private String id;
   private String reporterId;
+  private String reportedUserId; // ID of the user being reported
+  private String postId;
   private String commentId;
   private String replyId;
   private EReportReason reason;

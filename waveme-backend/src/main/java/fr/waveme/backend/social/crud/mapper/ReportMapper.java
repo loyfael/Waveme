@@ -2,8 +2,10 @@ package fr.waveme.backend.social.crud.mapper;
 
 import fr.waveme.backend.social.crud.dto.ReportDto;
 import fr.waveme.backend.social.crud.models.Comment;
+import fr.waveme.backend.social.crud.models.Post;
 import fr.waveme.backend.social.crud.models.Reply;
 import fr.waveme.backend.social.crud.models.Report;
+import fr.waveme.backend.social.crud.models.enumerator.EReportStatus;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,6 +21,8 @@ public class ReportMapper {
     return ReportDto.builder()
             .id(report.getId())
             .reporterId(report.getReporterId()) // Long
+            .reportedUserId(report.getReportedUserId())
+            .postId(report.getPost() != null ? report.getPost().getId() : null)
             .commentId(report.getComment() != null ? report.getComment().getId() : null)
             .replyId(report.getReply() != null ? report.getReply().getId() : null)
             .reason(report.getReason())
@@ -29,19 +33,29 @@ public class ReportMapper {
             .build();
   }
 
-  public Report toEntity(ReportDto dto, Comment comment, Reply reply) {
+  public Report toEntity(ReportDto dto, Comment comment, Reply reply, Post post) {
     if (dto == null) return null;
 
+    String reportedUserId = null;
+    if (comment != null) {
+      reportedUserId = comment.getUserId();
+    } else if (reply != null) {
+      reportedUserId = reply.getUserId();
+    }
+
     return Report.builder()
-            .id(dto.getId()) // String
-            .reporterId(dto.getReporterId()) // Long
+            .id(dto.getId())
+            .reporterId(dto.getReporterId())
             .comment(comment)
+            .post(post)
             .reply(reply)
+            .reportedUserId(dto.getReportedUserId() != null ? dto.getReportedUserId() : reportedUserId)
             .reason(dto.getReason())
             .description(dto.getDescription())
-            .status(dto.getStatus())
+            .status(dto.getStatus() != null ? dto.getStatus() : EReportStatus.PENDING)
             .createdAt(dto.getCreatedAt())
             .updatedAt(dto.getUpdatedAt())
             .build();
   }
+
 }

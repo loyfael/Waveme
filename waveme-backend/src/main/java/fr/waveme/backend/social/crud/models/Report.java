@@ -28,15 +28,20 @@ public class Report {
   @Id
   private String id;
 
-  // On stocke juste l'ID du User (venant de PostgreSQL)
+  private Long reportUniqueId;
+
   private String reporterId;
 
-  // Références Mongo internes
+  private String reportedUserId;
+
   @DBRef
   private Comment comment;
 
   @DBRef
   private Reply reply;
+
+  @DBRef
+  private Post post;
 
   private EReportReason reason;
 

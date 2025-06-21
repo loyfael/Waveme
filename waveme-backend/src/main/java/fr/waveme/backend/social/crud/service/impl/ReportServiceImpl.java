@@ -1,12 +1,15 @@
 package fr.waveme.backend.social.crud.service.impl;
 
 import fr.waveme.backend.social.crud.dto.ReportDto;
+import fr.waveme.backend.social.crud.exception.UserAutoReportException;
 import fr.waveme.backend.social.crud.mapper.ReportMapper;
 import fr.waveme.backend.social.crud.models.Comment;
+import fr.waveme.backend.social.crud.models.Post;
 import fr.waveme.backend.social.crud.models.Reply;
 import fr.waveme.backend.social.crud.models.Report;
 import fr.waveme.backend.social.crud.models.enumerator.EReportStatus;
 import fr.waveme.backend.social.crud.repository.CommentRepository;
+import fr.waveme.backend.social.crud.repository.PostRepository;
 import fr.waveme.backend.social.crud.repository.ReplyRepository;
 import fr.waveme.backend.social.crud.repository.ReportRepository;
 import fr.waveme.backend.social.crud.service.ReportService;
@@ -29,13 +32,20 @@ public class ReportServiceImpl implements ReportService {
   private final CommentRepository commentRepository;
   private final ReplyRepository replyRepository;
   private final ReportMapper reportMapper;
+  private final PostRepository postRepository;
 
   @Override
   public ReportDto createReport(ReportDto dto) {
-    Comment comment = commentRepository.findById(dto.getCommentId()).orElse(null);
-    Reply reply = replyRepository.findById(dto.getReplyId()).orElse(null);
+    Comment comment = dto.getCommentId() != null ? commentRepository.findById(dto.getCommentId()).orElse(null) : null;
+    Reply reply = dto.getReplyId() != null ? replyRepository.findById(dto.getReplyId()).orElse(null) : null;
+    Post post = dto.getPostId() != null ? postRepository.findById(dto.getPostId()).orElse(null) : null;
 
-    Report report = reportMapper.toEntity(dto, comment, reply);
+    Report report = reportMapper.toEntity(dto, comment, reply, post);
+
+    if (report.getReporterId() != null && report.getReporterId().equals(report.getReportedUserId())) {
+      throw new UserAutoReportException("Vous ne pouvez pas signaler votre propre contenu.");
+    }
+
     return reportMapper.toDto(reportRepository.save(report));
   }
 
@@ -67,5 +77,18 @@ public class ReportServiceImpl implements ReportService {
     Report report = optionalReport.get();
     report.setStatus(EReportStatus.valueOf(newStatus));
     return reportMapper.toDto(reportRepository.save(report));
+  }
+
+  @Override
+  public List<ReportDto> getReportsByReportedUserId(String reportedUserId) {
+    return reportRepository.findByReportedUserId(reportedUserId)
+            .stream()
+            .map(reportMapper::toDto)
+            .collect(Collectors.toList());
+  }
+
+  @Override
+  public Report getByUniqueReportId(Long reportUniqueId) {
+        return reportRepository.findByReportUniqueId(reportUniqueId);
   }
 }
