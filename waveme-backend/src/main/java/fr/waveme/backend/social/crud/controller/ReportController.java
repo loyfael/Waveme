@@ -27,8 +27,8 @@ public class ReportController {
     String reporterId = jwtUtils.getSocialUserIdFromJwtToken(token);
 
     ReportDto dto = ReportDto.builder()
-            .reporterId(reporterId)
-            .commentId(commentId)
+            .reporterId(Long.valueOf(reporterId))
+            .commentId(Long.valueOf(commentId))
             .reason(request.getReason())
             .description(request.getDescription())
             .build();
@@ -46,8 +46,8 @@ public class ReportController {
     String reporterId = jwtUtils.getSocialUserIdFromJwtToken(token);
 
     ReportDto dto = ReportDto.builder()
-            .reporterId(reporterId)
-            .replyId(replyId)
+            .reporterId(Long.valueOf(reporterId))
+            .replyId(Long.valueOf(replyId))
             .reason(request.getReason())
             .description(request.getDescription())
             .build();
@@ -65,8 +65,8 @@ public class ReportController {
     String reporterId = jwtUtils.getSocialUserIdFromJwtToken(token);
 
     ReportDto dto = ReportDto.builder()
-            .reporterId(reporterId)
-            .reportedUserId(userId)
+            .reporterId(Long.valueOf(reporterId))
+            .reportedUserId(Long.valueOf(userId))
             .reason(request.getReason())
             .description(request.getDescription())
             .build();
@@ -84,8 +84,8 @@ public class ReportController {
     String reporterId = jwtUtils.getSocialUserIdFromJwtToken(token);
 
     ReportDto dto = ReportDto.builder()
-            .reporterId(reporterId)
-            .postId(postId)
+            .reporterId(Long.valueOf(reporterId))
+            .postId(Long.valueOf(postId))
             .reason(request.getReason())
             .description(request.getDescription())
             .build();

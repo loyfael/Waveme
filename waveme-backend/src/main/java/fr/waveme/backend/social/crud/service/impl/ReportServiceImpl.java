@@ -36,9 +36,9 @@ public class ReportServiceImpl implements ReportService {
 
   @Override
   public ReportDto createReport(ReportDto dto) {
-    Comment comment = dto.getCommentId() != null ? commentRepository.findById(dto.getCommentId()).orElse(null) : null;
+    Comment comment = dto.getCommentId() != null ? commentRepository.findById(String.valueOf(dto.getCommentId())).orElse(null) : null;
     Reply reply = dto.getReplyId() != null ? replyRepository.findById(dto.getReplyId()).orElse(null) : null;
-    Post post = dto.getPostId() != null ? postRepository.findById(dto.getPostId()).orElse(null) : null;
+    Post post = dto.getPostId() != null ? postRepository.findById(String.valueOf(dto.getPostId())).orElse(null) : null;
 
     Report report = reportMapper.toEntity(dto, comment, reply, post);
 

@@ -30,9 +30,9 @@ public class Report {
 
   private Long reportUniqueId;
 
-  private String reporterId;
+  private Long reporterId;
 
-  private String reportedUserId;
+  private Long reportedUserId;
 
   @DBRef
   private Comment comment;

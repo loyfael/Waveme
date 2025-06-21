@@ -20,11 +20,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ReportDto {
   private String id;
-  private String reporterId;
-  private String reportedUserId; // ID of the user being reported
-  private String postId;
-  private String commentId;
-  private String replyId;
+  private Long reporterId;
+  private Long reportedUserId; // ID of the user being reported
+  private Long postId;
+  private Long commentId;
+  private Long replyId;
   private EReportReason reason;
   private String description;
   private EReportStatus status;

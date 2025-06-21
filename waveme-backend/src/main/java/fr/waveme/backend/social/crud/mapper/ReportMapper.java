@@ -22,9 +22,9 @@ public class ReportMapper {
             .id(report.getId())
             .reporterId(report.getReporterId()) // Long
             .reportedUserId(report.getReportedUserId())
-            .postId(report.getPost() != null ? report.getPost().getId() : null)
-            .commentId(report.getComment() != null ? report.getComment().getId() : null)
-            .replyId(report.getReply() != null ? report.getReply().getId() : null)
+            .postId(report.getPost() != null ? report.getPost().getPostUniqueId() : null)
+            .commentId(report.getComment() != null ? report.getComment().getCommentUniqueId() : null)
+            .replyId(report.getReply() != null ? report.getReply().getReplyUniqueId() : null)
             .reason(report.getReason())
             .description(report.getDescription())
             .status(report.getStatus())
@@ -36,11 +36,11 @@ public class ReportMapper {
   public Report toEntity(ReportDto dto, Comment comment, Reply reply, Post post) {
     if (dto == null) return null;
 
-    String reportedUserId = null;
+    Long reportedUserId = null;
     if (comment != null) {
-      reportedUserId = comment.getUserId();
+      reportedUserId = Long.valueOf(comment.getUserId());
     } else if (reply != null) {
-      reportedUserId = reply.getUserId();
+      reportedUserId = Long.valueOf(reply.getUserId());
     }
 
     return Report.builder()
