@@ -7,6 +7,7 @@ import fr.waveme.backend.social.crud.models.reaction.PostVote;
 import fr.waveme.backend.social.crud.repository.PostRepository;
 
 import fr.waveme.backend.social.crud.repository.react.PostVoteRepository;
+import fr.waveme.backend.social.crud.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,64 +18,36 @@ import java.util.Optional;
 
 public class PostVoteTest {
 
-  private final PostRepository postRepository = mock(PostRepository.class);
-  private final PostVoteRepository postVoteRepository = mock(PostVoteRepository.class);
-  private final JwtUtils jwtUtils = mock(JwtUtils.class);
 
-  private final PostController postController = new PostController(
-          null, // minioService
-          postRepository,
-          postVoteRepository,
-          jwtUtils,
-          null, // sequence
-          null, // comment repo
-          null, // reply repo
-          null  // userProfile repo
-  );
+  private final PostService postService = mock(PostService.class);
+  private final PostController controller = new PostController(postService);
 
   @Test
   void testVotePost_shouldSaveVoteAndUpdatePost() {
-    // Arrange
-    Long postId = 42L;
-    String jwtToken = "Bearer mock.jwt.token";
-    String userId = "user123";
-    Post post = new Post();
-    post.setPostUniqueId(postId);
-    post.setUpVote(0);
-    post.setDownVote(0);
+    ResponseEntity<String> mockResponse = ResponseEntity.ok("Vote enregistré");
 
-    when(jwtUtils.getSocialUserIdFromJwtToken("mock.jwt.token")).thenReturn(userId);
-    when(postVoteRepository.existsByPostIdAndUserId(postId, userId)).thenReturn(false);
-    when(postRepository.findByPostUniqueId(postId)).thenReturn(Optional.of(post));
+    when(postService.votePost(123L, true, "Bearer token"))
+            .thenReturn(mockResponse);
 
-    // Act
-    ResponseEntity<?> response = postController.votePost(postId, true, jwtToken);
+    ResponseEntity<String> response = controller.votePost(123L, true, "Bearer token");
 
-    // Assert
+    assertNotNull(response);
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals("Vote enregistré", response.getBody());
-
-    verify(postVoteRepository).save(any(PostVote.class));
-    verify(postRepository).save(argThat(savedPost ->
-            savedPost.getUpVote() == 1 && savedPost.getDownVote() == 0
-    ));
   }
 
   @Test
   void testVotePost_shouldReturnForbiddenIfAlreadyVoted() {
-    Long postId = 42L;
-    String jwtToken = "Bearer mock.jwt.token";
-    String userId = "user123";
+    ResponseEntity<String> mockResponse = ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body("Vous avez déjà voté pour ce post.");
 
-    when(jwtUtils.getSocialUserIdFromJwtToken("mock.jwt.token")).thenReturn(userId);
-    when(postVoteRepository.existsByPostIdAndUserId(postId, userId)).thenReturn(true);
+    when(postService.votePost(123L, false, "Bearer token"))
+            .thenReturn(mockResponse);
 
-    ResponseEntity<?> response = postController.votePost(postId, true, jwtToken);
+    ResponseEntity<String> response = controller.votePost(123L, false, "Bearer token");
 
+    assertNotNull(response);
     assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     assertEquals("Vous avez déjà voté pour ce post.", response.getBody());
-
-    verify(postVoteRepository, never()).save(any());
-    verify(postRepository, never()).save(any());
   }
 }

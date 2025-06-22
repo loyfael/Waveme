@@ -6,6 +6,7 @@ import fr.waveme.backend.social.crud.models.UserProfile;
 import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.PostRepository;
 import fr.waveme.backend.social.crud.repository.UserProfileRepository;
+import fr.waveme.backend.social.crud.service.PostService;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,14 +20,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PostMetadataTest {
-    private final PostRepository postRepository = mock(PostRepository.class);
+    private final PostService postService = mock(PostService.class);
     private final UserProfileRepository userProfileRepository = mock(UserProfileRepository.class);
     private final CommentRepository commentRepository = mock(CommentRepository.class);
+    private final PostRepository postRepository = mock(PostRepository.class);
 
-    private final PostController controller = new PostController(
-            null, postRepository, null, null,
-            null, commentRepository, null, userProfileRepository
-    );
+    private final PostController controller = new PostController(postService);
 
     @Test
     void getPostMetadata_shouldReturnDto() {
@@ -36,8 +35,8 @@ public class PostMetadataTest {
         post.setPostUniqueId(postId);
         post.setUserId("u1");
         post.setCreatedAt(LocalDateTime.now());
-        post.setUpVote(0);      // ✅ indispensable
-        post.setDownVote(0);    // ✅ indispensable
+        post.setUpVote(0);
+        post.setDownVote(0);
 
         UserProfile profile = new UserProfile();
         profile.setId("u1");

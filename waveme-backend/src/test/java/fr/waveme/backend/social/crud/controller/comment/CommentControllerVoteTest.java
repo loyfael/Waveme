@@ -6,6 +6,7 @@ import fr.waveme.backend.social.crud.models.Comment;
 import fr.waveme.backend.social.crud.models.reaction.CommentVote;
 import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.react.CommentVoteRepository;
+import fr.waveme.backend.social.crud.service.CommentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,8 +21,9 @@ public class CommentControllerVoteTest {
 
     CommentRepository commentRepository = mock(CommentRepository.class);
     CommentVoteRepository voteRepository = mock(CommentVoteRepository.class);
+    CommentService commentService = mock(CommentService.class);
     JwtUtils jwtUtils = mock(JwtUtils.class);
-    CommentController controller = new CommentController(commentRepository, voteRepository, null, jwtUtils, null);
+    CommentController controller = new CommentController(commentService);
 
     @Test
     void vote_shouldRegisterVote() {
