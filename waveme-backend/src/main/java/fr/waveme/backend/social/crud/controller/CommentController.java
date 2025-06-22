@@ -9,6 +9,7 @@ import fr.waveme.backend.social.crud.repository.PostRepository;
 import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.social.crud.repository.react.CommentVoteRepository;
 import fr.waveme.backend.social.crud.sequence.SequenceGeneratorService;
+import fr.waveme.backend.social.crud.service.CommentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -30,34 +31,10 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @RequestMapping("/api/comments")
 public class CommentController {
 
-  private final CommentRepository commentRepository;
-  private final PostRepository postRepository;
-  private final JwtUtils jwtUtils;
-  private final SequenceGeneratorService sequenceGenerator;
-  private final CommentVoteRepository commentVoteRepository;
+  private final CommentService commentService;
 
-  /**
-   * Constructor for CommentController.
-   * Permit to post comments to a post, vote on comments, and retrieve comments for a post.
-   *
-   * @param commentRepository      Repository for managing comments.
-   * @param commentVoteRepository  Repository for managing comment votes.
-   * @param postRepository         Repository for managing posts.
-   * @param jwtUtils               Utility for handling JWT tokens.
-   * @param sequenceGenerator      Service for generating unique sequences for comments.
-   */
-  public CommentController(
-          CommentRepository commentRepository,
-          CommentVoteRepository commentVoteRepository,
-          PostRepository postRepository,
-          JwtUtils jwtUtils,
-          SequenceGeneratorService sequenceGenerator
-  ) {
-    this.commentVoteRepository = commentVoteRepository;
-    this.commentRepository = commentRepository;
-    this.postRepository = postRepository;
-    this.jwtUtils = jwtUtils;
-    this.sequenceGenerator = sequenceGenerator;
+  public CommentController(CommentService commentService) {
+    this.commentService = commentService;
   }
 
   @PostMapping("/{postUniqueId}")
@@ -66,23 +43,8 @@ public class CommentController {
           @RequestParam String content,
           @RequestHeader("Authorization") String authorizationHeader
   ) {
-
-    String userId = jwtUtils.getSocialUserIdFromJwtToken(authorizationHeader.replace("Bearer ", ""));
-
-    Post post = postRepository.findByPostUniqueId(postUniqueId)
-            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Post not found"));
-
-    Comment comment = new Comment();
-    comment.setCommentUniqueId(sequenceGenerator.generateSequence("comment_sequence")); // 🆕
-    comment.setUserId(userId);
-    comment.setPostId(post.getPostUniqueId());
-    comment.setDescription(content);
-    comment.setUpVote(0);
-    comment.setDownVote(0);
-    comment.setCreatedAt(LocalDateTime.now());
-    comment.setUpdatedAt(LocalDateTime.now());
-
-    return commentRepository.save(comment);
+    String token = authorizationHeader.replace("Bearer ", "");
+    return commentService.addCommentToPost(postUniqueId, content, token);
   }
 
   @PostMapping("/{commentUniqueId}/vote")
@@ -92,55 +54,16 @@ public class CommentController {
           @RequestHeader("Authorization") String authorizationHeader
   ) {
     String token = authorizationHeader.replace("Bearer ", "");
-    String userId = jwtUtils.getSocialUserIdFromJwtToken(token);
-
-    if (commentVoteRepository.existsByCommentIdAndUserId(commentUniqueId, userId)) {
-      return ResponseEntity.status(FORBIDDEN).body("Vous avez déjà voté pour ce commentaire.");
-    }
-
-    Comment comment = commentRepository.findByCommentUniqueId(commentUniqueId)
-            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Comment not found"));
-
-    CommentVote vote = new CommentVote();
-    vote.setCommentId(commentUniqueId);
-    vote.setUserId(userId);
-    vote.setUpvote(upvote);
-    commentVoteRepository.save(vote);
-
-    if (upvote) comment.setUpVote(comment.getUpVote() + 1);
-    else comment.setDownVote(comment.getDownVote() + 1);
-
-    commentRepository.save(comment);
-    return ResponseEntity.ok("Vote enregistré");
+    return commentService.voteComment(commentUniqueId, upvote, token);
   }
 
   @GetMapping("/{commentUniqueId}/votes")
   public ResponseEntity<?> getCommentVotes(@PathVariable Long commentUniqueId) {
-    Comment comment = commentRepository.findByCommentUniqueId(commentUniqueId)
-            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Comment not found"));
-
-    return ResponseEntity.ok(Map.of(
-            "upVote", comment.getUpVote(),
-            "downVote", comment.getDownVote()
-    ));
+    return commentService.getCommentVotes(commentUniqueId);
   }
 
   @GetMapping("/getall/{postUniqueId}")
   public ResponseEntity<List<CommentPublicDto>> getCommentsByPostId(@PathVariable Long postUniqueId) {
-    List<CommentPublicDto> comments = commentRepository.findAllByPostId(postUniqueId).stream()
-            .map(comment -> new CommentPublicDto(
-                    comment.getId(),
-                    comment.getDescription(),
-                    comment.getUserId(),
-                    comment.getUpVote(),
-                    comment.getDownVote(),
-                    comment.getCreatedAt() != null
-                            ? comment.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
-                            : Instant.EPOCH,
-                    List.of()
-            ))
-            .toList();
-
-    return ResponseEntity.ok(comments);
+    return commentService.getCommentsByPostId(postUniqueId);
   }
 }

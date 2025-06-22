@@ -3,6 +3,7 @@ package fr.waveme.backend.social.crud.controller.post;
 import fr.waveme.backend.social.crud.controller.PostController;
 import fr.waveme.backend.social.crud.models.Post;
 import fr.waveme.backend.social.crud.repository.PostRepository;
+import fr.waveme.backend.social.crud.service.PostService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +19,8 @@ import static org.mockito.Mockito.when;
 public class PostVoteCountTest {
 
     private final PostRepository postRepository = mock(PostRepository.class);
-
-    private final PostController controller = new PostController(
-            null, postRepository, null, null,
-            null, null, null, null
-    );
+    private final PostService postService = mock(PostService.class);
+    private final PostController controller = new PostController(postService);
 
     @Test
     void getPostVotes_shouldReturnCorrectCount() {

@@ -8,6 +8,7 @@ import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.PostRepository;
 import fr.waveme.backend.social.crud.repository.react.CommentVoteRepository;
 import fr.waveme.backend.social.crud.sequence.SequenceGeneratorService;
+import fr.waveme.backend.social.crud.service.CommentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -24,8 +25,8 @@ public class CommentControllerAddTest {
     PostRepository postRepository = mock(PostRepository.class);
     JwtUtils jwtUtils = mock(JwtUtils.class);
     SequenceGeneratorService sequence = mock(SequenceGeneratorService.class);
-    CommentVoteRepository voteRepo = mock(CommentVoteRepository.class);
-    CommentController controller = new CommentController(commentRepository, voteRepo, postRepository, jwtUtils, sequence);
+    CommentService commentService = mock(CommentService.class);
+    CommentController controller = new CommentController(commentService);
 
     @Test
     void addComment_shouldSucceed() {

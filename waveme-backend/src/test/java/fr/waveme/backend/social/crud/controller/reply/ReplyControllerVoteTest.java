@@ -6,6 +6,7 @@ import fr.waveme.backend.social.crud.models.Reply;
 import fr.waveme.backend.social.crud.models.reaction.ReplyVote;
 import fr.waveme.backend.social.crud.repository.ReplyRepository;
 import fr.waveme.backend.social.crud.repository.react.ReplyVoteRepository;
+import fr.waveme.backend.social.crud.service.ReplyService;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,10 +21,9 @@ public class ReplyControllerVoteTest {
     ReplyRepository replyRepository = mock(ReplyRepository.class);
     JwtUtils jwtUtils = mock(JwtUtils.class);
     ReplyVoteRepository voteRepository = mock(ReplyVoteRepository.class);
+    ReplyService replyService = mock(ReplyService.class);
 
-    ReplyController controller = new ReplyController(
-            replyRepository, null, jwtUtils, null, voteRepository
-    );
+    ReplyController controller = new ReplyController(replyService);
 
     @Test
     void vote_shouldSucceed() {

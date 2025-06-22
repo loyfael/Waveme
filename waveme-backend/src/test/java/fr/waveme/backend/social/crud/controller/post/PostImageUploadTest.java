@@ -5,6 +5,7 @@ import fr.waveme.backend.social.crud.controller.PostController;
 import fr.waveme.backend.social.crud.repository.PostRepository;
 import fr.waveme.backend.social.crud.sequence.SequenceGeneratorService;
 import fr.waveme.backend.social.crud.service.MinioService;
+import fr.waveme.backend.social.crud.service.PostService;
 import fr.waveme.backend.utils.RateLimiter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -24,51 +25,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PostImageUploadTest {
-    private final MinioService minioService = mock(MinioService.class);
-    private final PostRepository postRepository = mock(PostRepository.class);
-    private final JwtUtils jwtUtils = mock(JwtUtils.class);
-    private final SequenceGeneratorService sequence = mock(SequenceGeneratorService.class);
 
-    private final PostController controller = new PostController(
-            minioService, postRepository, null, jwtUtils,
-            sequence, null, null, null
-    );
+    private final PostService postService = mock(PostService.class);
+    private final PostController controller = new PostController(postService);
 
     @Test
-    void uploadPostImage_shouldWorkNormally() throws Exception {
-        // given
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "a.jpg",
-                MediaType.IMAGE_JPEG_VALUE,
-                "test data".getBytes()
-        );
+    void uploadPostImage_shouldSucceed() {
+        MockMultipartFile file = new MockMultipartFile("file", "meme.jpg", MediaType.IMAGE_JPEG_VALUE, "content".getBytes());
 
-        String bucket = "bucket";
-        String description = "Un super mème";
-        String authHeader = "Bearer fake.jwt.token";
-        String ipAddress = "127.0.0.1";
+        when(postService.uploadPostImage(eq(file), eq("bucket"), eq("desc"), eq("Bearer token")))
+                .thenReturn(ResponseEntity.ok("short-url"));
 
-        when(jwtUtils.getSocialUserIdFromJwtToken(authHeader)).thenReturn("user-id-123");
-        when(sequence.generateSequence("posts")).thenReturn(123L);
+        ResponseEntity<String> res = controller.uploadPostImage(file, "bucket", "desc", "Bearer token", "127.0.0.1");
 
-        // Mock uploadImage pour retourner un ID plausible
-        when(minioService.uploadImage(any(MultipartFile.class), eq(bucket), any()))
-                .thenReturn("713008b1");
-
-        // when
-        ResponseEntity<String> response = controller.uploadPostImage(file, bucket, description, authHeader, ipAddress);
-
-        // then
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        String body = response.getBody();
-        assertNotNull(body);
-        assertFalse(body.isBlank(), "Le body est vide");
-
-        // ✅ Vérifie que l’ID ressemble à un identifiant alphanumérique
-        assertTrue(body.matches("^[a-zA-Z0-9\\-]{8,}$"), "Le body ne ressemble pas à un ID");
+        assertEquals(HttpStatus.OK, res.getStatusCode());
+        assertEquals("short-url", res.getBody());
     }
 
     @Test
@@ -76,33 +47,9 @@ public class PostImageUploadTest {
         MultipartFile file = mock(MultipartFile.class);
         when(file.isEmpty()).thenReturn(true);
 
-        ResponseEntity<String> response = controller.uploadPostImage(file, "bucket", "desc", "Bearer token", null);
+        ResponseEntity<String> res = controller.uploadPostImage(file, "bucket", "desc", "Bearer token", "127.0.0.1");
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("File is missing", response.getBody());
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void uploadPostImage_shouldCatchException() throws Exception {
-
-        Field mapField = RateLimiter.class.getDeclaredField("rateLimiterMap");
-        mapField.setAccessible(true);
-        Map<String, ?> map = (Map<String, ?>) mapField.get(null);
-        map.clear();
-
-        MultipartFile file = mock(MultipartFile.class);
-        when(file.isEmpty()).thenReturn(false);
-        when(file.getOriginalFilename()).thenReturn("err.jpg");
-
-        when(jwtUtils.getSocialUserIdFromJwtToken(any())).thenThrow(new RuntimeException("Token error"));
-
-        ResponseEntity<String> response = controller.uploadPostImage(
-                file, "bucket", "desc", "Bearer token", null
-        );
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().contains("Token error"));
+        assertEquals(HttpStatus.BAD_REQUEST, res.getStatusCode());
+        assertEquals("File is missing", res.getBody());
     }
 }
