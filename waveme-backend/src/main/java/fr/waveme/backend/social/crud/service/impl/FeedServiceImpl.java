@@ -34,7 +34,7 @@ public class FeedServiceImpl implements FeedService {
     return postPage.map(post -> new PostMetadataDto(
             post.getId(),
             post.getPostUniqueId(),
-            post.getImageUrl(),
+            "/api/image/get/" + post.getId(),
             post.getDescription(),
             post.getUpVote(),
             post.getDownVote(),
