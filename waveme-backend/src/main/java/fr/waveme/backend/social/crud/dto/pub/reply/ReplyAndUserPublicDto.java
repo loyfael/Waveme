@@ -10,6 +10,7 @@ import java.time.Instant;
 @AllArgsConstructor
 public class ReplyAndUserPublicDto {
   private final String id;
+  private final Long replyUniqueId;
   private final String content;
   private final int upVote;
   private final int downVote;

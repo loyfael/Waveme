@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Image, ScrollView, Pressable, Modal, View, Switch, Animated, TouchableOpacity } from 'react-native';
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { ThemedView } from '@/components/theme/ThemedView';
@@ -16,9 +16,12 @@ import { logout } from '@/services/AuthAPI';
 import { redirectFromModal } from '@/utils/modals';
 import { Ionicons } from '@expo/vector-icons';
 import { useMediaQuery } from 'react-responsive';
+import dayjs from 'dayjs';
+import { createLocalUriFromBackUri } from '@/utils/api';
 
 export default function TabLayout() {
   const [showProfileModal, setShowProfileModal] = useState(false)
+  const [loadedProfilePicture, setLoadedProfilePicture] = useState<string>("")
 
   const { isDarkMode, setDarkMode } = useContext(ThemeContext)
   const textColor = useThemeColor({}, 'text')
@@ -33,6 +36,7 @@ export default function TabLayout() {
   const handleLogout = async () => {
     await logout()
     reloadUser()
+    router.push("/login")
   }
 
   const AnimatedButton = Animated.createAnimatedComponent(Pressable)
@@ -41,6 +45,16 @@ export default function TabLayout() {
     idleColor: backgroundColor,
     clickedColor: Colors.common.genericButtonPressed
   })
+
+  useEffect(() => {
+    if (user && user.profileImg) {
+      const fetchProfilePicture = async () => {
+        const dataUri = await createLocalUriFromBackUri(user.profileImg as string, "profile")
+        setLoadedProfilePicture(dataUri)
+      }
+      fetchProfilePicture()
+    }
+  }, [user])
 
   if (connectionRoutes.includes(pathname)) {
     return (
@@ -51,7 +65,7 @@ export default function TabLayout() {
         </TouchableOpacity>
         <Image source={require('@/assets/images/waveme.png')} style={styles.loginLogo} />
         <Slot />
-      </ThemedView >
+      </ThemedView>
     )
   }
   return (
@@ -66,8 +80,8 @@ export default function TabLayout() {
       </ScrollView>
       <ThemedView style={isSmallScreen ? styles.rightColumnSmallScreen : styles.rightColumn}>
         <TouchableOpacity onPress={() => setShowProfileModal(true)}>
-          {user?.profileImg ? (
-            <Image source={{ uri: user?.profileImg }} style={styles.account} />
+          {loadedProfilePicture ? (
+            <Image source={{ uri: loadedProfilePicture }} style={styles.account} />
           ) : (
             <MaterialIcons name="account-circle" size={70} color={iconColor} style={styles.account} />
           )}
@@ -81,8 +95,8 @@ export default function TabLayout() {
             {user ? (
               <ThemedView style={{ ...styles.modalView, ...styles.connectedModalSize }}>
                 <Pressable onPress={() => { }}>
-                  {user.profileImg ? (
-                    <Image source={{ uri: user.profileImg }} style={styles.userPfp} />
+                  {loadedProfilePicture ? (
+                    <Image source={{ uri: loadedProfilePicture }} style={styles.userPfp} />
                   ) : (
                     <MaterialIcons name="account-circle" size={150} color={iconColor} style={styles.userPfp} />
                   )}
@@ -90,12 +104,16 @@ export default function TabLayout() {
                     <PencilFill color="white" size={12} />
                   </View>
                 </Pressable>
-                <ThemedText type='title' style={{ ...styles.userName, borderBottomColor: textColor }}>
-                  {user.pseudo}
-                </ThemedText>
+                <Pressable onPress={() => { redirectFromModal(`/user/${user.id}`, setShowProfileModal) }}>
+                  <ThemedText type='title' style={{ ...styles.userName, borderBottomColor: textColor }}>
+                    {user.pseudo}
+                  </ThemedText>
+                </Pressable>
                 <View style={styles.options}>
-                  <ThemedText>Total d'upvotes : {user.totalUpvotes}</ThemedText>
+                  <ThemedText>Date de création : {dayjs(user.createdAt).format("DD/MM/YYYY")}</ThemedText>
+                  <ThemedText>Total d'upvotes : {user.totalUpVote}</ThemedText>
                   <ThemedText>Nombre de posts : {user.totalPosts}</ThemedText>
+                  <ThemedText>Nombre de commentaires : {user.totalComments}</ThemedText>
                   <View style={styles.switch}>
                     <Switch value={isDarkMode} onValueChange={setDarkMode} />
                     <ThemedText style={styles.switchLabel}>Mode sombre</ThemedText>
@@ -119,6 +137,10 @@ export default function TabLayout() {
                   <TouchableOpacity style={styles.genericButton} onPress={() => { redirectFromModal("/signup", setShowProfileModal) }}>
                     <ThemedText type="defaultBold" style={styles.genericButtonText}>S'inscrire</ThemedText>
                   </TouchableOpacity>
+                  <View style={styles.switch}>
+                    <Switch value={isDarkMode} onValueChange={setDarkMode} />
+                    <ThemedText style={styles.switchLabel}>Mode sombre</ThemedText>
+                  </View>
                 </View>
               </ThemedView>
             )}

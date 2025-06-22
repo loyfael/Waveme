@@ -1,5 +1,4 @@
 import { JwtPayload } from "jwt-decode"
-import { ImageSourcePropType } from "react-native"
 
 // Add types used throughout multiple files here
 
@@ -25,33 +24,53 @@ export type InvalidTooltip = {
   message: string,
 }
 
-// TODO: When connection with backend is established, change all ImageSourcePropType to string (URIs)
 export type Post = {
-  id: number,
-  title: string | null,
-  meme: ImageSourcePropType,
-  user: UserInfo,
+  postUniqueId: number,
+  description: string | null,
+  imageUrl: string,
+  createdAt: string,
+  upVote: number,
+  downVote: number,
+  voteSum: number,
+  user: UserInfoLesser,
+}
+
+// Lighter version of UserInfo, typically used in other object types (Post, Comment, etc.)
+export type UserInfoLesser = {
+  id: string,
+  pseudo: string,
+  profileImg: string | null,
 }
 
 export type UserInfo = {
+  authId: number,
   id: number,
   pseudo: string,
+  email: string,
   profileImg: string | null,
-  totalUpvotes: number,
+  totalUpVote: number,
   totalPosts: number,
+  totalComments: number,
+  createdAt: string,
   updatedAt: string,
 }
 
 export type Message = {
-  id: number,
-  message: string,
-  user: UserInfo,
+  // An instance of this object can have either commentUniqueId OR replyUniqueId as a key
+  [K in "commentUniqueId" | "replyUniqueId"]: number;
+} & {
+  id: string,
+  content: string,
+  userInfo: UserInfoLesser,
+  upVote: number,
+  downVote: number,
+  author: string,
+  createdAt: string,
 }
 
 export type Comment = Message & {
-  hasReplies: boolean,
+  // hasReplies: boolean,
   replies: Message[],
-  upvotes: number,
 }
 
 export type JwtType = JwtPayload & {
@@ -61,5 +80,52 @@ export type JwtType = JwtPayload & {
 export type NewPost = {
   description: string,
   file: any,
-  bucketName: string,
+  bucket: string,
+}
+
+export type NewMessage = {
+  content: string,
+}
+
+// We separate each posted content type to avoid overlapping ids
+export type UserProfilePictures = {
+  post: string,
+  comments: {
+    [key: string]: string,
+  },
+  replies: {
+    [key: string]: string,
+  }
+}
+
+export type ReportedContent = "post" | "comment" | "reply" | "profile"
+
+export enum ReasonValues {
+  SPAM = "SPAM",
+  HARASSMENT = "HARASSMENT",
+  INAPPROPRIATE_CONTENT = "INAPPROPRIATE_CONTENT",
+  IMPERSONATION = "IMPERSONATION",
+  OTHER = "OTHER",
+}
+
+export type SimplePost = {
+  id: string,
+  postUniqueId: number,
+  imageUrl: string,
+  description: string | null,
+  upVote: number,
+  downVote: number,
+  voteSum: number,
+  createdAt: string,
+}
+
+export type SimpleComment = {
+  id: string,
+  commentUniqueId: number,
+  postId: number,
+  content: string,
+  createdAt: string,
+  upVote: number,
+  downVote: number,
+  voteSum: number,
 }

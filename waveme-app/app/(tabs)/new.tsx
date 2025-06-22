@@ -6,15 +6,18 @@ import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import { genericButtonStyle } from "@/constants/commonStyles";
 import { NewPost } from "@/types";
+import { createPost } from "@/services/PostAPI";
+import { useRouter } from "expo-router";
 
 export default function NewPostScreen() {
-  useWebTitle("Nouveau post")
-
   const [post, setPost] = useState<NewPost>({
     description: "",
     file: null,
-    bucketName: "",
+    bucket: "waveme",
   })
+  
+  useWebTitle("Nouveau post")
+  const router = useRouter()
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -23,12 +26,22 @@ export default function NewPostScreen() {
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
-    });    
+    });
 
     if (!result.canceled) {
-      setPost({ ...post, file: result.assets[0].uri, bucketName: result.assets[0].fileName ?? "" });
+      setPost({ ...post, file: result.assets[0].uri });
     }
   };
+
+  const handleSendPost = async () => {
+    await createPost(post)
+      .catch((error) => {
+        console.error(error)
+      })
+      .then((response) => {
+        router.push('/')
+      })
+  }
 
   return (
     <View style={styles.newPostWrapper}>
@@ -45,7 +58,7 @@ export default function NewPostScreen() {
       </TouchableOpacity>
       {post.file && <Image source={{ uri: post.file }} resizeMode="contain" style={styles.postImage} />}
       {post.file && (
-        <TouchableOpacity onPress={() => { }} style={styles.genericButton}>
+        <TouchableOpacity onPress={handleSendPost} style={styles.genericButton}>
           <ThemedText style={styles.genericButtonText}>Envoyer le post</ThemedText>
         </TouchableOpacity>
       )}

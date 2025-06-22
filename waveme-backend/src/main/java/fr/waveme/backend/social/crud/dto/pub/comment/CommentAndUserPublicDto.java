@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CommentAndUserPublicDto {
   private final String id;
+  private final Long commentUniqueId;
   private final String content;
   private final int upVote;
   private final int downVote;
