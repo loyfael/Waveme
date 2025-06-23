@@ -1,5 +1,6 @@
 import { getPostImage } from "@/services/PostAPI";
 import { getProfileImage } from "@/services/UserAPI";
+import * as ImagePicker from 'expo-image-picker';
 
 type FormDataPayload = {
   [key: string]: string | Blob
@@ -79,3 +80,17 @@ export const createLocalUriFromBackUri = async (imageUrl: string, imageSource: "
   const blob = new Blob([response.data], { type: imageType })
   return await blobToDataUri(blob)
 }
+
+export const pickImage = async (state: any, setState: Function) => {
+  // No permissions request is necessary for launching the image library
+  let result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ['images'], // Possible to add videos in the future
+    allowsEditing: true,
+    aspect: [4, 3],
+    quality: 1,
+  });
+
+  if (!result.canceled) {
+    setState({ ...state, file: result.assets[0].uri });
+  }
+};

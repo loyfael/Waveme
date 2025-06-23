@@ -24,12 +24,13 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 export default function PostScreen() {
   const [post, setPost] = useState<Post | null>(null)
+  const [reloadPost, setReloadPost] = useState(false)
   const [comments, setComments] = useState<Comment[]>([])
   const [loadedImage, setLoadedImage] = useState<string | null>(null)
+  const [profilePicturesLoading, setProfilePicturesLoading] = useState(true)
   const [loadedProfilePictures, setLoadedProfilePictures] = useState<UserProfilePictures>({
     post: "",
     comments: {},
-    replies: {},
   })
   const [input, setInput] = useState("")
   const [replyFocus, setReplyFocus] = useState<string | null>(null)
@@ -73,14 +74,13 @@ export default function PostScreen() {
     if (!post) return {}
 
     let commentProfilePictures: { [key: string]: string } = {}
-    let replyProfilePictures: { [key: string]: string } = {}
     comments.forEach((comment) => {
-      if (comment.userInfo.profileImg) {
-        commentProfilePictures[comment.id] = comment.userInfo.profileImg
+      if (comment.userInfo.profileImg && !commentProfilePictures?.[comment.userInfo.id]) {
+        commentProfilePictures[comment.userInfo.id] = comment.userInfo.profileImg
       }
       comment.replies.forEach((reply) => {
-        if (reply.userInfo.profileImg) {
-          replyProfilePictures[reply.id] = reply.userInfo.profileImg
+        if (reply.userInfo.profileImg && !commentProfilePictures?.[reply.userInfo.id]) {
+          commentProfilePictures[reply.userInfo.id] = reply.userInfo.profileImg
         }
       })
     })
@@ -88,7 +88,6 @@ export default function PostScreen() {
     return {
       post: post.user.profileImg,
       comments: commentProfilePictures,
-      replies: replyProfilePictures,
     }
   }
 
@@ -116,7 +115,7 @@ export default function PostScreen() {
       })
       .then((response) => {
         setInput("")
-        // TODO: Reload comments
+        setReloadPost(!reloadPost)
       })
   }
 
@@ -128,7 +127,7 @@ export default function PostScreen() {
       .then((response) => {
         setReplyFocus(null)
         setReplyInput("")
-        // TODO: Reload comments
+        setReloadPost(!reloadPost)
       })
   }
 
@@ -145,14 +144,16 @@ export default function PostScreen() {
         const dataUri = await createLocalUriFromBackUri(response.data.imageUrl, "post")
         setLoadedImage(dataUri)
       })
-  }, [postId])
+  }, [postId, reloadPost])
 
+  // TODO: Absolutely not critical, maybe figure out a way to not have to reload already loaded images
+  // (occurrence related to further reloads while on the page)
   useEffect(() => {
-    if (post) {
+    if (post && profilePicturesLoading) {
       const loadAllProfilePictures = async () => {
         const pageProfilePictures = getAllProfilePictures()
 
-        let loadingImages: UserProfilePictures = { post: "", comments: {}, replies: {} }
+        let loadingImages: UserProfilePictures = { post: "", comments: {} }
         await Promise.all(
           Object.keys(pageProfilePictures).map(async (category) => {
             switch (category) {
@@ -172,15 +173,6 @@ export default function PostScreen() {
                 }
                 break
 
-              case "replies":
-                if (pageProfilePictures.replies) {
-                  Object.keys(pageProfilePictures.replies).map(async (reply) => {
-                    const dataUri = await createLocalUriFromBackUri(pageProfilePictures.replies[reply], "profile")
-                    loadingImages.replies[reply] = dataUri
-                  })
-                }
-                break
-
               default:
                 break
             }
@@ -189,8 +181,17 @@ export default function PostScreen() {
         setLoadedProfilePictures(loadingImages)
       }
       loadAllProfilePictures()
+      setProfilePicturesLoading(false)
     }
-  }, [post])
+  }, [post, loadedProfilePictures])
+
+  useEffect(() => {
+    // Using prev because setting the state in a standard fashion doesn't work with setInterval
+    const interval = setInterval(() => setReloadPost(prev => !prev), 10000);
+
+    // Cleanup interval on unmount
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <>
@@ -199,7 +200,7 @@ export default function PostScreen() {
           {/* Post */}
           <ThemedView style={styles.postWrapper}>
             <View style={styles.postProfile}>
-              <Pressable onPress={() => { router.push(`/user/${post.postUniqueId}`) }}>
+              <Pressable onPress={() => { router.push(`/user/${post.user.id}`) }}>
                 {post.user.profileImg ? (
                   <Image source={{ uri: loadedProfilePictures.post }} style={styles.profilePicture} />
                 ) : (
@@ -207,7 +208,7 @@ export default function PostScreen() {
                 )}
               </Pressable>
               <View style={styles.profileText}>
-                <Pressable onPress={() => { router.push(`/user/${post.postUniqueId}`) }}>
+                <Pressable onPress={() => { router.push(`/user/${post.user.id}`) }}>
                   <ThemedText type="defaultBold">{post.user.pseudo}</ThemedText>
                 </Pressable>
                 {post.description ? (
@@ -273,8 +274,8 @@ export default function PostScreen() {
                 <View key={commentKey} style={styles.commentWrapper}>
                   <View style={styles.postProfile}>
                     <Pressable onPress={() => { router.push(`/user/${comment.userInfo.id}`) }}>
-                      {loadedProfilePictures.comments?.[comment.id] ? (
-                        <Image source={{ uri: loadedProfilePictures.comments?.[comment.id] }} style={styles.profilePicture} />
+                      {loadedProfilePictures.comments?.[comment.userInfo.id] ? (
+                        <Image source={{ uri: loadedProfilePictures.comments?.[comment.userInfo.id] }} style={styles.profilePicture} />
                       ) : (
                         <MaterialIcons name="account-circle" size={40} color={iconColor} style={styles.profilePicture} />
                       )}
@@ -300,7 +301,7 @@ export default function PostScreen() {
                           />
                         </View>
                         <Pressable style={styles.sendComment} onPress={() => { handleNewReply(comment.commentUniqueId) }}>
-                          <IoSend size={32} color="white" />
+                          <IoSend size={32} color={iconColor} />
                         </Pressable>
                       </View>
                     )}
@@ -319,8 +320,8 @@ export default function PostScreen() {
                         <View key={`reply${replyKey}`}>
                           <View style={styles.postProfile}>
                             <Pressable onPress={() => { router.push(`/user/${reply.userInfo.id}`) }}>
-                              {loadedProfilePictures.replies?.[reply.id] ? (
-                                <Image source={{ uri: loadedProfilePictures.replies?.[reply.id] }} style={styles.profilePicture} />
+                              {loadedProfilePictures.comments?.[reply.userInfo.id] ? (
+                                <Image source={{ uri: loadedProfilePictures.comments?.[reply.userInfo.id] }} style={styles.profilePicture} />
                               ) : (
                                 <MaterialIcons name="account-circle" size={40} color={iconColor} style={styles.profilePicture} />
                               )}

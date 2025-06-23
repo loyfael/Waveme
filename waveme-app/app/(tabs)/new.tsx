@@ -3,11 +3,11 @@ import { ThemedTextInput } from "@/components/theme/ThemedTextInput";
 import { useWebTitle } from "@/hooks/useWebTitle";
 import React, { useState } from "react";
 import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
-import * as ImagePicker from 'expo-image-picker';
 import { genericButtonStyle } from "@/constants/commonStyles";
 import { NewPost } from "@/types";
 import { createPost } from "@/services/PostAPI";
 import { useRouter } from "expo-router";
+import { pickImage } from "@/utils/api";
 
 export default function NewPostScreen() {
   const [post, setPost] = useState<NewPost>({
@@ -15,23 +15,9 @@ export default function NewPostScreen() {
     file: null,
     bucket: "waveme",
   })
-  
+
   useWebTitle("Nouveau post")
   const router = useRouter()
-
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'], // Possible to add videos in the future
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setPost({ ...post, file: result.assets[0].uri });
-    }
-  };
 
   const handleSendPost = async () => {
     await createPost(post)
@@ -53,7 +39,7 @@ export default function NewPostScreen() {
           onChangeText={(value) => { setPost({ ...post, description: value }) }}
         />
       </View>
-      <TouchableOpacity onPress={pickImage} style={styles.genericButton}>
+      <TouchableOpacity onPress={() => { pickImage(post, setPost) }} style={styles.genericButton}>
         <ThemedText style={styles.genericButtonText}>Importer une {post.file ? "nouvelle" : ""} image</ThemedText>
       </TouchableOpacity>
       {post.file && <Image source={{ uri: post.file }} resizeMode="contain" style={styles.postImage} />}

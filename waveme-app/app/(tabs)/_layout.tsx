@@ -1,50 +1,29 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Image, ScrollView, Pressable, Modal, View, Switch, Animated, TouchableOpacity } from 'react-native';
+import { StyleSheet, Image, ScrollView, Pressable, TouchableOpacity } from 'react-native';
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { ThemedView } from '@/components/theme/ThemedView';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { PencilFill } from 'react-bootstrap-icons';
 import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/theme/ThemedText';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { ThemeContext } from '@/context/ThemeContext';
-import { fadeButtonToClicked, fadeButtonToIdle } from '@/utils/animateButton';
-import { useAnimatedButton } from '@/hooks/useAnimatedButton';
 import { genericButtonStyle, modalContainerStyle } from '@/constants/commonStyles';
 import { AuthContext } from '@/context/AuthContext';
-import { logout } from '@/services/AuthAPI';
-import { redirectFromModal } from '@/utils/modals';
 import { Ionicons } from '@expo/vector-icons';
 import { useMediaQuery } from 'react-responsive';
-import dayjs from 'dayjs';
 import { createLocalUriFromBackUri } from '@/utils/api';
+import ProfileModal from '@/components/ProfileModal';
 
 export default function TabLayout() {
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [loadedProfilePicture, setLoadedProfilePicture] = useState<string>("")
 
-  const { isDarkMode, setDarkMode } = useContext(ThemeContext)
   const textColor = useThemeColor({}, 'text')
   const iconColor = useThemeColor({}, "icon")
-  const backgroundColor = useThemeColor({}, 'background')
-  const { user, reloadUser } = useContext(AuthContext)
+  const { user } = useContext(AuthContext)
   const router = useRouter()
   const pathname = usePathname()
   const isSmallScreen = useMediaQuery({ query: '(max-width: 1200px)' })
   const connectionRoutes = ['/login', '/signup']
-
-  const handleLogout = async () => {
-    await logout()
-    reloadUser()
-    router.push("/login")
-  }
-
-  const AnimatedButton = Animated.createAnimatedComponent(Pressable)
-
-  const { animatedButton: logoutButton, backgroundColor: logoutBackgroundColor } = useAnimatedButton({
-    idleColor: backgroundColor,
-    clickedColor: Colors.common.genericButtonPressed
-  })
 
   useEffect(() => {
     if (user && user.profileImg) {
@@ -88,65 +67,11 @@ export default function TabLayout() {
         </TouchableOpacity>
       </ThemedView>
 
-      {/* Profile modal */}
-      <Modal visible={showProfileModal} transparent animationType="fade" onRequestClose={() => setShowProfileModal(false)}>
-        <Pressable style={{ ...styles.centeredModalView, ...styles.modalCursorOverride }} onPress={() => setShowProfileModal(false)}>
-          <Pressable style={styles.modalCursorOverride}>
-            {user ? (
-              <ThemedView style={{ ...styles.modalView, ...styles.connectedModalSize }}>
-                <Pressable onPress={() => { }}>
-                  {loadedProfilePicture ? (
-                    <Image source={{ uri: loadedProfilePicture }} style={styles.userPfp} />
-                  ) : (
-                    <MaterialIcons name="account-circle" size={150} color={iconColor} style={styles.userPfp} />
-                  )}
-                  <View style={styles.editPfpButton}>
-                    <PencilFill color="white" size={12} />
-                  </View>
-                </Pressable>
-                <Pressable onPress={() => { redirectFromModal(`/user/${user.id}`, setShowProfileModal) }}>
-                  <ThemedText type='title' style={{ ...styles.userName, borderBottomColor: textColor }}>
-                    {user.pseudo}
-                  </ThemedText>
-                </Pressable>
-                <View style={styles.options}>
-                  <ThemedText>Date de création : {dayjs(user.createdAt).format("DD/MM/YYYY")}</ThemedText>
-                  <ThemedText>Total d'upvotes : {user.totalUpVote}</ThemedText>
-                  <ThemedText>Nombre de posts : {user.totalPosts}</ThemedText>
-                  <ThemedText>Nombre de commentaires : {user.totalComments}</ThemedText>
-                  <View style={styles.switch}>
-                    <Switch value={isDarkMode} onValueChange={setDarkMode} />
-                    <ThemedText style={styles.switchLabel}>Mode sombre</ThemedText>
-                  </View>
-                </View>
-                <AnimatedButton
-                  onPressIn={() => fadeButtonToClicked(logoutButton)}
-                  onPressOut={() => fadeButtonToIdle(logoutButton, 250)}
-                  onPress={handleLogout}
-                  style={{ ...styles.logout, backgroundColor: logoutBackgroundColor }}>
-                  <MaterialIcons name="logout" size={36} color={textColor} />
-                </AnimatedButton>
-              </ThemedView>
-            ) : (
-              <ThemedView style={{ ...styles.modalView, ...styles.disconnectedModalSize }}>
-                <View style={styles.connection}>
-                  <ThemedText type="subtitle">Envie de poster ?</ThemedText>
-                  <TouchableOpacity style={styles.genericButton} onPress={() => { redirectFromModal("/login", setShowProfileModal) }}>
-                    <ThemedText type="defaultBold" style={styles.genericButtonText}>Se connecter</ThemedText>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.genericButton} onPress={() => { redirectFromModal("/signup", setShowProfileModal) }}>
-                    <ThemedText type="defaultBold" style={styles.genericButtonText}>S'inscrire</ThemedText>
-                  </TouchableOpacity>
-                  <View style={styles.switch}>
-                    <Switch value={isDarkMode} onValueChange={setDarkMode} />
-                    <ThemedText style={styles.switchLabel}>Mode sombre</ThemedText>
-                  </View>
-                </View>
-              </ThemedView>
-            )}
-          </Pressable>
-        </Pressable>
-      </Modal>
+      <ProfileModal
+        visible={showProfileModal}
+        setVisible={setShowProfileModal}
+        loadedProfilePicture={loadedProfilePicture}
+      />
     </ThemedView>
   );
 }
@@ -228,83 +153,6 @@ const localStyles = StyleSheet.create({
   main: {
     flex: 6,
     flexGrow: 6,
-  },
-
-  modalView: {
-    paddingVertical: 40,
-    paddingHorizontal: 80,
-    opacity: 0.97,
-    flexDirection: 'column',
-    alignItems: 'center',
-    borderRadius: 20,
-  },
-
-  connectedModalSize: {
-    width: 700,
-    height: 650,
-  },
-
-  disconnectedModalSize: {
-    width: 500,
-    height: 300,
-  },
-
-  userPfp: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    overflow: 'hidden',
-  },
-
-  editPfpButton: {
-    position: 'absolute',
-    left: 128,
-    top: 128,
-    padding: 5,
-    borderRadius: 10,
-    backgroundColor: Colors.common.button,
-  },
-
-  userName: {
-    marginTop: 35,
-    borderBottomWidth: 1,
-    width: 350,
-    textAlign: 'center',
-    paddingBottom: 15,
-  },
-
-  options: {
-    flexDirection: 'column',
-    alignSelf: 'flex-start',
-    alignItems: 'flex-start',
-    marginStart: 90,
-    marginTop: 20,
-  },
-
-  switch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 5,
-  },
-
-  switchLabel: {
-    marginStart: 8,
-  },
-
-  connection: {
-    display: "flex",
-    alignItems: "center",
-    marginTop: 40,
-    gap: 10,
-  },
-
-  logout: {
-    alignSelf: 'flex-end',
-    marginTop: 'auto',
-    position: 'relative',
-    left: 40,
-    padding: 5,
-    borderRadius: 26,
   },
 })
 

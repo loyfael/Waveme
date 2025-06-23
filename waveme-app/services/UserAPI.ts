@@ -1,10 +1,22 @@
 import axios from "axios";
 import { refreshAuthIfNeeded } from "./AuthToken";
 import { API_URL, USER_URL } from "@/constants/API";
+import { payloadToFormData } from "@/utils/api";
 
 export async function getCurrentUser() {
   return refreshAuthIfNeeded(() => {    
     return axios.get(`${USER_URL}/me`)
+  })
+}
+
+export async function setProfileImage(userId: string, file: any) {
+  const formData = payloadToFormData({
+    userId,
+    file,
+    bucket: "waveme"
+  })
+  return refreshAuthIfNeeded(() => {
+    return axios.post(`${USER_URL}/profile-image`, formData)
   })
 }
 

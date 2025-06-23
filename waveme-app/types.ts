@@ -93,9 +93,6 @@ export type UserProfilePictures = {
   comments: {
     [key: string]: string,
   },
-  replies: {
-    [key: string]: string,
-  }
 }
 
 export type ReportedContent = "post" | "comment" | "reply" | "profile"
