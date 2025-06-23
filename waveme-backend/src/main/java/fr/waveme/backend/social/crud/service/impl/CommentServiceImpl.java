@@ -10,6 +10,7 @@ import fr.waveme.backend.social.crud.repository.PostRepository;
 import fr.waveme.backend.social.crud.repository.react.CommentVoteRepository;
 import fr.waveme.backend.social.crud.sequence.SequenceGeneratorService;
 import fr.waveme.backend.social.crud.service.CommentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -30,12 +31,25 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
  */
 @Service
 public class CommentServiceImpl implements CommentService {
-    @Autowired
-    private CommentRepository commentRepository;
-    @Autowired private PostRepository postRepository;
-    @Autowired private JwtUtils jwtUtils;
-    @Autowired private SequenceGeneratorService sequenceGenerator;
-    @Autowired private CommentVoteRepository commentVoteRepository;
+    @Autowired private final CommentRepository commentRepository;
+    @Autowired private final PostRepository postRepository;
+    @Autowired private final JwtUtils jwtUtils;
+    @Autowired private final SequenceGeneratorService sequenceGeneratorService;
+    @Autowired private final CommentVoteRepository commentVoteRepository;
+
+    public CommentServiceImpl(
+            CommentRepository commentRepository,
+            PostRepository postRepository,
+            JwtUtils jwtUtils,
+            SequenceGeneratorService sequenceGeneratorService,
+            CommentVoteRepository commentVoteRepository
+    ) {
+        this.commentRepository = commentRepository;
+        this.postRepository = postRepository;
+        this.jwtUtils = jwtUtils;
+        this.sequenceGeneratorService = sequenceGeneratorService;
+        this.commentVoteRepository = commentVoteRepository;
+    }
 
     public Comment addCommentToPost(Long postUniqueId, String content, String token) {
         String userId = jwtUtils.getSocialUserIdFromJwtToken(token);
@@ -44,7 +58,7 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Post not found"));
 
         Comment comment = new Comment();
-        comment.setCommentUniqueId(sequenceGenerator.generateSequence("comment_sequence"));
+        comment.setCommentUniqueId(sequenceGeneratorService.generateSequence("comment_sequence"));
         comment.setUserId(userId);
         comment.setPostId(post.getPostUniqueId());
         comment.setDescription(content);

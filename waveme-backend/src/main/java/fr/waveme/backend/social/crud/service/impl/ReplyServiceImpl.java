@@ -32,12 +32,25 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
  */
 @Service
 public class ReplyServiceImpl implements ReplyService {
-    @Autowired
-    private ReplyRepository replyRepository;
-    @Autowired private CommentRepository commentRepository;
-    @Autowired private JwtUtils jwtUtils;
-    @Autowired private SequenceGeneratorService sequenceGenerator;
-    @Autowired private ReplyVoteRepository replyVoteRepository;
+    @Autowired private final ReplyRepository replyRepository;
+    @Autowired private final CommentRepository commentRepository;
+    @Autowired private final JwtUtils jwtUtils;
+    @Autowired private final SequenceGeneratorService sequenceGeneratorService;
+    @Autowired private final ReplyVoteRepository replyVoteRepository;
+
+    public ReplyServiceImpl(
+            ReplyRepository replyRepository,
+            CommentRepository commentRepository,
+            JwtUtils jwtUtils,
+            SequenceGeneratorService sequenceGeneratorService,
+            ReplyVoteRepository replyVoteRepository
+    ) {
+        this.replyRepository = replyRepository;
+        this.commentRepository = commentRepository;
+        this.jwtUtils = jwtUtils;
+        this.sequenceGeneratorService = sequenceGeneratorService;
+        this.replyVoteRepository = replyVoteRepository;
+    }
 
     @Override
     public ResponseEntity<Reply> addReplyToComment(Long commentUniqueId, String content, String authorizationHeader, String ipAddress) {
@@ -50,7 +63,7 @@ public class ReplyServiceImpl implements ReplyService {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Comment not found"));
 
         Reply reply = new Reply();
-        reply.setReplyUniqueId(sequenceGenerator.generateSequence("reply_sequence"));
+        reply.setReplyUniqueId(sequenceGeneratorService.generateSequence("reply_sequence"));
         reply.setUserId(userId);
         reply.setCommentId(comment.getCommentUniqueId());
         reply.setDescription(content);
