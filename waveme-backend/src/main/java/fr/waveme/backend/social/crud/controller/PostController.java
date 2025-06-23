@@ -59,7 +59,7 @@ public class PostController {
         return postService.uploadPostImage(file, bucket, description, token);
     }
 
-    @GetMapping("/{postUniqueId}")
+    @GetMapping("/get/{postUniqueId}")
     public ResponseEntity<PostPublicDto> getPostMetadata(@PathVariable Long postUniqueId) {
         return postService.getPostMetadata(postUniqueId);
     }

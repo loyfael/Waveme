@@ -39,22 +39,32 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Service
 public class PostServiceImpl implements PostService {
     @Autowired private MinioService minioService;
-    @Autowired private PostRepository postRepository;
-    @Autowired
-    private PostVoteRepository postVoteRepository;
-    @Autowired private JwtUtils jwtUtils;
-    @Autowired private SequenceGeneratorService sequenceGenerator;
+    @Autowired private final PostRepository postRepository;
+    @Autowired private final PostVoteRepository postVoteRepository;
+    @Autowired private final JwtUtils jwtUtils;
+    @Autowired private final SequenceGeneratorService sequenceGeneratorService;
     @Autowired private CommentRepository commentRepository;
     @Autowired private ReplyRepository replyRepository;
     @Autowired private UserProfileRepository userProfileRepository;
 
+    public PostServiceImpl(
+            PostRepository postRepository,
+            JwtUtils jwtUtils,
+            SequenceGeneratorService sequenceGeneratorService,
+            PostVoteRepository postVoteRepository
+    ) {
+        this.postRepository = postRepository;
+        this.jwtUtils = jwtUtils;
+        this.sequenceGeneratorService = sequenceGeneratorService;
+        this.postVoteRepository = postVoteRepository;
+    }
     @Override
     public ResponseEntity<String> uploadPostImage(MultipartFile file, String bucketName, String description, String token) {
         String userId = jwtUtils.getSocialUserIdFromJwtToken(token);
 
         Post post = new Post();
         post.setUserId(userId);
-        post.setPostUniqueId(sequenceGenerator.generateSequence("post_sequence"));
+        post.setPostUniqueId(sequenceGeneratorService.generateSequence("post_sequence"));
         post.setDescription(description);
         post.setUpVote(0);
         post.setDownVote(0);
