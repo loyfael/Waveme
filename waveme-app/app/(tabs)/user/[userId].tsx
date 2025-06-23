@@ -10,8 +10,9 @@ import { MaterialIcons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Image, Pressable, ImageSourcePropType, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Image, Pressable, TouchableOpacity } from "react-native";
 import { useMediaQuery } from "react-responsive";
+import ReportModal from "@/components/ReportModal";
 
 type User = {
   id: number,
@@ -29,6 +30,7 @@ type User = {
 export default function UserScreen() {
   const [user, setUser] = useState<User | null>()
   const [loadedProfilePicture, setLoadedProfilePicture] = useState<string>("")
+  const [showReportModal, setShowReportModal] = useState(false)
 
   useWebTitle(user?.pseudo ?? "Utilisateur")
   const router = useRouter()
@@ -71,6 +73,9 @@ export default function UserScreen() {
               <MaterialIcons name="account-circle" size={200} color={iconColor} style={styles.userPfp} />
             )}
             <ThemedText type="title">{user.pseudo}</ThemedText>
+            <TouchableOpacity onPress={() => setShowReportModal(true)} style={styles.reportButton}>
+              <ThemedText type="link">Signaler ce profil</ThemedText>
+            </TouchableOpacity>
             <ThemedText>Date de création : {dayjs(user.createdAt).format("DD/MM/YYYY")}</ThemedText>
             <ThemedText>Dernière activité : {dayjs(user.updatedAt).format("DD/MM/YYYY")}</ThemedText>
             <ThemedText>Score : {user.totalUpVote}</ThemedText>
@@ -129,6 +134,17 @@ export default function UserScreen() {
               ) : (<ThemedText>Cet utilisateur n'a pas commenté.</ThemedText>)}
             </Pressable>
           </View>
+
+          {user && (
+            <ReportModal
+              visible={showReportModal}
+              setVisible={setShowReportModal}
+              reportedContent="profile"
+              userName={user.pseudo}
+              message={null}
+              id={user.id}
+            />
+          )}
         </>
       ) : (<Loading />)}
     </>
@@ -148,6 +164,12 @@ const localStyles = StyleSheet.create({
     height: 200,
     borderRadius: 100,
     marginBottom: 20,
+  },
+
+  reportButton: {
+    marginTop: 10,
+    padding: 6,
+    borderRadius: 4,
   },
 
   activityWrapper: {
