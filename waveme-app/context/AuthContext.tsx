@@ -6,12 +6,14 @@ import React, { createContext, useEffect, useState } from "react";
 
 type AuthContextValues = {
   user: UserInfo | null,
-  reloadUser: Function
+  setUser: Function,
+  reloadUser: Function,
 }
 
 export const AuthContext = createContext<AuthContextValues>({
   user: null,
-  reloadUser: () => { }
+  setUser: () => { },
+  reloadUser: () => { },
 })
 
 export const AuthProvider = ({ children }: ChildrenProps) => {
@@ -20,7 +22,7 @@ export const AuthProvider = ({ children }: ChildrenProps) => {
   const [refresh, setRefresh] = useState(false)
 
   useEffect(() => {
-    const fetchCurrentUser = async () => {      
+    const fetchCurrentUser = async () => {
       if (axios.defaults.headers.common?.["Authorization"]) {
         await getCurrentUser()
           .then((res) => setUser(res.data))
@@ -49,7 +51,7 @@ export const AuthProvider = ({ children }: ChildrenProps) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, reloadUser }}>
+    <AuthContext.Provider value={{ user, setUser, reloadUser }}>
       {children}
     </AuthContext.Provider>
   )

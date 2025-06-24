@@ -10,10 +10,10 @@ export default function Posts() {
   const [user, setUser] = useState<UserInfo | null>()
   const [posts, setPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  
+
   useWebTitle(`Tous les posts de ${user?.pseudo ?? "l'utilisateur"}`)
   const { profileId } = useLocalSearchParams<{ profileId: string }>()
-  
+
   useEffect(() => {
     const handleFetchUserAndUserPosts = async () => {
       setIsLoading(true)
@@ -39,7 +39,7 @@ export default function Posts() {
   return (
     <>
       <UserActivityHeader profileId={profileId} title="Posts" />
-      <PostList isLoading={isLoading} posts={posts} />
+      <PostList isLoading={isLoading} posts={posts} setPosts={setPosts} />
     </>
   )
 }
