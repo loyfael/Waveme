@@ -2,12 +2,15 @@ package fr.waveme.backend.social.crud.service.impl;
 
 import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.social.crud.dto.ReplyDto;
+import fr.waveme.backend.social.crud.dto.pub.UserSimpleInfoDto;
+import fr.waveme.backend.social.crud.dto.pub.react.ReplyVoteDetailsDto;
 import fr.waveme.backend.social.crud.dto.pub.reply.ReplyPublicDto;
 import fr.waveme.backend.social.crud.models.Comment;
 import fr.waveme.backend.social.crud.models.Reply;
 import fr.waveme.backend.social.crud.models.reaction.ReplyVote;
 import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.ReplyRepository;
+import fr.waveme.backend.social.crud.repository.UserProfileRepository;
 import fr.waveme.backend.social.crud.repository.react.ReplyVoteRepository;
 import fr.waveme.backend.social.crud.sequence.SequenceGeneratorService;
 import fr.waveme.backend.social.crud.service.ReplyService;
@@ -22,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -37,19 +41,22 @@ public class ReplyServiceImpl implements ReplyService {
     @Autowired private final JwtUtils jwtUtils;
     @Autowired private final SequenceGeneratorService sequenceGeneratorService;
     @Autowired private final ReplyVoteRepository replyVoteRepository;
+    @Autowired private final UserProfileRepository userProfileRepository;
 
     public ReplyServiceImpl(
             ReplyRepository replyRepository,
             CommentRepository commentRepository,
             JwtUtils jwtUtils,
             SequenceGeneratorService sequenceGeneratorService,
-            ReplyVoteRepository replyVoteRepository
+            ReplyVoteRepository replyVoteRepository,
+            UserProfileRepository userProfileRepository
     ) {
         this.replyRepository = replyRepository;
         this.commentRepository = commentRepository;
         this.jwtUtils = jwtUtils;
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.replyVoteRepository = replyVoteRepository;
+        this.userProfileRepository = userProfileRepository;
     }
 
     @Override
@@ -126,5 +133,36 @@ public class ReplyServiceImpl implements ReplyService {
                 .toList();
 
         return ResponseEntity.ok(replies);
+    }
+
+    @Override
+    public ResponseEntity<?> getUserReplyVotes(Long replyUniqueId) {
+        Reply reply = replyRepository.findByReplyUniqueId(replyUniqueId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Reply not found"));
+
+        List<ReplyVote> votes = replyVoteRepository.findAllByReplyId(replyUniqueId);
+
+        List<UserSimpleInfoDto> upvoters = votes.stream()
+                .filter(ReplyVote::isUpvote)
+                .map(ReplyVote::getUserId)
+                .map(id -> userProfileRepository.findById(id).orElse(null))
+                .filter(Objects::nonNull)
+                .map(p -> new UserSimpleInfoDto(p.getId(), p.getPseudo(), p.getProfileImg()))
+                .toList();
+
+        List<UserSimpleInfoDto> downvoters = votes.stream()
+                .filter(v -> !v.isUpvote())
+                .map(ReplyVote::getUserId)
+                .map(id -> userProfileRepository.findById(id).orElse(null))
+                .filter(Objects::nonNull)
+                .map(p -> new UserSimpleInfoDto(p.getId(), p.getPseudo(), p.getProfileImg()))
+                .toList();
+
+        return ResponseEntity.ok(new ReplyVoteDetailsDto(
+                reply.getUpVote(),
+                reply.getDownVote(),
+                upvoters,
+                downvoters
+        ));
     }
 }

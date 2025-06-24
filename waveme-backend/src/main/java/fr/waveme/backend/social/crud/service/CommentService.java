@@ -16,4 +16,5 @@ public interface CommentService {
     ResponseEntity<?> voteComment(Long commentUniqueId, boolean upvote, String token);
     ResponseEntity<?> getCommentVotes(Long commentUniqueId);
     ResponseEntity<List<CommentPublicDto>> getCommentsByPostId(Long postUniqueId);
+    ResponseEntity<?> getUserCommentVotes(Long commentUniqueId);
 }

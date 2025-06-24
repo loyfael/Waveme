@@ -63,5 +63,10 @@ public class ReplyController {
   public ResponseEntity<List<ReplyPublicDto>> getRepliesByCommentId(@PathVariable Long commentUniqueId) {
     return replyService.getRepliesByCommentId(commentUniqueId);
   }
+
+  @GetMapping("/{replyUniqueId}/get-user-votes")
+  public ResponseEntity<?> getUserReplyVotes(@PathVariable Long replyUniqueId) {
+    return replyService.getUserReplyVotes(replyUniqueId);
+  }
 }
 

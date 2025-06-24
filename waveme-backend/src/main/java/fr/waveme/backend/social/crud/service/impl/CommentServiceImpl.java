@@ -1,12 +1,15 @@
 package fr.waveme.backend.social.crud.service.impl;
 
 import fr.waveme.backend.security.jwt.JwtUtils;
+import fr.waveme.backend.social.crud.dto.pub.UserSimpleInfoDto;
 import fr.waveme.backend.social.crud.dto.pub.comment.CommentPublicDto;
+import fr.waveme.backend.social.crud.dto.pub.react.CommentVoteDetailsDto;
 import fr.waveme.backend.social.crud.models.Comment;
 import fr.waveme.backend.social.crud.models.Post;
 import fr.waveme.backend.social.crud.models.reaction.CommentVote;
 import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.PostRepository;
+import fr.waveme.backend.social.crud.repository.UserProfileRepository;
 import fr.waveme.backend.social.crud.repository.react.CommentVoteRepository;
 import fr.waveme.backend.social.crud.sequence.SequenceGeneratorService;
 import fr.waveme.backend.social.crud.service.CommentService;
@@ -21,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -36,19 +40,22 @@ public class CommentServiceImpl implements CommentService {
     @Autowired private final JwtUtils jwtUtils;
     @Autowired private final SequenceGeneratorService sequenceGeneratorService;
     @Autowired private final CommentVoteRepository commentVoteRepository;
+    @Autowired private final UserProfileRepository userProfileRepository;
 
     public CommentServiceImpl(
             CommentRepository commentRepository,
             PostRepository postRepository,
             JwtUtils jwtUtils,
             SequenceGeneratorService sequenceGeneratorService,
-            CommentVoteRepository commentVoteRepository
+            CommentVoteRepository commentVoteRepository,
+            UserProfileRepository userProfileRepository
     ) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.jwtUtils = jwtUtils;
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.commentVoteRepository = commentVoteRepository;
+        this.userProfileRepository = userProfileRepository;
     }
 
     public Comment addCommentToPost(Long postUniqueId, String content, String token) {
@@ -119,5 +126,36 @@ public class CommentServiceImpl implements CommentService {
                 .toList();
 
         return ResponseEntity.ok(comments);
+    }
+
+    @Override
+    public ResponseEntity<?> getUserCommentVotes(Long commentUniqueId) {
+        Comment comment = commentRepository.findByCommentUniqueId(commentUniqueId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Comment not found"));
+
+        List<CommentVote> votes = commentVoteRepository.findAllByCommentId(commentUniqueId);
+
+        List<UserSimpleInfoDto> upvoters = votes.stream()
+                .filter(CommentVote::isUpvote)
+                .map(CommentVote::getUserId)
+                .map(id -> userProfileRepository.findById(id).orElse(null))
+                .filter(Objects::nonNull)
+                .map(p -> new UserSimpleInfoDto(p.getId(), p.getPseudo(), p.getProfileImg()))
+                .toList();
+
+        List<UserSimpleInfoDto> downvoters = votes.stream()
+                .filter(v -> !v.isUpvote())
+                .map(CommentVote::getUserId)
+                .map(id -> userProfileRepository.findById(id).orElse(null))
+                .filter(Objects::nonNull)
+                .map(p -> new UserSimpleInfoDto(p.getId(), p.getPseudo(), p.getProfileImg()))
+                .toList();
+
+        return ResponseEntity.ok(new CommentVoteDetailsDto(
+                comment.getUpVote(),
+                comment.getDownVote(),
+                upvoters,
+                downvoters
+        ));
     }
 }

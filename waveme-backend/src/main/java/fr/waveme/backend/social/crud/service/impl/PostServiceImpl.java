@@ -4,6 +4,7 @@ import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.social.crud.dto.pub.UserSimpleInfoDto;
 import fr.waveme.backend.social.crud.dto.pub.comment.CommentAndUserPublicDto;
 import fr.waveme.backend.social.crud.dto.pub.post.PostPublicDto;
+import fr.waveme.backend.social.crud.dto.pub.react.PostVoteDetailsDto;
 import fr.waveme.backend.social.crud.dto.pub.reply.ReplyAndUserPublicDto;
 import fr.waveme.backend.social.crud.models.Post;
 import fr.waveme.backend.social.crud.models.UserProfile;
@@ -28,6 +29,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -154,5 +156,40 @@ public class PostServiceImpl implements PostService {
                 "upVote", post.getUpVote(),
                 "downVote", post.getDownVote()
         ));
+    }
+
+    @Override
+    public ResponseEntity<?> getUserPostVotes(Long postUniqueId) {
+        Post post = postRepository.findByPostUniqueId(postUniqueId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Post not found"));
+
+        List<PostVote> votes = postVoteRepository.findAllByPostId(postUniqueId);
+
+        List<UserSimpleInfoDto> upvoters = votes.stream()
+                .filter(PostVote::isUpvote)
+                .map(PostVote::getUserId)
+                .map(userId -> userProfileRepository.findById(userId)
+                        .map(u -> new UserSimpleInfoDto(u.getId(), u.getPseudo(), u.getProfileImg()))
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .toList();
+
+        List<UserSimpleInfoDto> downvoters = votes.stream()
+                .filter(v -> !v.isUpvote())
+                .map(PostVote::getUserId)
+                .map(userId -> userProfileRepository.findById(userId)
+                        .map(u -> new UserSimpleInfoDto(u.getId(), u.getPseudo(), u.getProfileImg()))
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .toList();
+
+        PostVoteDetailsDto response = new PostVoteDetailsDto(
+                post.getUpVote(),
+                post.getDownVote(),
+                upvoters,
+                downvoters
+        );
+
+        return ResponseEntity.ok(response);
     }
 }

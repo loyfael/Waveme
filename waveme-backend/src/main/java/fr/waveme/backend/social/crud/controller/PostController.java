@@ -86,4 +86,9 @@ public class PostController {
     public ResponseEntity<?> getPostVotes(@PathVariable Long postUniqueId) {
         return postService.getPostVotes(postUniqueId);
     }
+
+    @GetMapping("/{postUniqueId}/get-user-votes")
+    public ResponseEntity<?> getUserPostVotes(@PathVariable Long postUniqueId) {
+        return postService.getUserPostVotes(postUniqueId);
+    }
 }

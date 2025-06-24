@@ -19,4 +19,6 @@ public interface ReplyService {
     ResponseEntity<?> getReplyVotes(Long replyUniqueId);
 
     ResponseEntity<List<ReplyPublicDto>> getRepliesByCommentId(Long commentUniqueId);
+
+    ResponseEntity<?> getUserReplyVotes(Long replyUniqueId);
 }

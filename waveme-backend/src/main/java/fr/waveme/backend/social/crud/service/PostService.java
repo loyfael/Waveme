@@ -19,4 +19,5 @@ public interface PostService {
     ResponseEntity<PostPublicDto> getPostMetadata(Long postUniqueId);
     ResponseEntity<String> votePost(Long postUniqueId, boolean upvote, String authorizationHeader);
     ResponseEntity<?> getPostVotes(Long postUniqueId);
+    ResponseEntity<?> getUserPostVotes(Long postUniqueId);
 }

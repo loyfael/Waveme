@@ -66,4 +66,9 @@ public class CommentController {
   public ResponseEntity<List<CommentPublicDto>> getCommentsByPostId(@PathVariable Long postUniqueId) {
     return commentService.getCommentsByPostId(postUniqueId);
   }
+
+  @GetMapping("/{commentUniqueId}/get-user-votes")
+  public ResponseEntity<?> getUserPostVotes(@PathVariable Long commentUniqueId) {
+    return commentService.getUserCommentVotes(commentUniqueId);
+  }
 }
