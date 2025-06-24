@@ -1,17 +1,23 @@
 package fr.waveme.backend.social.crud.controller.post;
 
 import fr.waveme.backend.social.crud.controller.PostController;
+import fr.waveme.backend.social.crud.dto.pub.UserSimpleInfoDto;
+import fr.waveme.backend.social.crud.dto.pub.post.PostPublicDto;
 import fr.waveme.backend.social.crud.models.Post;
 import fr.waveme.backend.social.crud.models.UserProfile;
 import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.PostRepository;
 import fr.waveme.backend.social.crud.repository.UserProfileRepository;
 import fr.waveme.backend.social.crud.service.PostService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,55 +26,67 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PostMetadataTest {
-    private final PostService postService = mock(PostService.class);
-    private final UserProfileRepository userProfileRepository = mock(UserProfileRepository.class);
-    private final CommentRepository commentRepository = mock(CommentRepository.class);
-    private final PostRepository postRepository = mock(PostRepository.class);
+    private PostService postService;
+    private PostController controller;
 
-    private final PostController controller = new PostController(postService);
+    @BeforeEach
+    void setUp() {
+        postService = mock(PostService.class);
+        controller = new PostController(postService);
+    }
 
     @Test
     void getPostMetadata_shouldReturnDto() {
+        // Arrange
         Long postId = 3L;
-        Post post = new Post();
-        post.setId("mongo123");
-        post.setPostUniqueId(postId);
-        post.setUserId("u1");
-        post.setCreatedAt(LocalDateTime.now());
-        post.setUpVote(0);
-        post.setDownVote(0);
+        UserSimpleInfoDto userDto = new UserSimpleInfoDto("u1", "Test", "img.png");
+        PostPublicDto postDto = new PostPublicDto(
+                postId,
+                "Description",
+                "/api/image/get/mongo123",
+                Instant.now(),
+                10,
+                5,
+                5,
+                userDto,
+                new ArrayList<>()
+        );
 
-        UserProfile profile = new UserProfile();
-        profile.setId("u1");
-        profile.setPseudo("Test");
-        profile.setProfileImg("img.png");
+        // Configurer le service mocké pour retourner une réponse valide
+        when(postService.getPostMetadata(postId)).thenReturn(ResponseEntity.ok(postDto));
 
-        when(postRepository.findByPostUniqueId(postId)).thenReturn(Optional.of(post));
-        when(userProfileRepository.findById("u1")).thenReturn(Optional.of(profile));
-        when(commentRepository.findAllByPostId(postId)).thenReturn(java.util.List.of());
-
+        // Act
         ResponseEntity<?> res = controller.getPostMetadata(postId);
-        assertEquals(200, res.getStatusCode().value());
+
+        // Assert
+        assertEquals(HttpStatus.OK, res.getStatusCode());
     }
 
     @Test
     void getPostMetadata_shouldThrowIfPostNotFound() {
-        when(postRepository.findByPostUniqueId(404L)).thenReturn(Optional.empty());
+        // Arrange
+        Long postId = 404L;
 
+        // Configurer le service mocké pour lancer l'exception attendue
+        when(postService.getPostMetadata(postId)).thenThrow(
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        // Act & Assert
         assertThrows(ResponseStatusException.class,
-                () -> controller.getPostMetadata(404L));
+                () -> controller.getPostMetadata(postId));
     }
 
     @Test
     void getPostMetadata_shouldThrowIfUserNotFound() {
-        Post post = new Post();
-        post.setPostUniqueId(1L);
-        post.setUserId("badUser");
+        // Arrange
+        Long postId = 1L;
 
-        when(postRepository.findByPostUniqueId(1L)).thenReturn(Optional.of(post));
-        when(userProfileRepository.findById("badUser")).thenReturn(Optional.empty());
+        // Configurer le service mocké pour lancer l'exception attendue
+        when(postService.getPostMetadata(postId)).thenThrow(
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "User profile not found"));
 
+        // Act & Assert
         assertThrows(ResponseStatusException.class,
-                () -> controller.getPostMetadata(1L));
+                () -> controller.getPostMetadata(postId));
     }
 }

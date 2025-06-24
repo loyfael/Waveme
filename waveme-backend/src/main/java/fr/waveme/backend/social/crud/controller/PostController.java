@@ -55,13 +55,21 @@ public class PostController {
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress
     ) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("File is missing");
+        }
+        
         String token = authorizationHeader.replace("Bearer ", "");
         return postService.uploadPostImage(file, bucket, description, token);
     }
 
     @GetMapping("/get/{postUniqueId}")
     public ResponseEntity<PostPublicDto> getPostMetadata(@PathVariable Long postUniqueId) {
-        return postService.getPostMetadata(postUniqueId);
+        try {
+            return postService.getPostMetadata(postUniqueId);
+        } catch (ResponseStatusException e) {
+            throw e; // Propager l'exception au lieu de retourner null
+        }
     }
 
     @PostMapping("/{postUniqueId}/vote")

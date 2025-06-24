@@ -1,68 +1,64 @@
 package fr.waveme.backend.social.crud.controller.comment;
 
-import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.social.crud.controller.CommentController;
-import fr.waveme.backend.social.crud.models.Comment;
-import fr.waveme.backend.social.crud.models.reaction.CommentVote;
-import fr.waveme.backend.social.crud.repository.CommentRepository;
-import fr.waveme.backend.social.crud.repository.react.CommentVoteRepository;
 import fr.waveme.backend.social.crud.service.CommentService;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class CommentControllerVoteTest {
-
-    CommentRepository commentRepository = mock(CommentRepository.class);
-    CommentVoteRepository voteRepository = mock(CommentVoteRepository.class);
     CommentService commentService = mock(CommentService.class);
-    JwtUtils jwtUtils = mock(JwtUtils.class);
     CommentController controller = new CommentController(commentService);
+
 
     @Test
     void vote_shouldRegisterVote() {
-        Comment comment = new Comment();
-        comment.setCommentUniqueId(1L);
-        comment.setUpVote(0);
-        comment.setDownVote(0);
+        CommentService commentService = mock(CommentService.class);
+        CommentController controller = spy(new CommentController(commentService));
 
-        when(jwtUtils.getSocialUserIdFromJwtToken("token")).thenReturn("user1");
-        when(commentRepository.findByCommentUniqueId(1L)).thenReturn(Optional.of(comment));
-        when(voteRepository.existsByCommentIdAndUserId(1L, "user1")).thenReturn(false);
+        doReturn(ResponseEntity.ok("Vote enregistré"))
+                .when(commentService).voteComment(anyLong(), anyBoolean(), anyString());
 
         ResponseEntity<?> response = controller.voteComment(1L, true, "Bearer token");
 
-        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Vote enregistré", response.getBody());
-        verify(voteRepository).save(any(CommentVote.class));
-        verify(commentRepository).save(any(Comment.class));
     }
 
     @Test
     void vote_shouldRejectIfAlreadyVoted() {
-        when(jwtUtils.getSocialUserIdFromJwtToken("token")).thenReturn("user1");
-        when(voteRepository.existsByCommentIdAndUserId(1L, "user1")).thenReturn(true);
+        CommentService commentService = mock(CommentService.class);
+        CommentController controller = spy(new CommentController(commentService));
+
+        doReturn(ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("Vous avez déjà voté pour ce commentaire."))
+                .when(commentService).voteComment(anyLong(), anyBoolean(), anyString());
 
         ResponseEntity<?> response = controller.voteComment(1L, true, "Bearer token");
 
-        assertEquals(403, response.getStatusCode().value());
+        assertNotNull(response);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertEquals("Vous avez déjà voté pour ce commentaire.", response.getBody());
     }
 
     @Test
     void vote_shouldFailIfCommentNotFound() {
-        when(jwtUtils.getSocialUserIdFromJwtToken("token")).thenReturn("user1");
-        when(voteRepository.existsByCommentIdAndUserId(1L, "user1")).thenReturn(false);
-        when(commentRepository.findByCommentUniqueId(1L)).thenReturn(Optional.empty());
+        CommentService commentService = mock(CommentService.class);
+        CommentController controller = new CommentController(commentService);
 
-        assertThrows(ResponseStatusException.class, () -> {
-            controller.voteComment(1L, true, "Bearer token");
-        });
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"))
+                .when(commentService).voteComment(anyLong(), anyBoolean(), anyString());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+                controller.voteComment(1L, true, "Bearer token"));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
     }
 }
