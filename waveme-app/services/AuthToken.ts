@@ -23,7 +23,6 @@ export async function refreshAuthIfNeeded(call: Function) {
   return call().catch(async (error: any) => {
     // If the token sent is invalid or absent, check if one is valid in localStorage
     // If the localStorage token is valid, set it again and retry, else clear the token and redirect to login
-    // TODO: Potentially change behavior on an invalid token
     if (error?.response?.status === 401 || error.code === 401) {
       if (await isAuthenticatedByToken()) {
         return call()

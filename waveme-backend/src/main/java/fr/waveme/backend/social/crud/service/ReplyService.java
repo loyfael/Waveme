@@ -1,7 +1,9 @@
 package fr.waveme.backend.social.crud.service;
 
 import fr.waveme.backend.social.crud.dto.ReplyDto;
+import fr.waveme.backend.social.crud.dto.pub.reply.ReplyPublicDto;
 import fr.waveme.backend.social.crud.models.Reply;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -10,9 +12,11 @@ import java.util.List;
  * It contains methods to create, retrieve, update, and delete replies.
  */
 public interface ReplyService {
-    ReplyDto createReply(ReplyDto replyDto);
-    ReplyDto getReById(Long ReplyId);
-    List<Reply> getReplys();
-    ReplyDto updateReply(Long ReplyId, String userId, Integer upVote, Integer downVote, String description);
-    ReplyDto deleteReply(Long ReplyId, String userId);
+    ResponseEntity<Reply> addReplyToComment(Long commentUniqueId, String content, String authorizationHeader, String ipAddress);
+
+    ResponseEntity<String> voteReply(Long replyUniqueId, boolean upvote, String authorizationHeader);
+
+    ResponseEntity<?> getReplyVotes(Long replyUniqueId);
+
+    ResponseEntity<List<ReplyPublicDto>> getRepliesByCommentId(Long commentUniqueId);
 }

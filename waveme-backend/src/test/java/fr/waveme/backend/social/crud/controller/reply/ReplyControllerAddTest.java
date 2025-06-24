@@ -2,44 +2,87 @@ package fr.waveme.backend.social.crud.controller.reply;
 
 import fr.waveme.backend.security.jwt.JwtUtils;
 import fr.waveme.backend.social.crud.controller.ReplyController;
-import fr.waveme.backend.social.crud.models.Comment;
 import fr.waveme.backend.social.crud.models.Reply;
 import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.ReplyRepository;
 import fr.waveme.backend.social.crud.repository.react.ReplyVoteRepository;
 import fr.waveme.backend.social.crud.sequence.SequenceGeneratorService;
+import fr.waveme.backend.social.crud.service.ReplyService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 public class ReplyControllerAddTest {
-    ReplyRepository replyRepository = mock(ReplyRepository.class);
-    CommentRepository commentRepository = mock(CommentRepository.class);
-    JwtUtils jwtUtils = mock(JwtUtils.class);
-    SequenceGeneratorService sequence = mock(SequenceGeneratorService.class);
-    ReplyVoteRepository voteRepository = mock(ReplyVoteRepository.class);
+    @Mock
+    private ReplyRepository replyRepository;
 
-    ReplyController controller = new ReplyController(replyRepository, commentRepository, jwtUtils, sequence, voteRepository);
+    @Mock
+    private CommentRepository commentRepository;
+
+    @Mock
+    private JwtUtils jwtUtils;
+
+    @Mock
+    private SequenceGeneratorService sequence;
+
+    @Mock
+    private ReplyVoteRepository voteRepository;
+
+    @Mock
+    private ReplyService replyService;
+
+    private ReplyController controller;
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void setUp() {
+        closeable = MockitoAnnotations.openMocks(this);
+        controller = new ReplyController(replyService);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        closeable.close();
+    }
 
     @Test
     void addReply_shouldSucceed() {
-        Comment comment = new Comment();
-        comment.setCommentUniqueId(88L);
+        // Arrange
+        Long commentId = 88L;
+        String content = "Test reply";
+        String token = "Bearer token";
+        String ipAddress = "1.2.3.4";
 
-        when(jwtUtils.getSocialUserIdFromJwtToken("token")).thenReturn("user123");
-        when(commentRepository.findByCommentUniqueId(88L)).thenReturn(Optional.of(comment));
-        when(sequence.generateSequence("reply_sequence")).thenReturn(55L);
-        when(replyRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        Reply mockReply = new Reply();
+        mockReply.setDescription(content);
+        mockReply.setUserId("user123");
+        mockReply.setCommentId(commentId);
+        mockReply.setReplyUniqueId(55L);
 
-        Reply reply = controller.addReplyToComment(88L, "Test reply", "Bearer token", "1.2.3.4");
+        // Configurez le comportement du service mocké
+        doReturn(ResponseEntity.ok(mockReply)).when(replyService)
+                .addReplyToComment(eq(commentId), eq(content), eq(token), eq(ipAddress));
 
+        // Act
+        ResponseEntity<?> response = controller.addReplyToComment(commentId, content, token, ipAddress);
+
+        // Assert
+        Assertions.assertNotNull(response);
+        Reply reply = (Reply) response.getBody();
+        Assertions.assertNotNull(reply);
         assertEquals("Test reply", reply.getDescription());
         assertEquals("user123", reply.getUserId());
         assertEquals(88L, reply.getCommentId());
@@ -48,10 +91,19 @@ public class ReplyControllerAddTest {
 
     @Test
     void addReply_shouldFailIfCommentNotFound() {
-        when(commentRepository.findByCommentUniqueId(404L)).thenReturn(Optional.empty());
+        // Arrange
+        Long commentId = 404L;
+        String content = "fail";
+        String token = "Bearer token";
+        String ipAddress = null;
 
+        // Configurez le service pour lancer une exception quand le commentaire n'est pas trouvé
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"))
+                .when(replyService).addReplyToComment(eq(commentId), eq(content), eq(token), eq(ipAddress));
+
+        // Act & Assert
         assertThrows(ResponseStatusException.class, () -> {
-            controller.addReplyToComment(404L, "fail", "Bearer token", null);
+            controller.addReplyToComment(commentId, content, token, ipAddress);
         });
     }
 }

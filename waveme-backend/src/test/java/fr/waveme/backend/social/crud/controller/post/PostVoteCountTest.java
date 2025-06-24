@@ -1,53 +1,66 @@
 package fr.waveme.backend.social.crud.controller.post;
 
 import fr.waveme.backend.social.crud.controller.PostController;
-import fr.waveme.backend.social.crud.models.Post;
-import fr.waveme.backend.social.crud.repository.PostRepository;
-import org.junit.jupiter.api.Assertions;
+import fr.waveme.backend.social.crud.service.PostService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+
 public class PostVoteCountTest {
 
-    private final PostRepository postRepository = mock(PostRepository.class);
+    private PostService postService;
+    private PostController controller;
 
-    private final PostController controller = new PostController(
-            null, postRepository, null, null,
-            null, null, null, null
-    );
+    @BeforeEach
+    void setUp() {
+        postService = mock(PostService.class);
+        controller = new PostController(postService);
+    }
 
     @Test
     void getPostVotes_shouldReturnCorrectCount() {
-        Post post = new Post();
-        post.setPostUniqueId(5L);
-        post.setUpVote(12);
-        post.setDownVote(3);
+        // Arrange
+        Long postId = 5L;
+        Map<String, Integer> votesMap = Map.of("upVote", 12, "downVote", 3);
+        ResponseEntity<?> responseEntity = ResponseEntity.ok(votesMap);
 
-        when(postRepository.findByPostUniqueId(5L)).thenReturn(Optional.of(post));
+        // Configurer le comportement du service mocké
+        doReturn(responseEntity).when(postService).getPostVotes(eq(postId));
 
-        ResponseEntity<?> res = controller.getPostVotes(5L);
+        // Act
+        ResponseEntity<?> res = controller.getPostVotes(postId);
+
+        // Assert
+        assertNotNull(res);
         Map<?, ?> body = (Map<?, ?>) res.getBody();
-
-        Assertions.assertNotNull(body);
+        assertNotNull(body);
         assertEquals(12, body.get("upVote"));
         assertEquals(3, body.get("downVote"));
     }
 
     @Test
     void getPostVotes_shouldThrowIfNotFound() {
-        when(postRepository.findByPostUniqueId(99L)).thenReturn(Optional.empty());
+        // Arrange
+        Long postId = 99L;
 
-        assertThrows(
-                org.springframework.web.server.ResponseStatusException.class,
-                () -> controller.getPostVotes(99L)
-        );
+        // Configurer le service pour lancer l'exception attendue
+        when(postService.getPostVotes(postId)).thenThrow(
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        // Act & Assert
+        assertThrows(ResponseStatusException.class, () -> controller.getPostVotes(postId));
     }
 }

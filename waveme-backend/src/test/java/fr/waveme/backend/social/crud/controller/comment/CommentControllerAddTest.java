@@ -8,6 +8,8 @@ import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.PostRepository;
 import fr.waveme.backend.social.crud.repository.react.CommentVoteRepository;
 import fr.waveme.backend.social.crud.sequence.SequenceGeneratorService;
+import fr.waveme.backend.social.crud.service.CommentService;
+import fr.waveme.backend.social.crud.service.impl.CommentServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -18,14 +20,26 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CommentControllerAddTest {
+
     CommentRepository commentRepository = mock(CommentRepository.class);
     PostRepository postRepository = mock(PostRepository.class);
     JwtUtils jwtUtils = mock(JwtUtils.class);
     SequenceGeneratorService sequence = mock(SequenceGeneratorService.class);
-    CommentVoteRepository voteRepo = mock(CommentVoteRepository.class);
-    CommentController controller = new CommentController(commentRepository, voteRepo, postRepository, jwtUtils, sequence);
+    CommentVoteRepository commentVoteRepository = mock(CommentVoteRepository.class);
+
+    // Typage par interface, instanciation par implémentation
+    CommentService commentService = new CommentServiceImpl(
+            commentRepository,
+            postRepository,
+            jwtUtils,
+            sequence,
+            commentVoteRepository
+    );
+
+    CommentController controller = new CommentController(commentService);
 
     @Test
     void addComment_shouldSucceed() {
@@ -37,8 +51,9 @@ public class CommentControllerAddTest {
         when(sequence.generateSequence("comment_sequence")).thenReturn(100L);
         when(commentRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        Comment comment = controller.addCommentToPost(42L, "Hello", "Bearer token");
+        Comment comment = controller.addCommentToPost(42L, "Hello", "token");
 
+        assertNotNull(comment, "Le commentaire ne doit pas être null");
         assertEquals("Hello", comment.getDescription());
         assertEquals(100L, comment.getCommentUniqueId());
         assertEquals("user1", comment.getUserId());
@@ -46,10 +61,11 @@ public class CommentControllerAddTest {
 
     @Test
     void addComment_shouldFailIfPostNotFound() {
+        when(jwtUtils.getSocialUserIdFromJwtToken("token")).thenReturn("user1");
         when(postRepository.findByPostUniqueId(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResponseStatusException.class, () -> {
-            controller.addCommentToPost(99L, "test", "Bearer token");
+            controller.addCommentToPost(99L, "test", "token");
         });
     }
 }

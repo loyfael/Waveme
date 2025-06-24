@@ -1,7 +1,10 @@
 package fr.waveme.backend.social.crud.service;
 
 import fr.waveme.backend.social.crud.dto.PostDto;
+import fr.waveme.backend.social.crud.dto.pub.post.PostPublicDto;
 import fr.waveme.backend.social.crud.models.Post;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -10,9 +13,10 @@ import java.util.List;
  * It contains methods to create, retrieve, update, and delete posts.
  */
 public interface PostService {
-    PostDto createPost(PostDto postDto);
-    PostDto getPostById(Long postId);
-    List<Post> getPosts();
-    PostDto updatePost(Long postId, String userId, String imageUrl, Integer upVote, Integer downVote);
-    PostDto deletePost(Long postId, String userId);
+
+    ResponseEntity<String> uploadPostImage(MultipartFile file, String bucketName, String description, String token);
+
+    ResponseEntity<PostPublicDto> getPostMetadata(Long postUniqueId);
+    ResponseEntity<String> votePost(Long postUniqueId, boolean upvote, String authorizationHeader);
+    ResponseEntity<?> getPostVotes(Long postUniqueId);
 }
