@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Loading } from "./Loading";
 import { ThemedView } from "./theme/ThemedView";
-import { Animated, View, Image, Pressable, ImageSourcePropType } from "react-native";
+import { Animated, View, Image, Pressable } from "react-native";
 import { BiSolidDownArrowAlt, BiSolidUpArrowAlt } from "react-icons/bi";
 import { Colors } from "@/constants/Colors";
 import { fadeButtonToClicked, fadeButtonToIdle } from "@/utils/animateButton";
@@ -11,18 +11,22 @@ import { memeStyle } from "@/constants/commonStyles";
 import { ThemedText } from "./theme/ThemedText";
 import { useAnimatedButton } from "@/hooks/useAnimatedButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { Post } from "@/types";
+import { Post, UserInfoLesser } from "@/types";
 import { useRouter } from "expo-router";
 import ReportModal from "./ReportModal";
 import { createLocalUriFromBackUri } from "@/utils/api";
+import { getPostVotes, votePost } from "@/services/PostAPI";
+import dayjs from "dayjs";
+import { AuthContext } from "@/context/AuthContext";
 
 type PostListProps = {
   isLoading: boolean,
   posts: Post[],
+  setPosts: Function
 }
 
 export default function PostList(props: PostListProps) {
-  const router = useRouter()
+  const [voteStates, setVoteStates] = useState<{ [key: string]: number }>({})
   const [reportModalOpen, setReportModalOpen] = useState(false)
   const [reportedContent, setReportedContent] = useState<"post" | "comment">("post")
   const [reportedUser, setReportedUser] = useState("")
@@ -52,6 +56,8 @@ export default function PostList(props: PostListProps) {
     clickedColor: Colors.common.downvote
   })
 
+  const { user } = useContext(AuthContext)
+  const router = useRouter()
   const areaBackgroundColor = useThemeColor({}, 'areaBackground')
   const iconColor = useThemeColor({}, "icon")
 
@@ -66,6 +72,23 @@ export default function PostList(props: PostListProps) {
     setReportModalOpen(true)
   }
 
+  const handleVotePost = (postId: number, upvote: boolean, index: number) => {
+    votePost(postId, upvote)
+      .catch((err) => {
+        console.error(err)
+      })
+      .then(() => {
+        let newList = props.posts
+        newList[index] = {
+          ...newList[index],
+          voteSum: upvote ? newList[index].voteSum + 1 : newList[index].voteSum - 1,
+          upVote: upvote ? newList[index].upVote + 1 : newList[index].upVote,
+          downVote: !upvote ? newList[index].downVote + 1 : newList[index].downVote,
+        }
+        props.setPosts(newList)
+      })
+  }
+
   useEffect(() => {
     const loadAllImages = async () => {
       let loadingImages: { [key: string]: string } = {}
@@ -76,7 +99,7 @@ export default function PostList(props: PostListProps) {
           loadingImages[post.postUniqueId] = dataUri
           if (post.user.profileImg) {
             const profilePictureDataUri = await createLocalUriFromBackUri(post.user.profileImg, "profile")
-            loadedProfilePictures[post.user.id] = profilePictureDataUri
+            loadingProfilePictures[post.user.id] = profilePictureDataUri
           }
         })
       )
@@ -84,6 +107,31 @@ export default function PostList(props: PostListProps) {
       setLoadedProfilePictures(loadingProfilePictures)
     }
     loadAllImages()
+
+    const loadAllVotes = async () => {
+      let upvoteStates: { [key: string]: number } = {}
+      if (props.posts) {
+        await Promise.all(
+          props.posts.map(async (post) => {
+            await getPostVotes(post.postUniqueId)
+              .catch((err) => {
+                console.error(err)
+              })
+              .then(({ data }) => {
+                if (data.upvoters.map((upvoter: UserInfoLesser) => upvoter.id).includes(user?.id)) {
+                  upvoteStates[post.postUniqueId] = 1
+                } else if (data.downvoters.map((downvoter: UserInfoLesser) => downvoter.id).includes(user?.id)) {
+                  upvoteStates[post.postUniqueId] = -1
+                } else {
+                  upvoteStates[post.postUniqueId] = 0
+                }
+              })
+          })
+        )
+      }
+      setVoteStates(upvoteStates)
+    }
+    loadAllVotes()
 
     // Clean up the images on unmount
     return () => {
@@ -93,9 +141,11 @@ export default function PostList(props: PostListProps) {
     }
   }, [props.posts])
 
+  useEffect(() => { console.log(voteStates) }, [voteStates])
+
   return (
     <>
-      {!props.isLoading ? props.posts.map((post) => (
+      {!props.isLoading ? props.posts.map((post, index) => (
         <ThemedView key={post.postUniqueId} style={styles.postWrapper}>
           {/* Profile and post title */}
           <View style={styles.postProfile}>
@@ -110,6 +160,7 @@ export default function PostList(props: PostListProps) {
               <Pressable onPress={() => { router.push(`/user/${post.user.id}`) }}>
                 <ThemedText type="defaultBold">{post.user.pseudo}</ThemedText>
               </Pressable>
+              <ThemedText type="small">{dayjs(post.createdAt).format("HH:mm DD/MM/YYYY")}</ThemedText>
               {post.description ? (
                 <ThemedText>{post.description}</ThemedText>
               ) : ''}
@@ -134,6 +185,11 @@ export default function PostList(props: PostListProps) {
                 </AnimatedButton>
               </View>
               <View style={styles.barRight}>
+                <View style={{ ...styles.barButton, backgroundColor: Colors.common.memeActionBar }}>
+                  <ThemedText type="defaultBold" style={{ color: post.voteSum >= 0 ? Colors.common.upvote : Colors.common.downvote }}>
+                    {post.voteSum > 0 ? "+" : ""}{post.voteSum}
+                  </ThemedText>
+                </View>
                 <AnimatedButton
                   onPressIn={() => fadeButtonToClicked(animatedButton2)}
                   onPressOut={() => fadeButtonToIdle(animatedButton2)}
@@ -145,16 +201,22 @@ export default function PostList(props: PostListProps) {
                 <AnimatedButton
                   onPressIn={() => fadeButtonToClicked(animatedButton3)}
                   onPressOut={() => fadeButtonToIdle(animatedButton3)}
-                  onPress={() => { }}>
-                  <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor3 }}>
+                  onPress={() => { handleVotePost(post.postUniqueId, true, index) }}>
+                  <Animated.View style={{
+                    ...styles.barButton,
+                    backgroundColor: voteStates[post.postUniqueId] === 1 ? Colors.common.upvote : backgroundColor3
+                  }}>
                     <BiSolidUpArrowAlt color={Colors.common.memeActionBar} size={36} />
                   </Animated.View>
                 </AnimatedButton>
                 <AnimatedButton
                   onPressIn={() => fadeButtonToClicked(animatedButton4)}
                   onPressOut={() => fadeButtonToIdle(animatedButton4)}
-                  onPress={() => { }}>
-                  <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor4 }}>
+                  onPress={() => { handleVotePost(post.postUniqueId, false, index) }}>
+                  <Animated.View style={{
+                    ...styles.barButton,
+                    backgroundColor: voteStates[post.postUniqueId] === -1 ? Colors.common.downvote : backgroundColor3
+                  }}>
                     <BiSolidDownArrowAlt color={Colors.common.memeActionBar} size={36} />
                   </Animated.View>
                 </AnimatedButton>

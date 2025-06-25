@@ -23,6 +23,12 @@ export async function getPost(postId: string) {
   })
 }
 
+export async function getPostVotes(postId: number) {
+  return refreshAuthIfNeeded(() => {
+    return axios.get(`${POST_URL}/${postId}/get-user-votes`)
+  })
+}
+
 export async function getPostImage(postUri: string) {
   return refreshAuthIfNeeded(() => {
     return axios.get(`${BASE_SERVER_URL}${postUri}`, {
@@ -38,14 +44,13 @@ export async function downloadImage() {
   })
 }
 
-export async function upvotePost(postId: string) {
+export async function votePost(postId: number | string, upvote: boolean) {
   return refreshAuthIfNeeded(() => {
-    return axios.post(`${POST_URL}/${postId}/vote`, { upvote: true })
-  })
-}
-
-export async function downvotePost(postId: string) {
-  return refreshAuthIfNeeded(() => {
-    return axios.post(`${POST_URL}/${postId}/vote`, { upvote: false })
+    // We use the form-data header instead of the FormData class instance because the latter doesn't support boolean values
+    return axios.post(
+      `${POST_URL}/${postId}/vote`,
+      { upvote },
+      { headers: { "Content-Type": "multipart/form-data" }},
+    )
   })
 }

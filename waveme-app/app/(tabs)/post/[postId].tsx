@@ -4,9 +4,9 @@ import { Colors } from "@/constants/Colors";
 import { useWebTitle } from "@/hooks/useWebTitle";
 import { fadeButtonToClicked, fadeButtonToIdle } from "@/utils/animateButton";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Animated, StyleSheet, View, Image, Pressable } from 'react-native'
-import { Comment, Post, UserProfilePictures } from "@/types";
+import { Comment, Post, UserInfoLesser, UserProfilePictures } from "@/types";
 import { memeStyle } from "@/constants/commonStyles";
 import { useAnimatedButton } from "@/hooks/useAnimatedButton";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -17,16 +17,19 @@ import { IoSend } from "react-icons/io5";
 import { Loading } from "@/components/Loading";
 import ReportModal from "@/components/ReportModal";
 import { useMediaQuery } from "react-responsive";
-import { getPost } from "@/services/PostAPI";
-import { addComment, addReply } from "@/services/CommentAPI";
+import { getPost, getPostVotes, votePost } from "@/services/PostAPI";
+import { addComment, addReply, voteComment, voteReply } from "@/services/CommentAPI";
 import { createLocalUriFromBackUri } from "@/utils/api";
 import { MaterialIcons } from "@expo/vector-icons";
+import dayjs from "dayjs";
+import { AuthContext } from "@/context/AuthContext";
 
 export default function PostScreen() {
   const [post, setPost] = useState<Post | null>(null)
   const [reloadPost, setReloadPost] = useState(false)
   const [comments, setComments] = useState<Comment[]>([])
   const [loadedImage, setLoadedImage] = useState<string | null>(null)
+  const [postVoteState, setPostVoteState] = useState<number>(0)
   const [profilePicturesLoading, setProfilePicturesLoading] = useState(true)
   const [loadedProfilePictures, setLoadedProfilePictures] = useState<UserProfilePictures>({
     post: "",
@@ -44,10 +47,12 @@ export default function PostScreen() {
 
   useWebTitle(`Post de ${post?.user?.pseudo ?? "l'utilisateur"}`)
   const router = useRouter()
-  const textColor = useThemeColor({}, 'text')
   const { postId } = useLocalSearchParams<{ postId: string }>()
-
+  const textColor = useThemeColor({}, 'text')
   const iconColor = useThemeColor({}, "icon")
+  const areaBackgroundColor = useThemeColor({}, 'areaBackground')
+  const isSmallScreen = useMediaQuery({ query: '(max-width: 1200px)' })
+  const { user } = useContext(AuthContext)
 
   const AnimatedButton = Animated.createAnimatedComponent(Pressable)
 
@@ -65,9 +70,6 @@ export default function PostScreen() {
     idleColor: Colors.common.barButton,
     clickedColor: Colors.common.downvote
   })
-
-  const areaBackgroundColor = useThemeColor({}, 'areaBackground')
-  const isSmallScreen = useMediaQuery({ query: '(max-width: 1200px)' })
 
   const getAllProfilePictures = () => {
     // Removes obnoxious linter error on the actual return; !post should never be true on regular use
@@ -113,7 +115,7 @@ export default function PostScreen() {
       .catch((error) => {
         console.error(error)
       })
-      .then((response) => {
+      .then(() => {
         setInput("")
         setReloadPost(!reloadPost)
       })
@@ -124,9 +126,39 @@ export default function PostScreen() {
       .catch((error) => {
         console.error(error)
       })
-      .then((response) => {
+      .then(() => {
         setReplyFocus(null)
         setReplyInput("")
+        setReloadPost(!reloadPost)
+      })
+  }
+
+  const handleVotePost = (upvote: boolean) => {
+    votePost(postId, upvote)
+      .catch((err) => {
+        console.error(err)
+      })
+      .then(() => {
+        setReloadPost(!reloadPost)
+      })
+  }
+
+  const handleVoteComment = (commentId: number, upvote: boolean) => {
+    voteComment(commentId, upvote)
+      .catch((err) => {
+        console.error(err)
+      })
+      .then(() => {
+        setReloadPost(!reloadPost)
+      })
+  }
+
+  const handleVoteReply = (replyId: number, upvote: boolean) => {
+    voteReply(replyId, upvote)
+      .catch((err) => {
+        console.error(err)
+      })
+      .then(() => {
         setReloadPost(!reloadPost)
       })
   }
@@ -193,6 +225,24 @@ export default function PostScreen() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (post) {
+      getPostVotes(post.postUniqueId)
+        .catch((err) => {
+          console.error(err)
+        })
+        .then(({ data }) => {
+          if (data.upvoters.map((upvoter: UserInfoLesser) => upvoter.id).includes(user?.id)) {
+            setPostVoteState(1)
+          } else if (data.downvoters.map((downvoter: UserInfoLesser) => downvoter.id).includes(user?.id)) {
+            setPostVoteState(-1)
+          } else {
+            setPostVoteState(0)
+          }
+        })
+    }
+  }, [post])
+
   return (
     <>
       {post ? (
@@ -211,6 +261,7 @@ export default function PostScreen() {
                 <Pressable onPress={() => { router.push(`/user/${post.user.id}`) }}>
                   <ThemedText type="defaultBold">{post.user.pseudo}</ThemedText>
                 </Pressable>
+                <ThemedText type="small">{dayjs(post.createdAt).format("HH:mm DD/MM/YYYY")}</ThemedText>
                 {post.description ? (
                   <ThemedText>{post.description}</ThemedText>
                 ) : ''}
@@ -230,19 +281,30 @@ export default function PostScreen() {
                   </AnimatedButton>
                 </View>
                 <View style={styles.barRight}>
+                  <View style={{ ...styles.barButton, backgroundColor: Colors.common.memeActionBar }}>
+                    <ThemedText type="defaultBold" style={{ color: post.voteSum >= 0 ? Colors.common.upvote : Colors.common.downvote }}>
+                      {post.voteSum > 0 ? "+" : ""}{post.voteSum}
+                    </ThemedText>
+                  </View>
                   <AnimatedButton
                     onPressIn={() => fadeButtonToClicked(animatedButton2)}
                     onPressOut={() => fadeButtonToIdle(animatedButton2)}
-                    onPress={() => { }}>
-                    <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor2 }}>
+                    onPress={() => { handleVotePost(true) }}>
+                    <Animated.View style={{
+                      ...styles.barButton,
+                      backgroundColor: postVoteState === 1 ? Colors.common.upvote : backgroundColor3
+                    }}>
                       <BiSolidUpArrowAlt color={Colors.common.memeActionBar} size={36} />
                     </Animated.View>
                   </AnimatedButton>
                   <AnimatedButton
                     onPressIn={() => fadeButtonToClicked(animatedButton3)}
                     onPressOut={() => fadeButtonToIdle(animatedButton3)}
-                    onPress={() => { }}>
-                    <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor3 }}>
+                    onPress={() => { handleVotePost(false) }}>
+                    <Animated.View style={{
+                      ...styles.barButton,
+                      backgroundColor: postVoteState === -1 ? Colors.common.downvote : backgroundColor3
+                    }}>
                       <BiSolidDownArrowAlt color={Colors.common.memeActionBar} size={36} />
                     </Animated.View>
                   </AnimatedButton>
@@ -284,6 +346,7 @@ export default function PostScreen() {
                       <Pressable onPress={() => { router.push(`/user/${comment.userInfo.id}`) }}>
                         <ThemedText type="defaultBold">{comment.userInfo.pseudo}</ThemedText>
                       </Pressable>
+                      <ThemedText type="small">{dayjs(comment.createdAt).format("HH:mm DD/MM/YYYY")}</ThemedText>
                       <View style={{ ...styles.commentContainer, backgroundColor: areaBackgroundColor }}>
                         <ThemedText style={styles.commentOverride}>{comment.content}</ThemedText>
                       </View>
@@ -312,6 +375,16 @@ export default function PostScreen() {
                       <Pressable onPress={() => { handleOpenReportModal("comment", comment.userInfo.pseudo, comment.content, comment.commentUniqueId) }}>
                         <ThemedText type="small">Signaler</ThemedText>
                       </Pressable>
+                      <ThemedText type="small">|</ThemedText>
+                      <Pressable onPress={() => { handleVoteComment(comment.commentUniqueId, true) }}>
+                        <ThemedText type="small">Upvote</ThemedText>
+                      </Pressable>
+                      <ThemedText type="small" style={{ color: comment.upVote - comment.downVote >= 0 ? Colors.common.upvote : Colors.common.downvote }}>
+                        {comment.upVote - comment.downVote > 0 ? "+" : ""}{comment.upVote - comment.downVote}
+                      </ThemedText>
+                      <Pressable onPress={() => { handleVoteComment(comment.commentUniqueId, false) }}>
+                        <ThemedText type="small">Downvote</ThemedText>
+                      </Pressable>
                     </View>
                   </View>
                   {comment.replies.length ? loadedReplies.includes(comment.commentUniqueId) ? (
@@ -330,6 +403,7 @@ export default function PostScreen() {
                               <Pressable onPress={() => { router.push(`/user/${reply.userInfo.id}`) }}>
                                 <ThemedText type="defaultBold">{reply.userInfo.pseudo}</ThemedText>
                               </Pressable>
+                              <ThemedText type="small">{dayjs(reply.createdAt).format("HH:mm DD/MM/YYYY")}</ThemedText>
                               <View style={{ ...styles.commentContainer, backgroundColor: areaBackgroundColor }}>
                                 <ThemedText style={styles.commentOverride}>{reply.content}</ThemedText>
                               </View>
@@ -339,6 +413,16 @@ export default function PostScreen() {
                             <View style={styles.commentActionsContainer}>
                               <Pressable onPress={() => { handleOpenReportModal("reply", reply.userInfo.pseudo, reply.content, reply.replyUniqueId) }}>
                                 <ThemedText type="small">Signaler</ThemedText>
+                              </Pressable>
+                              <ThemedText type="small">|</ThemedText>
+                              <Pressable onPress={() => { handleVoteReply(reply.replyUniqueId, true) }}>
+                                <ThemedText type="small">Upvote</ThemedText>
+                              </Pressable>
+                              <ThemedText type="small" style={{ color: reply.upVote - reply.downVote >= 0 ? Colors.common.upvote : Colors.common.downvote }}>
+                                {reply.upVote - reply.downVote > 0 ? "+" : ""}{reply.upVote - reply.downVote}
+                              </ThemedText>
+                              <Pressable onPress={() => { handleVoteReply(reply.replyUniqueId, false) }}>
+                                <ThemedText type="small">Downvote</ThemedText>
                               </Pressable>
                             </View>
                           </View>

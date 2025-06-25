@@ -25,7 +25,7 @@ export default function NewPostScreen() {
         console.error(error)
       })
       .then((response) => {
-        router.push('/')
+        router.push('/feed')
       })
   }
 

@@ -15,7 +15,7 @@ export default function Login() {
   const [credentials, setCredentials] = useState<LoginCredentials>({ pseudo: '', password: '' })
   const [invalidTooltip, setInvalidTooltip] = useState<InvalidTooltip>({ display: false, field: '', message: '' })
   const [invalidMessage, setInvalidMessage] = useState("")
-  
+
   useWebTitle('Connexion')
   const router = useRouter()
   const { reloadUser } = useContext(AuthContext)
@@ -30,7 +30,7 @@ export default function Login() {
     await authenticate(credentials)
       .then(() => {
         reloadUser()
-        router.push('/')
+        router.push('/feed')
       })
       .catch((error) => setInvalidMessage(error.data.message))
   }

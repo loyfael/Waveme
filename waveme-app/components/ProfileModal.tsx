@@ -16,18 +16,18 @@ import { ThemeContext } from "@/context/ThemeContext"
 import { useThemeColor } from "@/hooks/useThemeColor"
 import { fadeButtonToClicked, fadeButtonToIdle } from "@/utils/animateButton"
 import { setProfileImage } from "@/services/UserAPI"
-import { pickImage } from "@/utils/api"
+import { createLocalUriFromBackUri, pickImage } from "@/utils/api"
 
 type ProfileModalProps = {
   visible: boolean,
   setVisible: Function,
-  loadedProfilePicture: string,
 }
 
 export default function ProfileModal(props: ProfileModalProps) {
   const [image, setImage] = useState<any>(null)
+  const [loadedProfilePicture, setLoadedProfilePicture] = useState<string>("")
 
-  const { user, reloadUser } = useContext(AuthContext)
+  const { user, setUser, reloadUser } = useContext(AuthContext)
   const { isDarkMode, setDarkMode } = useContext(ThemeContext)
   const textColor = useThemeColor({}, 'text')
   const iconColor = useThemeColor({}, "icon")
@@ -58,10 +58,21 @@ export default function ProfileModal(props: ProfileModalProps) {
           console.error(err)
         })
         .then((response) => {
-          console.log(response)
+          setUser({ ...user, profileImg: response.data })
+          setImage(null)
         })
     }
   }, [image])
+
+  useEffect(() => {
+    if (user && user.profileImg) {
+      const fetchProfilePicture = async () => {
+        const dataUri = await createLocalUriFromBackUri(user.profileImg as string, "profile")
+        setLoadedProfilePicture(dataUri)
+      }
+      fetchProfilePicture()
+    }
+  }, [user])
 
   return (
     <Modal visible={props.visible} transparent animationType="fade" onRequestClose={() => props.setVisible(false)}>
@@ -70,8 +81,8 @@ export default function ProfileModal(props: ProfileModalProps) {
           {user ? (
             <ThemedView style={{ ...styles.modalView, ...styles.connectedModalSize }}>
               <Pressable onPress={() => { handleChangeProfilePicture() }}>
-                {props.loadedProfilePicture ? (
-                  <Image source={{ uri: props.loadedProfilePicture }} style={styles.userPfp} />
+                {loadedProfilePicture ? (
+                  <Image source={{ uri: loadedProfilePicture }} style={styles.userPfp} />
                 ) : (
                   <MaterialIcons name="account-circle" size={150} color={iconColor} style={styles.userPfp} />
                 )}

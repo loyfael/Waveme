@@ -3,7 +3,6 @@ import { StyleSheet, Image, ScrollView, Pressable, TouchableOpacity } from 'reac
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { ThemedView } from '@/components/theme/ThemedView';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/theme/ThemedText';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { genericButtonStyle, modalContainerStyle } from '@/constants/commonStyles';
@@ -35,6 +34,13 @@ export default function TabLayout() {
     }
   }, [user])
 
+  if (pathname === '/') {
+    return (
+      <ThemedView style={styles.homeWrapper}>
+        <Slot />
+      </ThemedView>
+    )
+  }
   if (connectionRoutes.includes(pathname)) {
     return (
       <ThemedView style={styles.loginWrapper}>
@@ -50,7 +56,7 @@ export default function TabLayout() {
   return (
     <ThemedView style={styles.wrapper}>
       <ThemedView style={isSmallScreen ? styles.leftColumnSmallScreen : styles.leftColumn}>
-        <Pressable style={isSmallScreen ? styles.logoSmallScreen : styles.logo} onPress={() => { router.push("/") }}>
+        <Pressable style={isSmallScreen ? styles.logoSmallScreen : styles.logo} onPress={() => { router.push("/feed") }}>
           <Image source={require('@/assets/images/waveme.png')} style={isSmallScreen ? styles.logoSmallScreen : styles.logo} />
         </Pressable>
       </ThemedView>
@@ -70,7 +76,6 @@ export default function TabLayout() {
       <ProfileModal
         visible={showProfileModal}
         setVisible={setShowProfileModal}
-        loadedProfilePicture={loadedProfilePicture}
       />
     </ThemedView>
   );
@@ -81,6 +86,14 @@ const localStyles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
+  },
+
+  homeWrapper: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 50,
   },
 
   loginWrapper: {
