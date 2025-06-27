@@ -37,6 +37,7 @@ export default function TabLayout() {
   if (pathname === '/') {
     return (
       <ThemedView style={styles.homeWrapper}>
+        <Image source={require("@/assets/images/homeLines.svg")} tintColor={textColor} style={styles.homeLines} />
         <Slot />
       </ThemedView>
     )
@@ -94,6 +95,12 @@ const localStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 50,
+  },
+
+  homeLines: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
   },
 
   loginWrapper: {

@@ -1,10 +1,12 @@
 import { ThemedText } from "@/components/theme/ThemedText";
 import { genericButtonStyle } from "@/constants/commonStyles";
+import { useWebTitle } from "@/hooks/useWebTitle";
 import { useRouter } from "expo-router";
 import React from "react";
 import { View, Image, StyleSheet, TouchableOpacity } from "react-native";
 
 export default function HomeScreen() {
+  useWebTitle("Bienvenue")
   const router = useRouter()
 
   return (
