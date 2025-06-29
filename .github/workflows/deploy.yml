@@ -18,7 +18,19 @@ jobs:
           script: |
             cd /opt/Waveme
             git config --global --add safe.directory /opt/Waveme
+
+            echo "Fetching remote branches..."
             git fetch origin
+
+            echo "Waiting for latest commit to be available..."
+            sleep 15
+
+            echo "Pulling latest changes..."
             git pull origin main
+
+            echo "Getting latest commits..."
+            sleep 15
+
+            echo "Restarting containers..."
             docker-compose down --remove-orphans
             docker-compose up -d --build
