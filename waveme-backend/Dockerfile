@@ -22,7 +22,7 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
 # Exposer le port de l'application
-EXPOSE 9080
+EXPOSE 9998
 
 # Commande pour exécuter l'application
 ENTRYPOINT ["java", "-Dspring.config.location=classpath:/application.properties", "-jar", "app.jar"]
