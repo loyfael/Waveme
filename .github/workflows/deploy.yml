@@ -1,6 +1,5 @@
 name: Deploy to VPS
 
-# This workflow deploys the application to a VPS using SSH and Docker Compose.
 on:
   push:
     branches: [main]
