@@ -8,7 +8,7 @@ RUN npm install
 COPY . .
 
 # Build statique pour le web
-RUN npx expo export:web
+RUN npx expo export --platform web
 
 # Étape 2 – Serve via Nginx
 FROM nginx:stable-alpine
