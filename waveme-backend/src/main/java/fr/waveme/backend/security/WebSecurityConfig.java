@@ -100,13 +100,10 @@ public class WebSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         return request -> {
             var cors = new org.springframework.web.cors.CorsConfiguration();
-            cors.setAllowedOrigins(List.of(
-                "http://localhost:3000",
-                "http://45.140.164.224"
-            ));
+            cors.setAllowedOrigins(List.of("http://45.140.164:3000"));
             cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-            cors.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "*"));
-            cors.setExposedHeaders(List.of("Authorization")); // optionnel mais souvent nécessaire
+            cors.setAllowedHeaders(List.of("*"));
+            // CORS permissions for authentication credentials
             cors.setAllowCredentials(true);
             return cors;
         };
