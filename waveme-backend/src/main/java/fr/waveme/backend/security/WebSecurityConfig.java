@@ -105,8 +105,8 @@ public class WebSecurityConfig {
                 "http://45.140.164.224"
             ));
             cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-            cors.setAllowedHeaders(List.of("*"));
-            // CORS permissions for authentication credentials
+            cors.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "*"));
+            cors.setExposedHeaders(List.of("Authorization")); // optionnel mais souvent nécessaire
             cors.setAllowCredentials(true);
             return cors;
         };
