@@ -4,88 +4,121 @@ Waveme is a social networking application focused on memes sharing. It consists 
 > This project is part of a student project and is provided as-is. While every effort has been made to ensure its functionality, the authors cannot be held responsible for any critical issues, bugs, or problems encountered while using the project.
 ## Usefull links
 - [FIGMA](https://www.figma.com/design/Y2lEnBAA5OJLVWoeQz6Ptd/Waveme?node-id=0-1&node-type=canvas&t=GhNvvwdEAVWkzJTs-0)
-## Architectury
-### `archives`
-Contain all archives (à retirer prochainement)
-### `waveme-app`
-Frontend project: React Native x Expo.
-### `waveme-backend`
-Backend project: Java 21 & Spring Boot.
-## Dependencies
-- [Docker](https://www.docker.com/get-started) installé sur votre machine.
-- [Docker Compose](https://docs.docker.com/compose/install/) installé sur votre machine.
-- [Git](https://git-scm.com/downloads) installé sur votre machine.
 ## Get started !
 1. Clone `git clone https://github.com/loisdps/Waveme.git`
-# Backend Setup (automated with script)
-## 1. Prepare the `.env` file
-At the root of your project (same level as `docker-compose.yml`), create a `.env` file with the following variables:
-```env
-POSTGRES_DB=waveme
-POSTGRES_USER=admin
-POSTGRES_PASSWORD=your_postgres_password
+2. Change directory to the project root: `cd Waveme`
+3. Open the project in your favorite IDE (e.g., IntelliJ IDEA for backend, VS Code for frontend).
+4. Install dependencies:
+   - For the frontend, run `npm install` or `yarn install`.
+   - For the backend, run `./mvnw install` or `mvn install` (if you have Maven installed globally).
+5. Start the Docker containers:
+   ```bash
+   docker compose up -d
+   ```
+   This will start the PostgreSQL, MongoDB, MinIO, and pgAdmin containers.
+6. Open the frontend in your browser:
+   - For web: [http://localhost:3000/](http://localhost:3000/)
+   - For mobile: Use Expo Go app on your device or emulator.
+   - For backend API testing, you can use tools like Postman or cURL to interact with the endpoints.
+   - For pgAdmin, open [http://localhost:5050/](http://localhost:5050/) to manage your PostgreSQL database.
+## Project Structure
+- `waveme-app`: Contains the React Native frontend code.
+- `waveme-backend`: Contains the Spring Boot backend code.
+- `config`: Contains configuration files for the project, including environment variables and application properties.
+- `docker-compose.yml`: Docker Compose file to orchestrate the containers.
+- `README.md`: This file, providing an overview and setup instructions for the project.
 
-PGADMIN_EMAIL=admin@waveme.com
-PGADMIN_PASSWORD=your_pgadmin_password
+# Waveme Project Setup Guide
+# Backend Setup
 
-MINIO_ROOT_USER=admin
-MINIO_ROOT_PASSWORD=your_minio_password
-```
-Make sure this file is **not committed** to Git (add it to `.gitignore`).
-## 2. Fill `application.properties`
-In the backend folder, create or update:
-```
-src/main/resources/application.properties
-```
-## 3. Run the setup script
-From the root of the project, run:
+## 📁 Step-by-step Setup
 
-### Linux
-```sh
-chmod +x install-waveme.sh
-./install-waveme.sh
-```
-### Windows
-```ps1
-.\install-waveme.ps1
-```
+### 1. Environment Configuration
 
-This script will:
-* Install MinIO Client (`mc`) if missing
-* Build and start required Docker containers (PostgreSQL, pgAdmin, MinIO)
-* Show your local IP for pgAdmin
-* Ask whether you want to run the backend locally or via Docker
-* Wait for backend to be fully started
-* Insert default roles in the database
-* Create the `waveme` bucket in MinIO
-## 4. Test the backend
-Use Insomnia or Postman to send a request to:
-```http
-POST http://localhost:9080/api/auth/register
+* Copy the `.env` file from the `📁config` folder to the project root.
+* Copy `application.properties` from `📁config` to the backend's `src/main/resources/` folder.
+
+### 2. Start Containers (Except Backend)
+
+```bash
+docker compose up -d
 ```
 
-With this JSON body:
-```json
-{
-  "pseudo": "test",
-  "email": "test@test.com",
-  "password": "teeeeeeeeeeeeeeeeeeest",
-  "role": "ROLE_USER"
-}
+**Do not** start the backend yet.
+
+## 📂 Database Setup
+### 3. PostgreSQL (via pgAdmin)
+
+* Open: [http://localhost:5050/](http://localhost:5050/)
+* Create a **new database**: `waveme`
+* Use the following connection info:
+
+  * **Host**: your local IP (e.g., `192.168.x.x`)
+  * **Username**: `admin`
+  * **Password**: see `📁config`
+
+## 📆 Object Storage – MinIO
+
+* Open: [http://localhost:9001/](http://localhost:9001/)
+
+  * (Port 9000 is for MinIO API – you can ignore it)
+* Create a new **Access Key** named `minio`
+* Copy the generated key and paste it into the backend's `application.properties` under the `access-key` property.
+
+## 🚀 Backend Initialization
+
+* Now start the backend.
+* On first run, it will:
+
+  * Create all required **PostgreSQL** tables
+  * Initialize **MongoDB**
+
+## 🧾 Insert Roles Manually
+
+In the `role` table of PostgreSQL, run:
+```sql
+INSERT INTO role (name) VALUES ('ROLE_USER') ON CONFLICT DO NOTHING;
+INSERT INTO role (name) VALUES ('ROLE_MODERATOR') ON CONFLICT DO NOTHING;
+INSERT INTO role (name) VALUES ('ROLE_ADMIN') ON CONFLICT DO NOTHING;
 ```
+## ⚠️ Warning about MongoDB
+> **Do NOT have MongoDB installed locally.**
+> Since we already run MongoDB in a Docker container, having a local instance may cause **connection conflicts** with the backend.
+> If you have MongoDB installed, please **uninstall it** before proceeding with the Waveme project setup.
 
-You should get a `200 OK` and see the new user in the database.
+# Frontend Setup
+## 📱 Mobile Setup
+1. Open the `waveme-app` folder in your terminal.
+2. Run the following command to install dependencies:
+   ```bash
+   npm install
+   ```
+   or
+   ```bash
+   yarn install
+   ```
+3. Start the Expo development server:
+   ```bash
+   npm start
+   ```
+   or
+   ```bash
+   yarn start
+   ```
+4. Open the Expo Go app on your mobile device or emulator.
+5. Scan the QR code displayed in your terminal or browser to run the app on your device.
+6. If you encounter any issues, ensure that your device is connected to the same network as your development machine.
+7. For web testing, you can run:
+   ```bash
+   npm run web
+   ```
+   or
+   ```bash
+   yarn web
+   ```
+   This will open the app in your default web browser.
 
-✅ You’re now ready to use the Waveme backend!
+## ✅ You're all set!
+You can now start working with the Waveme project locally.
 
-1. How upload a file?
-- Login
-- Retrieve the JWT.
-- Put the JWT in auth -> BearerToken -> Insert in token field.
-- For the body, do as shown on the screen
-![image](https://github.com/user-attachments/assets/25a822d9-55a4-47b8-b073-c8d63c6c6141)
-### Frontend
-1. Go to the project and run `npm i` to install the dependencies.
-2. Go to the URL https://localhost:3000
-3. Finish
 ### You're ready !
