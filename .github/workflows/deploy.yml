@@ -17,7 +17,8 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /opt/Waveme
+            git config --global --add safe.directory /opt/Waveme
             git fetch origin
             git pull origin main
-            docker compose down --remove-orphans
-            docker compose up -d --build
+            docker-compose down --remove-orphans
+            docker-compose up -d --build
