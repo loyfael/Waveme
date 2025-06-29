@@ -66,6 +66,15 @@ services:
       - mongodb-data:/data/db
     ports:
       - "27017:27017"
+  
+  frontend:
+    container_name: waveme-frontend
+    build:
+      context: ./waveme-app
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    restart: unless-stopped
 
 volumes:
   db-data:
