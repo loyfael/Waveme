@@ -20,7 +20,7 @@ jobs:
         username: ${{ secrets.VPS_USER }}
         key: ${{ secrets.VPS_SSH_KEY }}
         source: "."
-        target: "/opt/waveme"
+        target: "/opt/Waveme"
 
     - name: Restart Docker stack
       uses: appleboy/ssh-action@v1.0.3
