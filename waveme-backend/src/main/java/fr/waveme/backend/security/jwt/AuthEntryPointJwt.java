@@ -41,24 +41,26 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {
 
-        // Enregistre un message d'erreur contenant les détails de l'exception d'authentification
         logger.error("Unauthorized error: {}", authException.getMessage());
 
-        // Définit le type de contenu de la réponse à JSON
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        String origin = request.getHeader("Origin");
+        if (origin != null) {
+            response.setHeader("Access-Control-Allow-Origin", origin);
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization, X-Requested-With");
+            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        }
 
-        // Définit le code de statut HTTP à 401 (Non Autorisé)
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        // Prépare un corps de réponse JSON contenant des détails sur l'erreur
         final Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpServletResponse.SC_UNAUTHORIZED); // Code de statut HTTP
-        body.put("error", "Unauthorized"); // Message d'erreur de type "Unauthorized"
-        body.put("message", authException.getMessage()); // Détails du message d'erreur
-        body.put("path", request.getServletPath()); // Chemin de la requête initiale
+        body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
+        body.put("error", "Unauthorized");
+        body.put("message", authException.getMessage());
+        body.put("path", request.getServletPath());
 
-        // Crée un objet ObjectMapper pour convertir la Map en JSON et l'envoyer dans la réponse
         final ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(response.getOutputStream(), body); // Écrit le JSON dans le flux de sortie de la réponse
+        mapper.writeValue(response.getOutputStream(), body);
     }
 }
