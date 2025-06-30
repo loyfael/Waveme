@@ -1,3 +1,4 @@
 .vscode
 .env
 docker-compose.yml
+/waveme-app/ssl
