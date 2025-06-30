@@ -23,6 +23,8 @@ import org.springframework.web.filter.CorsFilter;
 
 import java.util.List;
 
+import static org.springframework.http.HttpMethod.OPTIONS;
+
 /**
  * WebSecurityConfig is the configuration class for Spring Security.
  * It defines the security settings for the application, including authentication,
@@ -87,6 +89,7 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/error").permitAll()
+                        .requestMatchers(OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
                 );
 
@@ -100,13 +103,7 @@ public class WebSecurityConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of(
-                "http://45.140.164.224",
-                "http://45.140.164.224:80",
-                "http://45.140.164.224:3000",
-                "http://45.140.164.224:443",
-                "http://localhost:3000"
-        ));
+        config.setAllowedOriginPatterns(List.of("http://45.140.164.224*", "http://localhost:3000"));
         config.setAllowedHeaders(List.of(
                 "Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"
         ));
