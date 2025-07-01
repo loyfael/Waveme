@@ -103,7 +103,7 @@ public class WebSecurityConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOriginPatterns(List.of("http://45.140.164.224*", "http://localhost:3000"));
+        config.setAllowedOriginPatterns(List.of("https://45.140.164.224*", "http://localhost:3000"));
         config.setAllowedHeaders(List.of(
                 "Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"
         ));
