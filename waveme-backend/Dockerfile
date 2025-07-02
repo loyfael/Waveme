@@ -1,28 +1,28 @@
-# Étape 1 : Construire l'application
+# Step 1: Build the application using Maven
 FROM maven:3.9.5-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
-# Copier le fichier pom.xml et télécharger les dépendances
+# Copy the pom.xml and download dependencies
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
-# Copier le code source
+# Copy the source code
 COPY src ./src
 
-# Construire l'application
+# Build the application
 RUN mvn clean package -DskipTests
 
-# Étape 2 : Exécuter l'application
+# Step 2: Create the runtime image
 FROM eclipse-temurin:21-jdk
 
 WORKDIR /app
 
-# Copier le JAR depuis l'étape de construction
+# Copy the built JAR file from the build stage
 COPY --from=build /app/target/*.jar app.jar
 
-# Exposer le port de l'application
+# Expose the port the application runs on
 EXPOSE 9998
 
-# Commande pour exécuter l'application
+# Set the entry point for the container
 ENTRYPOINT ["java", "-Dspring.config.location=classpath:/application.properties", "-jar", "app.jar"]
