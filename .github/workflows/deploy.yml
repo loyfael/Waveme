@@ -5,15 +5,25 @@ on:
     workflows: ["Test Backend"]
     types:
       - completed
+  workflow_dispatch:  # Permet le déclenchement manuel
 
 jobs:
   deploy:
-    if: >
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_branch == 'main'
+    if: |
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'workflow_run' && 
+       github.event.workflow_run.conclusion == 'success' && 
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
 
     steps:
+      - name: Debug workflow info
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Workflow run conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "Head branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Repository: ${{ github.repository }}"
+          
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
