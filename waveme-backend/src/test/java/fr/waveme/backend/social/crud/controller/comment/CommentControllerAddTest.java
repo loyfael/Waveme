@@ -6,6 +6,7 @@ import fr.waveme.backend.social.crud.models.Comment;
 import fr.waveme.backend.social.crud.models.Post;
 import fr.waveme.backend.social.crud.repository.CommentRepository;
 import fr.waveme.backend.social.crud.repository.PostRepository;
+import fr.waveme.backend.social.crud.repository.UserProfileRepository;
 import fr.waveme.backend.social.crud.repository.react.CommentVoteRepository;
 import fr.waveme.backend.social.crud.sequence.SequenceGeneratorService;
 import fr.waveme.backend.social.crud.service.CommentService;
@@ -29,6 +30,7 @@ public class CommentControllerAddTest {
     JwtUtils jwtUtils = mock(JwtUtils.class);
     SequenceGeneratorService sequence = mock(SequenceGeneratorService.class);
     CommentVoteRepository commentVoteRepository = mock(CommentVoteRepository.class);
+    UserProfileRepository userProfileRepository = mock(UserProfileRepository.class);
 
     // Typage par interface, instanciation par implémentation
     CommentService commentService = new CommentServiceImpl(
@@ -36,7 +38,8 @@ public class CommentControllerAddTest {
             postRepository,
             jwtUtils,
             sequence,
-            commentVoteRepository
+            commentVoteRepository,
+            userProfileRepository
     );
 
     CommentController controller = new CommentController(commentService);
