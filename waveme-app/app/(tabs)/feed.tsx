@@ -1,69 +1,150 @@
-import React, { useState, useEffect, useContext } from 'react'
-import { Pressable, StyleSheet, View } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, ActivityIndicator, Pressable, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { useWebTitle } from '@/hooks/useWebTitle';
-import { Post } from '@/types';
+import { PostMetadataDto } from '../../types/index';
+import { Post } from '../../types';
 import PostList from '@/components/PostList';
 import { ThemedText } from '@/components/theme/ThemedText';
 import { genericButtonStyle } from '@/constants/commonStyles';
 import { useRouter } from 'expo-router';
 import { AuthContext } from '@/context/AuthContext';
+import { getFeedPage } from '@/services/PostAPI';
 
 export default function FeedScreen() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [posts, setPosts] = useState<PostMetadataDto[]>([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
 
-  useWebTitle('Accueil')
-  const router = useRouter()
-  const { user } = useContext(AuthContext)
+  useWebTitle('Accueil');
+  const router = useRouter();
+  const { user } = useContext(AuthContext);
 
-  // NOTE: When connection with backend is established, replace with a fetch request to the correct endpoint
+  // Convert PostMetadataDto to Post format for PostList component
+  const convertToPost = (postMetadata: PostMetadataDto): Post => ({
+    ...postMetadata,
+    description: postMetadata.description || null,
+    user: {
+      id: 'unknown',
+      pseudo: 'Utilisateur',
+      profileImg: null,
+    }
+  });
+
   useEffect(() => {
-    // TODO: Implement when API is good
-    // setPosts([{
-    //   id: 32,
-    //   title: 'Hilarant.',
-    //   meme: require('@/assets/images/meme.png'),
-    //   user: {
-    //     id: 1,
-    //     userName: 'Beiten34',
-    //     userPfp: require('@/assets/images/pfp.png'),
-    //   }
-    // },
-    // {
-    //   id: 33,
-    //   title: 'Repost si tu trouves ça hilarant hahaha trodrol quoi terrible quest-ce que je fais de ma vie jecris littéralement un gros texte pour tester ce que ça donne avec un gros texte et jai la flemme de mettre des backslash du coup je mets juste pas dapostrophe et jai limpression de pas savoir écrire lolool',
-    //   meme: require('@/assets/images/meme.png'),
-    //   user: {
-    //     id: 2,
-    //     userName: 'Beiten34',
-    //     userPfp: require('@/assets/images/pfp.png'),
-    //   }
-    // },
-    // {
-    //   id: 34,
-    //   title: 'Hilarant.',
-    //   meme: require('@/assets/images/meme.png'),
-    //   user: {
-    //     id: 3,
-    //     userName: 'Beiten34',
-    //     userPfp: require('@/assets/images/pfp.png'),
-    //   }
-    // }]);
-    setIsLoading(false)
-  }, []);
+    // Only load posts if user is authenticated
+    if (user) {
+      loadPosts(0, true);
+    } else {
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  const loadPosts = async (pageToLoad: number, isInitial = false) => {
+    if (isFetchingMore || isRefreshing) return;
+    if (pageToLoad >= totalPages && !isInitial) return;
+
+    if (isInitial) setIsLoading(true);
+    else setIsFetchingMore(true);
+
+    try {
+      const response = await getFeedPage(pageToLoad);
+      const newPosts = response.content;
+
+      if (isInitial) {
+        setPosts(newPosts);
+      } else {
+        setPosts(prev => [...prev, ...newPosts]);
+      }
+
+      setPage(response.number + 1);
+      setTotalPages(response.totalPages);
+    } catch (error: any) {
+      console.error('Erreur de chargement des posts', error);
+      
+      // If authentication error, don't set posts
+      if (error.message === 'Authentication required') {
+        setPosts([]);
+      }
+    } finally {
+      setIsLoading(false);
+      setIsFetchingMore(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    loadPosts(0, true);
+  };
+
+  const handleLoadMore = () => {
+    if (!isFetchingMore && page < totalPages) {
+      loadPosts(page);
+    }
+  };
 
   return (
     <>
       {user && (
         <View style={styles.newPost}>
-          <Pressable onPress={() => { router.push('/new') }} style={styles.genericButton}>
+          <Pressable onPress={() => router.push('/new')} style={styles.genericButton}>
             <ThemedText style={styles.genericButtonText} type="defaultBold">
               Nouveau post
             </ThemedText>
           </Pressable>
         </View>
       )}
-      <PostList isLoading={isLoading} posts={posts} setPosts={setPosts} />
+
+      {!user ? (
+        <View style={{ marginTop: 50, alignItems: 'center' }}>
+          <ThemedText type="title">Connectez-vous pour voir le feed</ThemedText>
+          <Pressable 
+            onPress={() => router.push('/login')} 
+            style={[styles.genericButton, { marginTop: 20 }]}
+          >
+            <ThemedText style={styles.genericButtonText} type="defaultBold">
+              Se connecter
+            </ThemedText>
+          </Pressable>
+        </View>
+      ) : isLoading ? (
+        <ActivityIndicator style={{ marginTop: 30 }} size="large" />
+      ) : (
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+          }
+          onScroll={({ nativeEvent }) => {
+            const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+            const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
+            if (isCloseToBottom && !isFetchingMore && page < totalPages) {
+              handleLoadMore();
+            }
+          }}
+          scrollEventThrottle={400}
+        >
+          <PostList 
+            isLoading={false}
+            posts={posts.map(convertToPost)}
+            setPosts={(newPosts: Post[]) => {
+              // Convert back to PostMetadataDto format if needed
+              setPosts(newPosts.map(p => ({
+                postUniqueId: p.postUniqueId,
+                imageUrl: p.imageUrl,
+                description: p.description || '',
+                upVote: p.upVote,
+                downVote: p.downVote,
+                voteSum: p.voteSum,
+                createdAt: p.createdAt
+              })));
+            }}
+          />
+          {isFetchingMore && <ActivityIndicator size="large" style={{ marginVertical: 20 }} />}
+        </ScrollView>
+      )}
     </>
   );
 }
@@ -75,6 +156,6 @@ const newPostStyle = StyleSheet.create({
     marginTop: 25,
     width: 200,
   },
-})
+});
 
-const styles = { ...newPostStyle, ...genericButtonStyle }
+const styles = { ...newPostStyle, ...genericButtonStyle };

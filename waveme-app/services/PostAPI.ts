@@ -2,7 +2,8 @@ import { NewPost } from "@/types";
 import { refreshAuthIfNeeded } from "./AuthToken";
 import axios from "axios";
 import { API_URL, BASE_SERVER_URL, POST_URL } from "@/constants/API";
-import { payloadToFormData } from "@/utils/api";
+import { payloadToFormData } from "@/utils/formData";
+import { PostPageDto } from "../types/index";
 
 export async function createPost(payload: NewPost) {
   const formData = payloadToFormData(payload)
@@ -46,11 +47,19 @@ export async function downloadImage() {
 
 export async function votePost(postId: number | string, upvote: boolean) {
   return refreshAuthIfNeeded(() => {
-    // We use the form-data header instead of the FormData class instance because the latter doesn't support boolean values
-    return axios.post(
-      `${POST_URL}/${postId}/vote`,
-      { upvote },
-      { headers: { "Content-Type": "multipart/form-data" }},
-    )
+    return axios.post(`${POST_URL}/${postId}/vote?upvote=${upvote}`)
   })
 }
+
+export const getFeedPage = async (page: number): Promise<PostPageDto> => {
+  const response = await refreshAuthIfNeeded(() => {
+    return axios.get(`${API_URL}/feed?page=${page}`);
+  });
+  
+  if (!response) {
+    // Handle the case where refreshAuthIfNeeded returns undefined (401 redirect)
+    throw new Error('Authentication required');
+  }
+  
+  return response.data;
+};

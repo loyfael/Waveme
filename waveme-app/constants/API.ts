@@ -11,3 +11,11 @@ export const REPLIES_URL = `${API_URL}/replies`
 export const REPORT_URL = `${API_URL}/report`
 
 export const THREAD_URL = `${POST_URL}/thread`
+
+// Utility function to build complete image URLs
+export const buildImageUrl = (relativeUrl: string): string => {
+  if (relativeUrl.startsWith('http')) {
+    return relativeUrl; // Already a complete URL
+  }
+  return `${BASE_SERVER_URL}${relativeUrl}`;
+}

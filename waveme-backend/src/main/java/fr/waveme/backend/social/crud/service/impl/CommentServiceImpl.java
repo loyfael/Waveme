@@ -25,6 +25,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -80,24 +81,60 @@ public class CommentServiceImpl implements CommentService {
     public ResponseEntity<String> voteComment(Long commentUniqueId, boolean upvote, String token) {
         String userId = jwtUtils.getSocialUserIdFromJwtToken(token);
 
-        if (commentVoteRepository.existsByCommentIdAndUserId(commentUniqueId, userId)) {
-            return ResponseEntity.status(FORBIDDEN).body("Vous avez déjà voté pour ce commentaire.");
-        }
-
         Comment comment = commentRepository.findByCommentUniqueId(commentUniqueId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Comment not found"));
 
-        CommentVote vote = new CommentVote();
-        vote.setCommentId(commentUniqueId);
-        vote.setUserId(userId);
-        vote.setUpvote(upvote);
-        commentVoteRepository.save(vote);
+        // Chercher si l'utilisateur a déjà voté sur ce commentaire
+        Optional<CommentVote> existingVoteOpt = commentVoteRepository.findByCommentIdAndUserId(commentUniqueId, userId);
 
-        if (upvote) comment.setUpVote(comment.getUpVote() + 1);
-        else comment.setDownVote(comment.getDownVote() + 1);
+        if (existingVoteOpt.isPresent()) {
+            CommentVote existingVote = existingVoteOpt.get();
+            
+            // L'utilisateur a déjà voté
+            if (existingVote.isUpvote() == upvote) {
+                // Même type de vote - on annule le vote
+                commentVoteRepository.delete(existingVote);
+                
+                if (upvote) {
+                    comment.setUpVote(Math.max(0, comment.getUpVote() - 1));
+                } else {
+                    comment.setDownVote(Math.max(0, comment.getDownVote() - 1));
+                }
+                
+                commentRepository.save(comment);
+                return ResponseEntity.ok("Vote annulé");
+            } else {
+                // Type de vote différent - on change le vote
+                existingVote.setUpvote(upvote);
+                commentVoteRepository.save(existingVote);
+                
+                if (upvote) {
+                    // Changement vers upvote
+                    comment.setUpVote(comment.getUpVote() + 1);
+                    comment.setDownVote(Math.max(0, comment.getDownVote() - 1));
+                } else {
+                    // Changement vers downvote
+                    comment.setDownVote(comment.getDownVote() + 1);
+                    comment.setUpVote(Math.max(0, comment.getUpVote() - 1));
+                }
+                
+                commentRepository.save(comment);
+                return ResponseEntity.ok("Vote modifié");
+            }
+        } else {
+            // Nouveau vote
+            CommentVote vote = new CommentVote();
+            vote.setCommentId(commentUniqueId);
+            vote.setUserId(userId);
+            vote.setUpvote(upvote);
+            commentVoteRepository.save(vote);
 
-        commentRepository.save(comment);
-        return ResponseEntity.ok("Vote enregistré");
+            if (upvote) comment.setUpVote(comment.getUpVote() + 1);
+            else comment.setDownVote(comment.getDownVote() + 1);
+
+            commentRepository.save(comment);
+            return ResponseEntity.ok("Vote enregistré");
+        }
     }
 
     public ResponseEntity<?> getCommentVotes(Long commentUniqueId) {

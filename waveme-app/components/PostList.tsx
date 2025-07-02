@@ -26,7 +26,7 @@ type PostListProps = {
 }
 
 export default function PostList(props: PostListProps) {
-  const [voteStates, setVoteStates] = useState<{ [key: string]: number }>({})
+  const [voteStates, setVoteStates] = useState<{ [key: number]: number | string }>({})
   const [reportModalOpen, setReportModalOpen] = useState(false)
   const [reportedContent, setReportedContent] = useState<"post" | "comment">("post")
   const [reportedUser, setReportedUser] = useState("")
@@ -72,21 +72,96 @@ export default function PostList(props: PostListProps) {
     setReportModalOpen(true)
   }
 
-  const handleVotePost = (postId: number, upvote: boolean, index: number) => {
-    votePost(postId, upvote)
-      .catch((err) => {
-        console.error(err)
-      })
-      .then(() => {
-        let newList = props.posts
-        newList[index] = {
-          ...newList[index],
-          voteSum: upvote ? newList[index].voteSum + 1 : newList[index].voteSum - 1,
-          upVote: upvote ? newList[index].upVote + 1 : newList[index].upVote,
-          downVote: !upvote ? newList[index].downVote + 1 : newList[index].downVote,
-        }
-        props.setPosts(newList)
-      })
+  const handleVotePost = async (postId: number, upvote: boolean, index: number) => {
+    // Prevent multiple votes while processing
+    if (voteStates[postId] === 'loading') return;
+    
+    const currentVoteState = typeof voteStates[postId] === 'number' ? voteStates[postId] : 0; // 0: no vote, 1: upvote, -1: downvote
+    const newVoteState = upvote ? 1 : -1;
+    
+    // If clicking the same vote, remove it (toggle off)
+    if (currentVoteState === newVoteState) {
+      setVoteStates(prev => ({ ...prev, [postId]: 0 }));
+      
+      // Update post data for vote removal
+      let newList = [...props.posts];
+      const post = newList[index];
+      
+      // Calculate changes for vote removal
+      let voteChange = currentVoteState === 1 ? -1 : 1; // Remove the previous vote
+      let upVoteChange = currentVoteState === 1 ? -1 : 0;
+      let downVoteChange = currentVoteState === -1 ? -1 : 0;
+      
+      newList[index] = {
+        ...post,
+        voteSum: post.voteSum + voteChange,
+        upVote: post.upVote + upVoteChange,
+        downVote: post.downVote + downVoteChange,
+      };
+      
+      props.setPosts(newList);
+      return;
+    }
+    
+    // If changing vote type or voting for first time
+    setVoteStates(prev => ({ ...prev, [postId]: 'loading' }));
+    
+    try {
+      await votePost(postId, upvote);
+      
+      // Update vote state
+      setVoteStates(prev => ({ ...prev, [postId]: newVoteState }));
+      
+      // Update post data
+      let newList = [...props.posts];
+      const post = newList[index];
+      
+      // Calculate vote changes
+      let voteChange = 0;
+      let upVoteChange = 0;
+      let downVoteChange = 0;
+      
+      if (currentVoteState === 0) {
+        // First vote
+        voteChange = upvote ? 1 : -1;
+        upVoteChange = upvote ? 1 : 0;
+        downVoteChange = upvote ? 0 : 1;
+      } else if (currentVoteState === 1 && !upvote) {
+        // Changed from upvote to downvote
+        voteChange = -2;
+        upVoteChange = -1;
+        downVoteChange = 1;
+      } else if (currentVoteState === -1 && upvote) {
+        // Changed from downvote to upvote
+        voteChange = 2;
+        upVoteChange = 1;
+        downVoteChange = -1;
+      }
+      
+      newList[index] = {
+        ...post,
+        voteSum: post.voteSum + voteChange,
+        upVote: post.upVote + upVoteChange,
+        downVote: post.downVote + downVoteChange,
+      };
+      
+      props.setPosts(newList);
+    } catch (err: any) {
+      console.error('Vote error:', err);
+      
+      // Handle specific error types
+      if (err?.response?.status === 403) {
+        console.log('Vote forbidden - User may not have permission to vote on this post');
+        // You might want to show a user-friendly message here
+      } else if (err?.response?.status === 401) {
+        console.log('Vote unauthorized - User needs to log in');
+      } else {
+        console.log('Unknown vote error:', err?.response?.status, err?.message);
+      }
+      
+      // Reset vote state on error
+      setVoteStates(prev => ({ ...prev, [postId]: currentVoteState }));
+    }
   }
 
   useEffect(() => {
@@ -108,28 +183,32 @@ export default function PostList(props: PostListProps) {
     }
     loadAllImages()
 
+    // Only load votes when posts are initially loaded (not on subsequent updates)
     const loadAllVotes = async () => {
-      let upvoteStates: { [key: string]: number } = {}
-      if (props.posts) {
-        await Promise.all(
-          props.posts.map(async (post) => {
-            await getPostVotes(post.postUniqueId)
-              .catch((err) => {
-                console.error(err)
-              })
-              .then(({ data }) => {
-                if (data.upvoters.map((upvoter: UserInfoLesser) => upvoter.id).includes(user?.id)) {
-                  upvoteStates[post.postUniqueId] = 1
-                } else if (data.downvoters.map((downvoter: UserInfoLesser) => downvoter.id).includes(user?.id)) {
-                  upvoteStates[post.postUniqueId] = -1
-                } else {
-                  upvoteStates[post.postUniqueId] = 0
-                }
-              })
-          })
-        )
+      // Only load votes if voteStates is empty (initial load)
+      if (Object.keys(voteStates).length === 0) {
+        let upvoteStates: { [key: number]: number } = {}
+        if (props.posts) {
+          await Promise.all(
+            props.posts.map(async (post) => {
+              await getPostVotes(post.postUniqueId)
+                .catch((err) => {
+                  console.error(err)
+                })
+                .then(({ data }) => {
+                  if (data.upvoters.map((upvoter: UserInfoLesser) => upvoter.id).includes(user?.id)) {
+                    upvoteStates[post.postUniqueId] = 1
+                  } else if (data.downvoters.map((downvoter: UserInfoLesser) => downvoter.id).includes(user?.id)) {
+                    upvoteStates[post.postUniqueId] = -1
+                  } else {
+                    upvoteStates[post.postUniqueId] = 0
+                  }
+                })
+            })
+          )
+        }
+        setVoteStates(upvoteStates)
       }
-      setVoteStates(upvoteStates)
     }
     loadAllVotes()
 
@@ -140,8 +219,6 @@ export default function PostList(props: PostListProps) {
       })
     }
   }, [props.posts])
-
-  useEffect(() => { console.log(voteStates) }, [voteStates])
 
   return (
     <>

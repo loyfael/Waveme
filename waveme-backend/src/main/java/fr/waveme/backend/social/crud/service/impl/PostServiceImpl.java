@@ -30,6 +30,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -128,24 +129,60 @@ public class PostServiceImpl implements PostService {
     public ResponseEntity<String> votePost(Long postUniqueId, boolean upvote, String token) {
         String userId = jwtUtils.getSocialUserIdFromJwtToken(token);
 
-        if (postVoteRepository.existsByPostIdAndUserId(postUniqueId, userId)) {
-            return ResponseEntity.status(FORBIDDEN).body("Vous avez déjà voté pour ce post.");
-        }
-
         Post post = postRepository.findByPostUniqueId(postUniqueId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Post not found"));
 
-        PostVote vote = new PostVote();
-        vote.setPostId(postUniqueId);
-        vote.setUserId(userId);
-        vote.setUpvote(upvote);
-        postVoteRepository.save(vote);
+        // Chercher si l'utilisateur a déjà voté sur ce post
+        Optional<PostVote> existingVoteOpt = postVoteRepository.findByPostIdAndUserId(postUniqueId, userId);
 
-        if (upvote) post.setUpVote(post.getUpVote() + 1);
-        else post.setDownVote(post.getDownVote() + 1);
+        if (existingVoteOpt.isPresent()) {
+            PostVote existingVote = existingVoteOpt.get();
+            
+            // L'utilisateur a déjà voté
+            if (existingVote.isUpvote() == upvote) {
+                // Même type de vote - on annule le vote
+                postVoteRepository.delete(existingVote);
+                
+                if (upvote) {
+                    post.setUpVote(Math.max(0, post.getUpVote() - 1));
+                } else {
+                    post.setDownVote(Math.max(0, post.getDownVote() - 1));
+                }
+                
+                postRepository.save(post);
+                return ResponseEntity.ok("Vote annulé");
+            } else {
+                // Type de vote différent - on change le vote
+                existingVote.setUpvote(upvote);
+                postVoteRepository.save(existingVote);
+                
+                if (upvote) {
+                    // Changement vers upvote
+                    post.setUpVote(post.getUpVote() + 1);
+                    post.setDownVote(Math.max(0, post.getDownVote() - 1));
+                } else {
+                    // Changement vers downvote
+                    post.setDownVote(post.getDownVote() + 1);
+                    post.setUpVote(Math.max(0, post.getUpVote() - 1));
+                }
+                
+                postRepository.save(post);
+                return ResponseEntity.ok("Vote modifié");
+            }
+        } else {
+            // Nouveau vote
+            PostVote vote = new PostVote();
+            vote.setPostId(postUniqueId);
+            vote.setUserId(userId);
+            vote.setUpvote(upvote);
+            postVoteRepository.save(vote);
 
-        postRepository.save(post);
-        return ResponseEntity.ok("Vote enregistré");
+            if (upvote) post.setUpVote(post.getUpVote() + 1);
+            else post.setDownVote(post.getDownVote() + 1);
+
+            postRepository.save(post);
+            return ResponseEntity.ok("Vote enregistré");
+        }
     }
 
     public ResponseEntity<?> getPostVotes(Long postUniqueId) {

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { refreshAuthIfNeeded } from "./AuthToken";
 import { API_URL, USER_URL } from "@/constants/API";
-import { payloadToFormData } from "@/utils/api";
+import { payloadToFormData } from "@/utils/formData";
 
 export async function getCurrentUser() {
   return refreshAuthIfNeeded(() => {    
