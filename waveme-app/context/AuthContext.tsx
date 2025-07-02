@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }: ChildrenProps) => {
     const getTokenFromStorage = async () => {
       const token = await getLocalStorage("authToken")
       if (token) {
-        axios.defaults.headers.common["Authorization"] = token
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
         reloadUser()
       }
     }
