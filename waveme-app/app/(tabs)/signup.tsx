@@ -2,13 +2,14 @@ import { InvalidFieldTooltip } from "@/components/InvalidFieldTooltip";
 import { ThemedText } from "@/components/theme/ThemedText";
 import { ThemedTextInput } from "@/components/theme/ThemedTextInput";
 import { authStyle, genericButtonStyle } from "@/constants/commonStyles";
+import { AuthContext } from "@/context/AuthContext";
 import { useWebTitle } from "@/hooks/useWebTitle";
 import { signup } from "@/services/AuthAPI";
 import { InvalidTooltip, SignupCredentials } from "@/types";
 import { getIncorrectLengthFields, getMissingFields } from "@/utils/formChecks";
 import { validate } from "email-validator";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Pressable, View, TouchableOpacity } from 'react-native'
 
 export default function Signup() {
@@ -23,6 +24,14 @@ export default function Signup() {
   
   useWebTitle('Inscription')
   const router = useRouter()
+  const { user } = useContext(AuthContext)
+
+  // Redirection automatique si l'utilisateur est déjà connecté
+  useEffect(() => {
+    if (user) {
+      router.replace('/feed')
+    }
+  }, [user, router])
 
   const handleSubmit = async (): Promise<void> => {
     const missingFields = getMissingFields(credentials)

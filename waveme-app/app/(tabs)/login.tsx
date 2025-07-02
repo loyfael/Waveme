@@ -8,7 +8,7 @@ import { authenticate } from "@/services/AuthAPI";
 import { InvalidTooltip, LoginCredentials } from "@/types";
 import { getMissingFields } from "@/utils/formChecks";
 import { useRouter } from "expo-router";
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Pressable, TouchableOpacity, View } from "react-native";
 
 export default function Login() {
@@ -18,7 +18,14 @@ export default function Login() {
 
   useWebTitle('Connexion')
   const router = useRouter()
-  const { reloadUser } = useContext(AuthContext)
+  const { user, reloadUser } = useContext(AuthContext)
+
+  // Redirection automatique si l'utilisateur est déjà connecté
+  useEffect(() => {
+    if (user) {
+      router.replace('/feed')
+    }
+  }, [user, router])
 
   const handleLogin = async () => {
     const missingFields = getMissingFields(credentials)
