@@ -2,7 +2,7 @@ import axios from "axios"
 import { refreshAuthIfNeeded } from "./AuthToken"
 import { COMMENT_URL, REPLIES_URL, THREAD_URL } from "@/constants/API"
 import { NewMessage } from "@/types"
-import { payloadToFormData } from "@/utils/api"
+import { payloadToFormData } from "@/utils/formData"
 
 export async function addComment(payload: NewMessage, postId: string | number) {
   const formData = payloadToFormData(payload)
