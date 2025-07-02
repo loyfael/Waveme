@@ -82,8 +82,6 @@ export default function PostList(props: PostListProps) {
     // If clicking the same vote, remove it (toggle off)
     if (currentVoteState === newVoteState) {
       setVoteStates(prev => ({ ...prev, [postId]: 0 }));
-      // TODO: Implement removeVote API call when backend supports it
-      console.log('Remove vote not implemented yet - vote toggled off locally');
       
       // Update post data for vote removal
       let newList = [...props.posts];
