@@ -5,6 +5,8 @@
     "strict": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "types": ["node", "expo", "expo-router"],
     "paths": {
       "@/*": [
         "./*"
@@ -15,6 +17,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "expo-env.d.ts",
+    "types/global.d.ts"
   ]
 }
