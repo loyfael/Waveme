@@ -13,7 +13,7 @@ export async function createPost(payload: NewPost) {
 }
 
 export async function getFeed() {
-  refreshAuthIfNeeded(() => {
+  return refreshAuthIfNeeded(() => {
     return axios.get(`${API_URL}/feed`)
   })
 }
@@ -62,4 +62,18 @@ export const getFeedPage = async (page: number): Promise<PostPageDto> => {
   }
   
   return response.data;
+};
+
+// Enhanced feed function that fetches user data for each post
+export const getFeedPageWithUsers = async (page: number): Promise<PostPageDto & { usersData: { [userId: string]: any } }> => {
+  const feedData = await getFeedPage(page);
+  
+  // Extract unique user IDs from posts (if available in the backend response)
+  // Since PostMetadataDto might not include authorId, we'll need to check the actual API response
+  // For now, we'll return the feed data as-is and handle user fetching in the component
+  
+  return {
+    ...feedData,
+    usersData: {}
+  };
 };

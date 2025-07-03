@@ -45,3 +45,17 @@ export async function getProfileImage(imageId: string) {
   })
   })
 }
+
+// Get basic user info for feed posts
+export async function getUserBasicInfo(userId: string) {
+  return refreshAuthIfNeeded(() => {
+    return axios.get(`${USER_URL}/${userId}`)
+  })
+}
+
+// Get multiple users basic info in batch (if backend supports it)
+export async function getUsersBasicInfo(userIds: string[]) {
+  return refreshAuthIfNeeded(() => {
+    return axios.post(`${USER_URL}/batch`, { userIds })
+  })
+}

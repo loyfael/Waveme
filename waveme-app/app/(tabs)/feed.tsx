@@ -26,9 +26,9 @@ export default function FeedScreen() {
   const convertToPost = (postMetadata: PostMetadataDto): Post => ({
     ...postMetadata,
     description: postMetadata.description || null,
-    user: {
+    user: postMetadata.user || {
       id: 'unknown',
-      pseudo: 'Utilisateur',
+      pseudo: 'Utilisateur inconnu',
       profileImg: null,
     }
   });
@@ -52,6 +52,14 @@ export default function FeedScreen() {
     try {
       const response = await getFeedPage(pageToLoad);
       const newPosts = response.content;
+
+      // Debug: Log what the API returns
+      console.log('Feed API response:', {
+        postsCount: newPosts.length,
+        firstPost: newPosts[0],
+        hasUserData: newPosts.map(p => !!p.user),
+        userInfo: newPosts.map(p => p.user)
+      });
 
       if (isInitial) {
         setPosts(newPosts);
@@ -138,7 +146,8 @@ export default function FeedScreen() {
                 upVote: p.upVote,
                 downVote: p.downVote,
                 voteSum: p.voteSum,
-                createdAt: p.createdAt
+                createdAt: p.createdAt,
+                user: p.user // IMPORTANT: Conserver les informations utilisateur
               })));
             }}
           />

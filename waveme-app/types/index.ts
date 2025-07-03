@@ -6,6 +6,20 @@ export interface PostMetadataDto {
   downVote: number;
   voteSum: number;
   createdAt: string;
+  // Based on backend code, these should be included
+  user?: {
+    id: string;
+    pseudo: string;
+    profileImg: string | null;
+  };
+}
+
+export interface PostMetadataWithUserDto extends PostMetadataDto {
+  user: {
+    id: string;
+    pseudo: string;
+    profileImg: string | null;
+  };
 }
 
 export interface PostPageDto {

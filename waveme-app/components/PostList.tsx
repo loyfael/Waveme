@@ -270,7 +270,7 @@ export default function PostList(props: PostListProps) {
                   onPressOut={() => fadeButtonToIdle(animatedButton2)}
                   onPress={() => { router.push(`/post/${post.postUniqueId}`) }}>
                   <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor2 }}>
-                    <Ionicons name="chatbubble" color={Colors.common.memeActionBar} size={30} />
+                    <Ionicons name="chatbubbles" color={Colors.common.memeActionBar} size={30} />
                   </Animated.View>
                 </AnimatedButton>
                 <AnimatedButton
@@ -281,7 +281,7 @@ export default function PostList(props: PostListProps) {
                     ...styles.barButton,
                     backgroundColor: voteStates[post.postUniqueId] === 1 ? Colors.common.upvote : backgroundColor3
                   }}>
-                    <Ionicons name="arrow-up" color={Colors.common.memeActionBar} size={36} />
+                    <Ionicons name="chevron-up" color={Colors.common.memeActionBar} size={36} />
                   </Animated.View>
                 </AnimatedButton>
                 <AnimatedButton
@@ -292,7 +292,7 @@ export default function PostList(props: PostListProps) {
                     ...styles.barButton,
                     backgroundColor: voteStates[post.postUniqueId] === -1 ? Colors.common.downvote : backgroundColor3
                   }}>
-                    <Ionicons name="arrow-down" color={Colors.common.memeActionBar} size={36} />
+                    <Ionicons name="chevron-down" color={Colors.common.memeActionBar} size={36} />
                   </Animated.View>
                 </AnimatedButton>
               </View>

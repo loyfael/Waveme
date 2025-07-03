@@ -39,13 +39,15 @@ export default function UserScreen() {
 
   useEffect(() => {
     const handleFetchUser = async () => {
-      await getUser(userId as string)
-        .catch((err) => {
-          console.error(err);
-        })
-        .then((response) => {
-          setUser(response.data)
-        })
+      try {
+        const response = await getUser(userId as string);
+        if (response && response.data) {
+          setUser(response.data);
+        }
+      } catch (err) {
+        console.error('Error fetching user:', err);
+        setUser(null); // Set to null to show error state
+      }
     }
     handleFetchUser()
   }, [userId])
@@ -62,7 +64,14 @@ export default function UserScreen() {
 
   return (
     <>
-      {user ? (
+      {user === undefined ? (
+        <Loading />
+      ) : user === null ? (
+        <View style={styles.errorWrapper}>
+          <ThemedText type="title">Utilisateur introuvable</ThemedText>
+          <ThemedText>L'utilisateur que vous cherchez n'existe pas ou n'est plus disponible.</ThemedText>
+        </View>
+      ) : (
         <>
           <View style={styles.userWrapper}>
             {user?.profileImg ? (
@@ -130,7 +139,7 @@ export default function UserScreen() {
             </Pressable>
           </View>
         </>
-      ) : (<Loading />)}
+      )}
     </>
   )
 }
@@ -141,6 +150,15 @@ const localStyles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 80,
     marginBottom: 50,
+  },
+
+  errorWrapper: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 80,
+    marginBottom: 50,
+    padding: 20,
   },
 
   userPfp: {
