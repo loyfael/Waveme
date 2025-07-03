@@ -2,11 +2,9 @@ import React, { useContext, useEffect, useState } from "react";
 import { Loading } from "./Loading";
 import { ThemedView } from "./theme/ThemedView";
 import { Animated, View, Image, Pressable } from "react-native";
-import { BiSolidDownArrowAlt, BiSolidUpArrowAlt } from "react-icons/bi";
 import { Colors } from "@/constants/Colors";
 import { fadeButtonToClicked, fadeButtonToIdle } from "@/utils/animateButton";
-import { ChatDotsFill } from "react-bootstrap-icons";
-import { Entypo, MaterialIcons } from "@expo/vector-icons";
+import { Entypo, MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { memeStyle } from "@/constants/commonStyles";
 import { ThemedText } from "./theme/ThemedText";
 import { useAnimatedButton } from "@/hooks/useAnimatedButton";
@@ -272,7 +270,7 @@ export default function PostList(props: PostListProps) {
                   onPressOut={() => fadeButtonToIdle(animatedButton2)}
                   onPress={() => { router.push(`/post/${post.postUniqueId}`) }}>
                   <Animated.View style={{ ...styles.barButton, backgroundColor: backgroundColor2 }}>
-                    <ChatDotsFill color={Colors.common.memeActionBar} size={30} />
+                    <Ionicons name="chatbubble" color={Colors.common.memeActionBar} size={30} />
                   </Animated.View>
                 </AnimatedButton>
                 <AnimatedButton
@@ -283,7 +281,7 @@ export default function PostList(props: PostListProps) {
                     ...styles.barButton,
                     backgroundColor: voteStates[post.postUniqueId] === 1 ? Colors.common.upvote : backgroundColor3
                   }}>
-                    <BiSolidUpArrowAlt color={Colors.common.memeActionBar} size={36} />
+                    <Ionicons name="arrow-up" color={Colors.common.memeActionBar} size={36} />
                   </Animated.View>
                 </AnimatedButton>
                 <AnimatedButton
@@ -294,7 +292,7 @@ export default function PostList(props: PostListProps) {
                     ...styles.barButton,
                     backgroundColor: voteStates[post.postUniqueId] === -1 ? Colors.common.downvote : backgroundColor3
                   }}>
-                    <BiSolidDownArrowAlt color={Colors.common.memeActionBar} size={36} />
+                    <Ionicons name="arrow-down" color={Colors.common.memeActionBar} size={36} />
                   </Animated.View>
                 </AnimatedButton>
               </View>

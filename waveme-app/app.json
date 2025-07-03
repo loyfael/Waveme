@@ -30,7 +30,10 @@
       "favicon": "./assets/images/waveme.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-asset",
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

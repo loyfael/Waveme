@@ -4,8 +4,7 @@ import { Modal, Pressable, StyleSheet, TouchableOpacity, View } from "react-nati
 import { ThemedView } from "./theme/ThemedView";
 import { ThemedText } from "./theme/ThemedText";
 import { ThemedTextInput } from "./theme/ThemedTextInput";
-import SelectDropdown from "react-native-select-dropdown";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import ThemedSelectDropdown from "./ThemedSelectDropdown";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ReasonValues, ReportedContent } from "@/types";
 import { reportContent } from "@/services/ModerationAPI";
@@ -24,7 +23,6 @@ export default function ReportModal(props: ReportModalProps) {
   const [reason, setReason] = useState<ReasonValues | null>(null)
 
   const iconColor = useThemeColor({}, "icon")
-  const backgroundColor = useThemeColor({}, "background")
 
   let reportTitle: string
   let reportMessage: string
@@ -97,29 +95,10 @@ export default function ReportModal(props: ReportModalProps) {
                   <ThemedText type="defaultBold">{reportContext}</ThemedText>
                 </View>
               ) : ""}
-              <SelectDropdown
+              <ThemedSelectDropdown
                 data={reportReasons}
-                onSelect={(selectedItem) => { setReason(selectedItem.value) }}
-                renderButton={(selectedItem, isOpened) => {
-                  return (
-                    <View style={{ ...styles.dropdownButtonStyle, borderColor: iconColor }}>
-                      <ThemedText style={styles.dropdownButtonTxtStyle}>
-                        {(selectedItem && selectedItem.title) || 'Raison du signalement'}
-                      </ThemedText>
-                      <Icon name={isOpened ? 'chevron-up' : 'chevron-down'} style={styles.dropdownButtonArrowStyle} color={iconColor} />
-                    </View>
-                  );
-                }}
-                renderItem={(item, index, isSelected) => {
-                  return (
-                    // For some reason, ThemedView's backgroundColor is ignored but not here
-                    <ThemedView style={{ ...styles.dropdownItemStyle, backgroundColor: backgroundColor }}>
-                      <ThemedText style={styles.dropdownItemTxtStyle}>{item.title}</ThemedText>
-                    </ThemedView>
-                  );
-                }}
-                showsVerticalScrollIndicator={false}
-                dropdownStyle={styles.dropdownMenuStyle}
+                onSelect={(selectedItem) => { setReason(selectedItem.value as ReasonValues) }}
+                placeholder="Raison du signalement"
               />
               <ThemedTextInput placeholder="Commentaire" value={comment} onChangeText={(value) => { setComment(value) }} />
             </View>
@@ -158,52 +137,6 @@ const localStyles = StyleSheet.create({
 
   modalMessageContext: {
     marginVertical: 10,
-  },
-
-  dropdownButtonStyle: {
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 12,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    marginBottom: 12,
-  },
-
-  dropdownButtonTxtStyle: {
-    flex: 1,
-  },
-
-  dropdownButtonArrowStyle: {
-    fontSize: 28,
-  },
-
-  dropdownButtonIconStyle: {
-    fontSize: 28,
-    marginRight: 8,
-  },
-
-  dropdownMenuStyle: {
-    borderRadius: 8,
-  },
-
-  dropdownItemStyle: {
-    width: '100%',
-    flexDirection: 'row',
-    paddingHorizontal: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-
-  dropdownItemTxtStyle: {
-    flex: 1,
-  },
-
-  dropdownItemIconStyle: {
-    fontSize: 28,
-    marginRight: 8,
   },
 })
 

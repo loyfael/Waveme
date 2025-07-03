@@ -2,8 +2,7 @@ import React, { useContext, useEffect, useState } from "react"
 import { Animated, Modal, Pressable, StyleSheet, Switch, TouchableOpacity, View, Image } from "react-native"
 import { ThemedView } from "./theme/ThemedView"
 import { AuthContext } from "@/context/AuthContext"
-import { MaterialIcons } from "@expo/vector-icons"
-import { PencilFill } from "react-bootstrap-icons"
+import { MaterialIcons, Ionicons } from "@expo/vector-icons"
 import { ThemedText } from "./theme/ThemedText"
 import { redirectFromModal } from "@/utils/modals"
 import dayjs from "dayjs"
@@ -87,7 +86,7 @@ export default function ProfileModal(props: ProfileModalProps) {
                   <MaterialIcons name="account-circle" size={150} color={iconColor} style={styles.userPfp} />
                 )}
                 <View style={styles.editPfpButton}>
-                  <PencilFill color="white" size={12} />
+                  <Ionicons name="pencil" color="white" size={12} />
                 </View>
               </Pressable>
               <Pressable onPress={() => { redirectFromModal(`/user/${user.id}`, props.setVisible) }}>

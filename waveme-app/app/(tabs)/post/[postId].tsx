@@ -10,17 +10,15 @@ import { Comment, Post, UserInfoLesser, UserProfilePictures } from "@/types";
 import { memeStyle } from "@/constants/commonStyles";
 import { useAnimatedButton } from "@/hooks/useAnimatedButton";
 import Entypo from "@expo/vector-icons/Entypo";
-import { BiSolidDownArrowAlt, BiSolidUpArrowAlt } from "react-icons/bi";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedTextInput } from "@/components/theme/ThemedTextInput";
-import { IoSend } from "react-icons/io5";
 import { Loading } from "@/components/Loading";
 import ReportModal from "@/components/ReportModal";
 import { useMediaQuery } from "react-responsive";
 import { getPost, getPostVotes, votePost } from "@/services/PostAPI";
 import { addComment, addReply, voteComment, voteReply } from "@/services/CommentAPI";
 import { createLocalUriFromBackUri } from "@/utils/api";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import { AuthContext } from "@/context/AuthContext";
 
@@ -294,7 +292,7 @@ export default function PostScreen() {
                       ...styles.barButton,
                       backgroundColor: postVoteState === 1 ? Colors.common.upvote : backgroundColor3
                     }}>
-                      <BiSolidUpArrowAlt color={Colors.common.memeActionBar} size={36} />
+                      <Ionicons name="arrow-up" color={Colors.common.memeActionBar} size={36} />
                     </Animated.View>
                   </AnimatedButton>
                   <AnimatedButton
@@ -305,7 +303,7 @@ export default function PostScreen() {
                       ...styles.barButton,
                       backgroundColor: postVoteState === -1 ? Colors.common.downvote : backgroundColor3
                     }}>
-                      <BiSolidDownArrowAlt color={Colors.common.memeActionBar} size={36} />
+                      <Ionicons name="arrow-down" color={Colors.common.memeActionBar} size={36} />
                     </Animated.View>
                   </AnimatedButton>
                 </View>
@@ -328,7 +326,7 @@ export default function PostScreen() {
                 />
               </View>
               <Pressable style={styles.sendComment} onPress={handleNewComment}>
-                <IoSend size={32} color={iconColor} />
+                <Ionicons name="send" size={32} color={iconColor} />
               </Pressable>
             </View>
             <View>
@@ -364,7 +362,7 @@ export default function PostScreen() {
                           />
                         </View>
                         <Pressable style={styles.sendComment} onPress={() => { handleNewReply(comment.commentUniqueId) }}>
-                          <IoSend size={32} color={iconColor} />
+                          <Ionicons name="send" size={32} color={iconColor} />
                         </Pressable>
                       </View>
                     )}
