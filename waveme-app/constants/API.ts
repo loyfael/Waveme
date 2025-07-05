@@ -1,8 +1,8 @@
 import { Platform } from "react-native"
 
 // Yes, this is the real server IP. But i'm not sysadmin, i'm developer, and i'm too lazy to update this just for one day
-// TODO: Fix api calls to backend + (dynamic ip for mobile?)
-export const BASE_SERVER_URL = Platform.OS === 'web' ? 'http://127.0.0.1:9998' : 'http://192.168.1.254:9998'
+// NOTE: The second url is a temporary ngrok tunnel url, run `ngrok http 9998` and replace by the URL given on the 'Forwarding' line
+export const BASE_SERVER_URL = 'https://45.140.164.224'
 
 export const API_URL = `${BASE_SERVER_URL}/api`
 

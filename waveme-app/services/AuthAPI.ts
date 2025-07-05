@@ -32,6 +32,9 @@ export async function authenticate(credentials: LoginCredentials) {
       setAxiosToken(response.data.jwt)
       return response.data.token
     })
+    .catch((err) => {
+      console.error(err)
+    })
 }
 
 export async function logout() {

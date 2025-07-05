@@ -56,7 +56,9 @@ export default function UserScreen() {
     if (user && user.profileImg) {
       const fetchProfilePicture = async () => {
         const dataUri = await createLocalUriFromBackUri(user.profileImg as string, "profile")
-        setLoadedProfilePicture(dataUri)
+        if (dataUri) {
+          setLoadedProfilePicture(dataUri)
+        }
       }
       fetchProfilePicture()
     }

@@ -73,52 +73,52 @@ export default function PostList(props: PostListProps) {
   const handleVotePost = async (postId: number, upvote: boolean, index: number) => {
     // Prevent multiple votes while processing
     if (voteStates[postId] === 'loading') return;
-    
+
     const currentVoteState = typeof voteStates[postId] === 'number' ? voteStates[postId] : 0; // 0: no vote, 1: upvote, -1: downvote
     const newVoteState = upvote ? 1 : -1;
-    
+
     // If clicking the same vote, remove it (toggle off)
     if (currentVoteState === newVoteState) {
       setVoteStates(prev => ({ ...prev, [postId]: 0 }));
-      
+
       // Update post data for vote removal
       let newList = [...props.posts];
       const post = newList[index];
-      
+
       // Calculate changes for vote removal
       let voteChange = currentVoteState === 1 ? -1 : 1; // Remove the previous vote
       let upVoteChange = currentVoteState === 1 ? -1 : 0;
       let downVoteChange = currentVoteState === -1 ? -1 : 0;
-      
+
       newList[index] = {
         ...post,
         voteSum: post.voteSum + voteChange,
         upVote: post.upVote + upVoteChange,
         downVote: post.downVote + downVoteChange,
       };
-      
+
       props.setPosts(newList);
       return;
     }
-    
+
     // If changing vote type or voting for first time
     setVoteStates(prev => ({ ...prev, [postId]: 'loading' }));
-    
+
     try {
       await votePost(postId, upvote);
-      
+
       // Update vote state
       setVoteStates(prev => ({ ...prev, [postId]: newVoteState }));
-      
+
       // Update post data
       let newList = [...props.posts];
       const post = newList[index];
-      
+
       // Calculate vote changes
       let voteChange = 0;
       let upVoteChange = 0;
       let downVoteChange = 0;
-      
+
       if (currentVoteState === 0) {
         // First vote
         voteChange = upvote ? 1 : -1;
@@ -135,18 +135,18 @@ export default function PostList(props: PostListProps) {
         upVoteChange = 1;
         downVoteChange = -1;
       }
-      
+
       newList[index] = {
         ...post,
         voteSum: post.voteSum + voteChange,
         upVote: post.upVote + upVoteChange,
         downVote: post.downVote + downVoteChange,
       };
-      
+
       props.setPosts(newList);
     } catch (err: any) {
       console.error('Vote error:', err);
-      
+
       // Handle specific error types
       if (err?.response?.status === 403) {
         console.log('Vote forbidden - User may not have permission to vote on this post');
@@ -156,7 +156,7 @@ export default function PostList(props: PostListProps) {
       } else {
         console.log('Unknown vote error:', err?.response?.status, err?.message);
       }
-      
+
       // Reset vote state on error
       setVoteStates(prev => ({ ...prev, [postId]: currentVoteState }));
     }
@@ -169,10 +169,14 @@ export default function PostList(props: PostListProps) {
       await Promise.all(
         props.posts.map(async (post) => {
           const dataUri = await createLocalUriFromBackUri(post.imageUrl, "post")
-          loadingImages[post.postUniqueId] = dataUri
-          if (post.user.profileImg) {
-            const profilePictureDataUri = await createLocalUriFromBackUri(post.user.profileImg, "profile")
-            loadingProfilePictures[post.user.id] = profilePictureDataUri
+          if (dataUri) {
+            loadingImages[post.postUniqueId] = dataUri
+            if (post.user.profileImg) {
+              const profilePictureDataUri = await createLocalUriFromBackUri(post.user.profileImg, "profile")
+              if (profilePictureDataUri) {
+                loadingProfilePictures[post.user.id] = profilePictureDataUri
+              }
+            }
           }
         })
       )

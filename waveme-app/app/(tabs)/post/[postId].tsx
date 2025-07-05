@@ -172,7 +172,9 @@ export default function PostScreen() {
         setPost(post)
         setComments(comments)
         const dataUri = await createLocalUriFromBackUri(response.data.imageUrl, "post")
-        setLoadedImage(dataUri)
+        if (dataUri) {
+          setLoadedImage(dataUri)
+        }
       })
   }, [postId, reloadPost])
 
@@ -190,7 +192,9 @@ export default function PostScreen() {
               case "post":
                 if (pageProfilePictures.post) {
                   const dataUri = await createLocalUriFromBackUri(pageProfilePictures.post, "profile")
-                  loadingImages.post = dataUri
+                  if (dataUri) {
+                    loadingImages.post = dataUri
+                  }
                 }
                 break
 
@@ -198,7 +202,9 @@ export default function PostScreen() {
                 if (pageProfilePictures.comments) {
                   Object.keys(pageProfilePictures.comments).map(async (comment) => {
                     const dataUri = await createLocalUriFromBackUri(pageProfilePictures.comments[comment], "profile")
-                    loadingImages.comments[comment] = dataUri
+                    if (dataUri) {
+                      loadingImages.comments[comment] = dataUri
+                    }
                   })
                 }
                 break
