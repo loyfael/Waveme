@@ -11,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMediaQuery } from 'react-responsive';
 import { createLocalUriFromBackUri } from '@/utils/api';
 import ProfileModal from '@/components/ProfileModal';
+import { useResponsive } from '@/hooks/useResponsive';
 
 export default function TabLayout() {
   const [showProfileModal, setShowProfileModal] = useState(false)
@@ -21,7 +22,7 @@ export default function TabLayout() {
   const { user } = useContext(AuthContext)
   const router = useRouter()
   const pathname = usePathname()
-  const isSmallScreen = useMediaQuery({ query: '(max-width: 1200px)' })
+  const { isSmallScreen, isVerySmallScreen } = useResponsive()
   const connectionRoutes = ['/login', '/signup']
 
   useEffect(() => {
@@ -38,8 +39,12 @@ export default function TabLayout() {
 
   if (pathname === '/') {
     return (
-      <ThemedView style={styles.homeWrapper}>
-        <Image source={require("@/assets/images/homeLines.svg")} tintColor={textColor} style={styles.homeLines} />
+      <ThemedView style={isVerySmallScreen ? styles.homeWrapperSmallScreen : styles.homeWrapper}>
+        <Image
+          source={require("@/assets/images/homeLines.svg")}
+          tintColor={textColor}
+          style={isVerySmallScreen ? styles.homeLinesSmallScreen : styles.homeLines}
+        />
         <Slot />
       </ThemedView>
     )
@@ -47,31 +52,49 @@ export default function TabLayout() {
   if (connectionRoutes.includes(pathname)) {
     return (
       <ThemedView style={styles.loginWrapper}>
-        <TouchableOpacity style={styles.backToHomepageButton} onPress={() => router.push("/")}>
+        <TouchableOpacity style={isSmallScreen ? styles.backToHomepageButtonSmallScreen : styles.backToHomepageButton} onPress={() => router.push("/")}>
           <Ionicons name="arrow-back-outline" size={32} color={textColor} />
-          <ThemedText type="defaultBold">{isSmallScreen ? "Retour à l'accueil" : "Retourner à la page d'accueil"}</ThemedText>
+          <ThemedText type="defaultBold">{isVerySmallScreen ? "Retour à l'accueil" : "Retourner à la page d'accueil"}</ThemedText>
         </TouchableOpacity>
-        <Image source={require('@/assets/images/waveme.png')} style={styles.loginLogo} />
+        <Image source={require('@/assets/images/waveme.png')} style={isSmallScreen ? styles.loginLogoSmallScreen : styles.loginLogo} />
         <Slot />
       </ThemedView>
     )
   }
   return (
     <ThemedView style={styles.wrapper}>
-      <ThemedView style={isSmallScreen ? styles.leftColumnSmallScreen : styles.leftColumn}>
-        <Pressable style={isSmallScreen ? styles.logoSmallScreen : styles.logo} onPress={() => { router.push("/feed") }}>
-          <Image source={require('@/assets/images/waveme.png')} style={isSmallScreen ? styles.logoSmallScreen : styles.logo} />
+      <ThemedView
+        style={isSmallScreen ? isVerySmallScreen ? styles.leftColumnTinyScreen : styles.leftColumnSmallScreen : styles.leftColumn}
+      >
+        <Pressable
+          style={isSmallScreen ? isVerySmallScreen ? styles.logoTinyScreen : styles.logoSmallScreen : styles.logo}
+          onPress={() => { router.push("/feed") }}
+        >
+          <Image
+            source={require('@/assets/images/waveme.png')}
+            style={isSmallScreen ? isVerySmallScreen ? styles.logoTinyScreen : styles.logoSmallScreen : styles.logo}
+          />
         </Pressable>
       </ThemedView>
       <ScrollView style={styles.main} showsVerticalScrollIndicator={false}>
         <Slot />
       </ScrollView>
-      <ThemedView style={isSmallScreen ? styles.rightColumnSmallScreen : styles.rightColumn}>
+      <ThemedView
+        style={isSmallScreen ? isVerySmallScreen ? styles.rightColumnTinyScreen : styles.rightColumnSmallScreen : styles.rightColumn}
+      >
         <TouchableOpacity onPress={() => setShowProfileModal(true)}>
           {loadedProfilePicture ? (
-            <Image source={{ uri: loadedProfilePicture }} style={styles.account} />
+            <Image
+              source={{ uri: loadedProfilePicture }}
+              style={isSmallScreen ? isVerySmallScreen ? styles.accountTinyScreen : styles.accountSmallScreen : styles.account}
+            />
           ) : (
-            <MaterialIcons name="account-circle" size={70} color={iconColor} style={styles.account} />
+            <MaterialIcons
+              name="account-circle"
+              size={isSmallScreen ? isVerySmallScreen ? 36 : 50 : 70}
+              color={iconColor}
+              style={isSmallScreen ? isVerySmallScreen ? styles.accountTinyScreen : styles.accountSmallScreen : styles.account}
+            />
           )}
         </TouchableOpacity>
       </ThemedView>
@@ -99,10 +122,24 @@ const localStyles = StyleSheet.create({
     gap: 50,
   },
 
+  homeWrapperSmallScreen: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 20,
+  },
+
   homeLines: {
     position: "absolute",
     width: "100%",
     height: "100%",
+  },
+
+  // NOTE: This SVG won't show up on the actual mobile version for limitation reasons and I can't be bothered fixing it
+  homeLinesSmallScreen: {
+    position: "absolute",
+    height: 50,
+    width: 50,
   },
 
   loginWrapper: {
@@ -120,6 +157,15 @@ const localStyles = StyleSheet.create({
     left: 60,
   },
 
+  backToHomepageButtonSmallScreen: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    position: "absolute",
+    top: 60,
+    left: 40,
+  },
+
   leftColumn: {
     flex: 1,
     marginTop: 50,
@@ -128,9 +174,16 @@ const localStyles = StyleSheet.create({
 
   leftColumnSmallScreen: {
     flex: 1,
-    marginBottom: 30,
-    marginLeft: 30,
+    marginBottom: 50,
+    marginLeft: 15,
     justifyContent: "flex-end"
+  },
+
+  leftColumnTinyScreen: {
+    flex: 1,
+    marginBottom: 50,
+    marginLeft: 5,
+    justifyContent: "flex-end",
   },
 
   logo: {
@@ -139,8 +192,13 @@ const localStyles = StyleSheet.create({
   },
 
   logoSmallScreen: {
-    width: 75,
-    height: 75,
+    width: 50,
+    height: 50,
+  },
+
+  logoTinyScreen: {
+    width: 36,
+    height: 36,
   },
 
   loginLogo: {
@@ -150,19 +208,34 @@ const localStyles = StyleSheet.create({
     marginBottom: 50,
   },
 
+  loginLogoSmallScreen: {
+    width: 160,
+    height: 160,
+    marginTop: 100,
+    marginBottom: 10,
+  },
+
   rightColumn: {
     flex: 1,
     alignItems: 'flex-end',
     marginTop: 35,
-    marginEnd: 35,
+    marginRight: 35,
   },
 
   rightColumnSmallScreen: {
     flex: 1,
     alignItems: "flex-end",
     justifyContent: "flex-end",
-    marginBottom: 30,
-    marginEnd: 30,
+    marginBottom: 50,
+    marginRight: 15,
+  },
+
+  rightColumnTinyScreen: {
+    flex: 1,
+    alignItems: "flex-end",
+    justifyContent: "flex-end",
+    marginBottom: 50,
+    marginRight: 5,
   },
 
   account: {
@@ -170,6 +243,20 @@ const localStyles = StyleSheet.create({
     height: 70,
     borderRadius: 35,
     overflow: 'hidden',
+  },
+
+  accountSmallScreen: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    overflow: "hidden",
+  },
+
+  accountTinyScreen: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    overflow: "hidden",
   },
 
   main: {
