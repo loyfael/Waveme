@@ -1,15 +1,17 @@
 import { ThemedText } from "@/components/theme/ThemedText";
 import { genericButtonStyle } from "@/constants/commonStyles";
 import { AuthContext } from "@/context/AuthContext";
+import { useResponsive } from "@/hooks/useResponsive";
 import { useWebTitle } from "@/hooks/useWebTitle";
 import { useRouter } from "expo-router";
 import React, { useContext, useEffect } from "react";
-import { View, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Image, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
 
 export default function HomeScreen() {
   useWebTitle("Bienvenue")
   const router = useRouter()
   const { user } = useContext(AuthContext)
+  const { isVerySmallScreen } = useResponsive()
 
   // Redirection automatique si l'utilisateur est déjà connecté
   useEffect(() => {
@@ -20,7 +22,7 @@ export default function HomeScreen() {
 
   return (
     <>
-      <Image source={require('@/assets/images/waveme.png')} style={styles.homeLogo} />
+      <Image source={require('@/assets/images/waveme.png')} style={isVerySmallScreen ? styles.homeLogoSmallScreen : styles.homeLogo} />
       <View style={styles.homeTextContainer}>
         <ThemedText type="title">WAVEME</ThemedText>
         <ThemedText>Une place pour les créateurs de memes</ThemedText>
@@ -36,6 +38,11 @@ const localStyles = StyleSheet.create({
   homeLogo: {
     width: 240,
     height: 240,
+  },
+
+  homeLogoSmallScreen: {
+    width: 160,
+    height: 160,
   },
 
   homeTextContainer: {

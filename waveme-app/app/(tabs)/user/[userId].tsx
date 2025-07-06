@@ -1,6 +1,7 @@
 import { Loading } from "@/components/Loading";
 import { ThemedText } from "@/components/theme/ThemedText";
 import { Colors } from "@/constants/Colors";
+import { useResponsive } from "@/hooks/useResponsive";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useWebTitle } from "@/hooks/useWebTitle";
 import { getUser } from "@/services/UserAPI";
@@ -11,7 +12,6 @@ import dayjs from "dayjs";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Image, Pressable, ImageSourcePropType, TouchableOpacity } from "react-native";
-import { useMediaQuery } from "react-responsive";
 
 type User = {
   id: number,
@@ -33,7 +33,7 @@ export default function UserScreen() {
   useWebTitle(user?.pseudo ?? "Utilisateur")
   const router = useRouter()
   const { userId } = useLocalSearchParams()
-  const isSmallScreen = useMediaQuery({ query: '(max-width: 1200px)' })
+  const { isSmallScreen } = useResponsive()
   const areaBackgroundColor = useThemeColor({}, "areaBackground")
   const iconColor = useThemeColor({}, "icon")
 
