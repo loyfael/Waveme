@@ -1,5 +1,3 @@
-import { Context as ResponsiveContext } from 'react-responsive';
-import matchMedia from '@expo/match-media';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -44,15 +42,13 @@ export default function RootLayout() {
   }
 
   return (
-    <ResponsiveContext.Provider value={matchMedia}>
-      <ThemeProvider>
-        <AuthProvider>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-        </AuthProvider>
-      </ThemeProvider>
-    </ResponsiveContext.Provider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

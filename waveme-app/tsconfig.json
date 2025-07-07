@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "types": ["node", "expo", "expo-router"],
+    "types": ["node", "expo", "expo-router", "jest"],
     "paths": {
       "@/*": [
         "./*"
