@@ -1,8 +1,10 @@
 import { renderHook } from "@testing-library/react-native"
 import { useWebTitle } from "../useWebTitle"
 
-jest.mock('react-native/Libraries/Utilities/Platform', () => ({
-  OS: 'web',
+jest.mock('react-native', () => ({
+  Platform: {
+    OS: 'web',
+  },
 }));
 
 describe("useWebTitle", () => {

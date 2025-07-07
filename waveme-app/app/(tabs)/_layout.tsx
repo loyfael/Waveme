@@ -8,7 +8,6 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { genericButtonStyle, modalContainerStyle } from '@/constants/commonStyles';
 import { AuthContext } from '@/context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
-import { useMediaQuery } from 'react-responsive';
 import { createLocalUriFromBackUri } from '@/utils/api';
 import ProfileModal from '@/components/ProfileModal';
 import { useResponsive } from '@/hooks/useResponsive';
