@@ -4,7 +4,7 @@ import { View, StyleSheet, TouchableOpacity } from "react-native"
 import { ThemedText } from "./theme/ThemedText"
 import { useRouter } from "expo-router"
 import { useThemeColor } from "@/hooks/useThemeColor"
-import { useMediaQuery } from "react-responsive"
+import { useResponsive } from "@/hooks/useResponsive"
 
 type UserActivityHeaderProps = {
   profileId: string
@@ -15,7 +15,7 @@ export default function UserActivityHeader(props: UserActivityHeaderProps) {
 
   const router = useRouter()
   const textColor = useThemeColor({}, "text")
-  const isSmallScreen = useMediaQuery({ query: '(max-width: 1200px)' })
+  const { isSmallScreen } = useResponsive()
 
   return (
     <View style={styles.userPostsWrapper}>

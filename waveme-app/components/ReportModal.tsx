@@ -8,6 +8,7 @@ import ThemedSelectDropdown from "./ThemedSelectDropdown";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ReasonValues, ReportedContent } from "@/types";
 import { reportContent } from "@/services/ModerationAPI";
+import { useResponsive } from "@/hooks/useResponsive";
 
 type ReportModalProps = {
   visible: boolean,
@@ -22,7 +23,7 @@ export default function ReportModal(props: ReportModalProps) {
   const [comment, setComment] = useState("")
   const [reason, setReason] = useState<ReasonValues | null>(null)
 
-  const iconColor = useThemeColor({}, "icon")
+  const { isVerySmallScreen } = useResponsive()
 
   let reportTitle: string
   let reportMessage: string
@@ -85,7 +86,7 @@ export default function ReportModal(props: ReportModalProps) {
     <Modal visible={props.visible} transparent animationType="fade" onRequestClose={handleClose}>
       <Pressable style={{ ...styles.centeredModalView, ...styles.modalCursorOverride }} onPress={handleClose}>
         <Pressable style={styles.modalCursorOverride}>
-          <ThemedView style={styles.modalView}>
+          <ThemedView style={isVerySmallScreen ? styles.modalViewSmallScreen : styles.modalView}>
             <ThemedText type="title" style={styles.modalTitle}>Signalement d'un{reportTitle}</ThemedText>
             <View style={styles.modalContent}>
               <ThemedText>Vous vous apprêtez à envoyer un signalement {reportMessage}.</ThemedText>
@@ -121,6 +122,17 @@ const localStyles = StyleSheet.create({
     opacity: 0.97,
     flexDirection: 'column',
     alignItems: 'center',
+    borderRadius: 20,
+  },
+
+  modalViewSmallScreen: {
+    width: 300,
+    minHeight: 400,
+    paddingVertical: 30,
+    paddingHorizontal: 60,
+    opacity: 0.97,
+    flexDirection: "column",
+    alignItems: "center",
     borderRadius: 20,
   },
 

@@ -14,13 +14,13 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedTextInput } from "@/components/theme/ThemedTextInput";
 import { Loading } from "@/components/Loading";
 import ReportModal from "@/components/ReportModal";
-import { useMediaQuery } from "react-responsive";
 import { getPost, getPostVotes, votePost } from "@/services/PostAPI";
 import { addComment, addReply, voteComment, voteReply } from "@/services/CommentAPI";
 import { createLocalUriFromBackUri } from "@/utils/api";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import { AuthContext } from "@/context/AuthContext";
+import { useResponsive } from "@/hooks/useResponsive";
 
 export default function PostScreen() {
   const [post, setPost] = useState<Post | null>(null)
@@ -49,7 +49,7 @@ export default function PostScreen() {
   const textColor = useThemeColor({}, 'text')
   const iconColor = useThemeColor({}, "icon")
   const areaBackgroundColor = useThemeColor({}, 'areaBackground')
-  const isSmallScreen = useMediaQuery({ query: '(max-width: 1200px)' })
+  const { isSmallScreen, isVerySmallScreen } = useResponsive()
   const { user } = useContext(AuthContext)
 
   const AnimatedButton = Animated.createAnimatedComponent(Pressable)
@@ -172,7 +172,9 @@ export default function PostScreen() {
         setPost(post)
         setComments(comments)
         const dataUri = await createLocalUriFromBackUri(response.data.imageUrl, "post")
-        setLoadedImage(dataUri)
+        if (dataUri) {
+          setLoadedImage(dataUri)
+        }
       })
   }, [postId, reloadPost])
 
@@ -190,7 +192,9 @@ export default function PostScreen() {
               case "post":
                 if (pageProfilePictures.post) {
                   const dataUri = await createLocalUriFromBackUri(pageProfilePictures.post, "profile")
-                  loadingImages.post = dataUri
+                  if (dataUri) {
+                    loadingImages.post = dataUri
+                  }
                 }
                 break
 
@@ -198,7 +202,9 @@ export default function PostScreen() {
                 if (pageProfilePictures.comments) {
                   Object.keys(pageProfilePictures.comments).map(async (comment) => {
                     const dataUri = await createLocalUriFromBackUri(pageProfilePictures.comments[comment], "profile")
-                    loadingImages.comments[comment] = dataUri
+                    if (dataUri) {
+                      loadingImages.comments[comment] = dataUri
+                    }
                   })
                 }
                 break
@@ -314,12 +320,17 @@ export default function PostScreen() {
           {/* Comments */}
           <ThemedView style={styles.comments}>
             <View style={styles.addComment}>
-              <View style={isSmallScreen ? styles.commentInputContainerSmallScreen : styles.commentInputContainer}>
+              <View
+                style={isSmallScreen
+                  ? isVerySmallScreen
+                    ? styles.commentInputContainerTinyScreen
+                    : styles.commentInputContainerSmallScreen
+                  : styles.commentInputContainer}
+              >
                 <ThemedTextInput
                   value={input}
                   onChangeText={setInput}
                   placeholder="Ajouter un commentaire..."
-                  autoFocus
                   multiline
                   numberOfLines={isSmallScreen ? 3 : 2}
                   style={styles.commentInput}
@@ -353,7 +364,13 @@ export default function PostScreen() {
                   <View style={styles.commentActionsWrapper}>
                     {comment.id === replyFocus && (
                       <View style={styles.replyInputContainer}>
-                        <View style={isSmallScreen ? styles.commentInputContainerSmallScreen : styles.commentInputContainer}>
+                        <View
+                          style={isSmallScreen
+                            ? isVerySmallScreen
+                              ? styles.commentInputContainerTinyScreen
+                              : styles.commentInputContainerSmallScreen
+                            : styles.commentInputContainer}
+                        >
                           <ThemedTextInput
                             value={replyInput}
                             onChangeText={setReplyInput}
@@ -467,11 +484,15 @@ const localStyles = StyleSheet.create({
   },
 
   commentInputContainer: {
-    width: 750,
+    width: 500,
   },
 
   commentInputContainerSmallScreen: {
-    width: 450,
+    width: 300,
+  },
+
+  commentInputContainerTinyScreen: {
+    width: 200,
   },
 
   commentInput: {
@@ -522,6 +543,7 @@ const localStyles = StyleSheet.create({
 
   commentWrapper: {
     marginTop: 15,
+    marginBottom: 30,
   },
 
   viewReplies: {

@@ -1,10 +1,12 @@
 import { getPostImage } from "@/services/PostAPI";
 import { getProfileImage } from "@/services/UserAPI";
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from "expo-file-system"
+import { Platform } from "react-native";
 
 export const detectImageType = (data: any): string => {
   let bytes: Uint8Array = new Uint8Array(data);
-  
+
   // Check magic bytes
   if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) {
     return 'image/jpeg';
@@ -21,7 +23,7 @@ export const detectImageType = (data: any): string => {
       return 'image/webp';
     }
   }
-  
+
   // Default fallback
   return 'image/jpeg';
 }
@@ -35,17 +37,71 @@ export const blobToDataUri = (blob: Blob): Promise<string> => {
   });
 }
 
+const uint8ArrayToBase64 = (uint8Array: Uint8Array): string => {
+  const chunkSize = 8192; // Process in chunks of 8KB
+  let result = '';
+
+  for (let i = 0; i < uint8Array.length; i += chunkSize) {
+    const chunk = uint8Array.slice(i, i + chunkSize);
+    result += String.fromCharCode.apply(null, Array.from(chunk));
+  }
+
+  return btoa(result);
+};
+
 // Make an API call to get the image, convert to blob and create an URI on front
 export const createLocalUriFromBackUri = async (imageUrl: string, imageSource: "post" | "profile") => {
-  let response: any
-  if (imageSource === "post") {
-    response = await getPostImage(imageUrl)
+  if (Platform.OS === "web") {
+    let response: any
+
+    if (imageSource === "post") {
+      response = await getPostImage(imageUrl)
+    } else {
+      response = await getProfileImage(imageUrl)
+    }
+
+    const imageType = detectImageType(response.data)
+    const blob = new Blob([response.data], { type: imageType })
+    return await blobToDataUri(blob)
+  } else if (Platform.OS === "android") {
+    try {
+      let response: any
+      if (imageSource === "post") {
+        response = await getPostImage(imageUrl)
+      } else {
+        response = await getProfileImage(imageUrl)
+      }
+
+      let uint8Array: Uint8Array;
+      if (response.data instanceof Uint8Array) {
+        uint8Array = response.data;
+      } else if (response.data instanceof ArrayBuffer) {
+        uint8Array = new Uint8Array(response.data);
+      } else {
+        throw new Error(`Unexpected data type: ${typeof response.data}`);
+      }
+
+      // Convert to base64 using chunked approach
+      const base64String = uint8ArrayToBase64(uint8Array);
+
+      // Create a local file path with correct extension
+      const imageType = detectImageType(response.data)
+      const extension = imageType.split('/')[1]; // extracts 'jpeg', 'png', 'gif', or 'webp'
+      const filename = `${imageSource}_${Date.now()}.${extension}`;
+      const localUri = `${FileSystem.documentDirectory}${filename}`;
+
+      await FileSystem.writeAsStringAsync(localUri, base64String, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      return localUri;
+    } catch (error) {
+      console.error('Error in createLocalUriFromBackUri:', error);
+      throw error;
+    }
   } else {
-    response = await getProfileImage(imageUrl)
+    console.error("Image loading: device unsupported")
   }
-  const imageType = detectImageType(response.data)
-  const blob = new Blob([response.data], { type: imageType })
-  return await blobToDataUri(blob)
 }
 
 export const pickImage = async (state: any, setState: Function) => {
