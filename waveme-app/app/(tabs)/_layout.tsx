@@ -138,8 +138,8 @@ const localStyles = StyleSheet.create({
   // NOTE: This SVG won't show up on the actual mobile version for limitation reasons and I can't be bothered fixing it
   homeLinesSmallScreen: {
     position: "absolute",
-    height: 50,
-    width: 50,
+    height: "100%",
+    width: "100%",
   },
 
   loginWrapper: {
