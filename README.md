@@ -120,5 +120,4 @@ INSERT INTO role (name) VALUES ('ROLE_ADMIN') ON CONFLICT DO NOTHING;
 
 ## ✅ You're all set!
 You can now start working with the Waveme project locally.
-
-### You're ready !
+**You're ready !**
