@@ -9,6 +9,5 @@ export const useResponsive = () => {
     height,
     isVerySmallScreen: width < 480,
     isSmallScreen: width < 768,
-    isMobile: width < 768, // Added isMobile property
   };
 };

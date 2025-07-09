@@ -19,7 +19,7 @@ export default function NewPostScreen() {
 
   useWebTitle("Nouveau post")
   const router = useRouter()
-  const { isMobile } = useResponsive()
+  const { isSmallScreen } = useResponsive()
 
   const handleSendPost = async () => {
     await createPost(post)
@@ -32,13 +32,13 @@ export default function NewPostScreen() {
   }
 
   return (
-    <KeyboardAvoidingView 
-      style={{ flex: 1 }} 
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.newPostWrapper}>
         <ThemedText type="title">Nouveau post</ThemedText>
-        <View style={[styles.postTitle, isMobile && styles.postTitleMobile]}>
+        <View style={[styles.postTitle, isSmallScreen && styles.postTitleMobile]}>
           <ThemedText type="subtitle">Description :</ThemedText>
           <ThemedTextInput
             value={post.description}
@@ -53,7 +53,7 @@ export default function NewPostScreen() {
         <TouchableOpacity onPress={() => { pickImage(post, setPost) }} style={styles.genericButton}>
           <ThemedText style={styles.genericButtonText}>Importer une {post.file ? "nouvelle" : ""} image</ThemedText>
         </TouchableOpacity>
-        {post.file && <Image source={{ uri: post.file }} resizeMode="contain" style={[styles.postImage, isMobile && styles.postImageMobile]} />}
+        {post.file && <Image source={{ uri: post.file }} resizeMode="contain" style={[styles.postImage, isSmallScreen && styles.postImageMobile]} />}
         {post.file && (
           <TouchableOpacity onPress={handleSendPost} style={styles.genericButton}>
             <ThemedText style={styles.genericButtonText}>Envoyer le post</ThemedText>
