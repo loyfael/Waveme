@@ -65,30 +65,13 @@ public class WebSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    /*@Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // Routes publiques pour l'authentification
-                        .requestMatchers("/error").permitAll()
-                        .anyRequest().authenticated() // Toutes les autres routes nécessitent une authentification
-                );
-
-        http.authenticationProvider(authenticationProvider());
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }*/
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/error").permitAll()
+                        .requestMatchers("/api/auth/**", "/error", "/api/health").permitAll()
                         .requestMatchers(OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
                 );
@@ -103,12 +86,21 @@ public class WebSecurityConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOriginPatterns(List.of("https://45.140.164.224*", "http://localhost:3000"));
-        config.setAllowedHeaders(List.of(
-                "Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"
+        config.setAllowedOriginPatterns(List.of(
+            "https://45.140.164.224*", 
+            "http://localhost:*",
+            "https://localhost:*",
+            "https://*.exp.direct*", // Pour Expo web
+            "https://*.exp.direct", // Sans wildcard aussi
+            "http://127.0.0.1:*", // Pour développement local
+            "http://192.168.*:*" // Pour réseau local
         ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of(
+                "Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With", "X-Forwarded-For"
+        ));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         config.setExposedHeaders(List.of("Authorization"));
+        config.setMaxAge(3600L); // Cache preflight for 1 hour
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

@@ -69,6 +69,11 @@ export default function PostScreen() {
     clickedColor: Colors.common.downvote
   })
 
+  const { animatedButton: animatedButton4, backgroundColor: backgroundColor4 } = useAnimatedButton({
+    idleColor: Colors.common.barButton,
+    clickedColor: Colors.common.downvote
+  })
+
   const getAllProfilePictures = () => {
     // Removes obnoxious linter error on the actual return; !post should never be true on regular use
     if (!post) return {}
@@ -131,14 +136,93 @@ export default function PostScreen() {
       })
   }
 
-  const handleVotePost = (upvote: boolean) => {
-    votePost(postId, upvote)
-      .catch((err) => {
-        console.error(err)
-      })
-      .then(() => {
-        setReloadPost(!reloadPost)
-      })
+  const handleVotePost = async (upvote: boolean) => {
+    // Prevent multiple votes while processing
+    if (!post) return;
+
+    const currentVoteState = postVoteState; // 0: no vote, 1: upvote, -1: downvote
+    const newVoteState = upvote ? 1 : -1;
+
+    // If clicking the same vote, remove it (toggle off)
+    if (currentVoteState === newVoteState) {
+      setPostVoteState(0);
+
+      // Update post data for vote removal
+      let voteChange = currentVoteState === 1 ? -1 : 1; // Remove the previous vote
+      let upVoteChange = currentVoteState === 1 ? -1 : 0;
+      let downVoteChange = currentVoteState === -1 ? -1 : 0;
+
+      setPost({
+        ...post,
+        voteSum: post.voteSum + voteChange,
+        upVote: post.upVote + upVoteChange,
+        downVote: post.downVote + downVoteChange,
+      });
+
+      // Make API call
+      try {
+        await votePost(postId, upvote);
+      } catch (err) {
+        console.error('Vote removal error:', err);
+        // Revert on error
+        setPostVoteState(currentVoteState);
+        setPost({
+          ...post,
+          voteSum: post.voteSum,
+          upVote: post.upVote,
+          downVote: post.downVote,
+        });
+      }
+      return;
+    }
+
+    // If changing vote type or voting for first time
+    try {
+      await votePost(postId, upvote);
+
+      // Update vote state
+      setPostVoteState(newVoteState);
+
+      // Update post data
+      let voteChange = 0;
+      let upVoteChange = 0;
+      let downVoteChange = 0;
+
+      if (currentVoteState === 0) {
+        // First vote
+        voteChange = upvote ? 1 : -1;
+        upVoteChange = upvote ? 1 : 0;
+        downVoteChange = upvote ? 0 : 1;
+      } else if (currentVoteState === 1 && !upvote) {
+        // Changed from upvote to downvote
+        voteChange = -2;
+        upVoteChange = -1;
+        downVoteChange = 1;
+      } else if (currentVoteState === -1 && upvote) {
+        // Changed from downvote to upvote
+        voteChange = 2;
+        upVoteChange = 1;
+        downVoteChange = -1;
+      }
+
+      setPost({
+        ...post,
+        voteSum: post.voteSum + voteChange,
+        upVote: post.upVote + upVoteChange,
+        downVote: post.downVote + downVoteChange,
+      });
+    } catch (err: any) {
+      console.error('Vote error:', err);
+
+      // Handle specific error types
+      if (err?.response?.status === 403) {
+        console.log('Vote forbidden - User may not have permission to vote on this post');
+      } else if (err?.response?.status === 401) {
+        console.log('Vote unauthorized - User needs to log in');
+      } else {
+        console.log('Unknown vote error:', err?.response?.status, err?.message);
+      }
+    }
   }
 
   const handleVoteComment = (commentId: number, upvote: boolean) => {
@@ -291,17 +375,19 @@ export default function PostScreen() {
                     </ThemedText>
                   </View>
                   <AnimatedButton
+                    key={`upvote-${postId}-${postVoteState}`}
                     onPressIn={() => fadeButtonToClicked(animatedButton2)}
                     onPressOut={() => fadeButtonToIdle(animatedButton2)}
                     onPress={() => { handleVotePost(true) }}>
                     <Animated.View style={{
                       ...styles.barButton,
-                      backgroundColor: postVoteState === 1 ? Colors.common.upvote : backgroundColor3
+                      backgroundColor: postVoteState === 1 ? Colors.common.upvote : backgroundColor2
                     }}>
                       <Ionicons name="arrow-up" color={Colors.common.memeActionBar} size={36} />
                     </Animated.View>
                   </AnimatedButton>
                   <AnimatedButton
+                    key={`downvote-${postId}-${postVoteState}`}
                     onPressIn={() => fadeButtonToClicked(animatedButton3)}
                     onPressOut={() => fadeButtonToIdle(animatedButton3)}
                     onPress={() => { handleVotePost(false) }}>

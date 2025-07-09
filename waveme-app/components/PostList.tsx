@@ -98,6 +98,17 @@ export default function PostList(props: PostListProps) {
       };
 
       props.setPosts(newList);
+
+      // Make API call to remove vote
+      try {
+        await votePost(postId, upvote);
+      } catch (err) {
+        console.error('Vote removal error:', err);
+        // Revert changes on error
+        setVoteStates(prev => ({ ...prev, [postId]: currentVoteState }));
+        newList[index] = post; // Revert to original post data
+        props.setPosts(newList);
+      }
       return;
     }
 
@@ -185,30 +196,31 @@ export default function PostList(props: PostListProps) {
     }
     loadAllImages()
 
-    // Only load votes when posts are initially loaded (not on subsequent updates)
+    // Load votes for posts that don't have vote state loaded yet
     const loadAllVotes = async () => {
-      // Only load votes if voteStates is empty (initial load)
-      if (Object.keys(voteStates).length === 0) {
-        let upvoteStates: { [key: number]: number } = {}
-        if (props.posts) {
-          await Promise.all(
-            props.posts.map(async (post) => {
+      let upvoteStates: { [key: number]: number | string } = { ...voteStates }
+      if (props.posts) {
+        await Promise.all(
+          props.posts.map(async (post) => {
+            // Only load vote state if it's not already loaded for this post
+            if (!(post.postUniqueId in upvoteStates) || typeof upvoteStates[post.postUniqueId] === 'string') {
               await getPostVotes(post.postUniqueId)
                 .catch((err) => {
-                  console.error(err)
+                  console.error('Error loading votes for post', post.postUniqueId, err)
+                  upvoteStates[post.postUniqueId] = 0 // Default to no vote on error
                 })
                 .then(({ data }) => {
-                  if (data.upvoters.map((upvoter: UserInfoLesser) => upvoter.id).includes(user?.id)) {
+                  if (data?.upvoters?.map((upvoter: UserInfoLesser) => upvoter.id).includes(user?.id)) {
                     upvoteStates[post.postUniqueId] = 1
-                  } else if (data.downvoters.map((downvoter: UserInfoLesser) => downvoter.id).includes(user?.id)) {
+                  } else if (data?.downvoters?.map((downvoter: UserInfoLesser) => downvoter.id).includes(user?.id)) {
                     upvoteStates[post.postUniqueId] = -1
                   } else {
                     upvoteStates[post.postUniqueId] = 0
                   }
                 })
-            })
-          )
-        }
+            }
+          })
+        )
         setVoteStates(upvoteStates)
       }
     }
@@ -278,6 +290,7 @@ export default function PostList(props: PostListProps) {
                   </Animated.View>
                 </AnimatedButton>
                 <AnimatedButton
+                  key={`upvote-${post.postUniqueId}-${voteStates[post.postUniqueId]}`}
                   onPressIn={() => fadeButtonToClicked(animatedButton3)}
                   onPressOut={() => fadeButtonToIdle(animatedButton3)}
                   onPress={() => { handleVotePost(post.postUniqueId, true, index) }}>
@@ -289,12 +302,13 @@ export default function PostList(props: PostListProps) {
                   </Animated.View>
                 </AnimatedButton>
                 <AnimatedButton
+                  key={`downvote-${post.postUniqueId}-${voteStates[post.postUniqueId]}`}
                   onPressIn={() => fadeButtonToClicked(animatedButton4)}
                   onPressOut={() => fadeButtonToIdle(animatedButton4)}
                   onPress={() => { handleVotePost(post.postUniqueId, false, index) }}>
                   <Animated.View style={{
                     ...styles.barButton,
-                    backgroundColor: voteStates[post.postUniqueId] === -1 ? Colors.common.downvote : backgroundColor3
+                    backgroundColor: voteStates[post.postUniqueId] === -1 ? Colors.common.downvote : backgroundColor4
                   }}>
                     <Ionicons name="chevron-down" color={Colors.common.memeActionBar} size={36} />
                   </Animated.View>

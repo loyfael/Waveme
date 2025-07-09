@@ -105,15 +105,47 @@ export const createLocalUriFromBackUri = async (imageUrl: string, imageSource: "
 }
 
 export const pickImage = async (state: any, setState: Function) => {
-  // No permissions request is necessary for launching the image library
-  let result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ['images'], // Possible to add videos in the future
-    allowsEditing: true,
-    aspect: [4, 3],
-    quality: 1,
-  });
+  try {
+    console.log('=== PICK IMAGE DEBUG ===');
+    console.log('Platform:', Platform.OS);
+    
+    // Request permissions for media library access on mobile
+    if (Platform.OS !== 'web') {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      console.log('Permission status:', status);
+      
+      if (status !== 'granted') {
+        alert('Désolé, nous avons besoin des permissions pour accéder à vos photos !');
+        return;
+      }
+    }
 
-  if (!result.canceled) {
-    setState({ ...state, file: result.assets[0].uri });
+    console.log('Launching image picker...');
+    
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'], // Possible to add videos in the future
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8, // Reduced quality to avoid large files
+      allowsMultipleSelection: false,
+    });
+
+    console.log('Image picker result:', {
+      canceled: result.canceled,
+      assetsLength: result.assets?.length,
+      firstAssetUri: result.assets?.[0]?.uri,
+      firstAssetType: result.assets?.[0]?.type,
+      firstAssetFileSize: result.assets?.[0]?.fileSize
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const selectedImage = result.assets[0];
+      console.log('Selected image URI:', selectedImage.uri);
+      setState({ ...state, file: selectedImage.uri });
+    }
+  } catch (error) {
+    console.error('Error picking image:', error);
+    alert('Erreur lors de la sélection de l\'image');
   }
 };

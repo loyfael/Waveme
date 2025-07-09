@@ -28,7 +28,7 @@
     "axios": "^1.7.7",
     "dayjs": "^1.11.13",
     "email-validator": "^2.0.4",
-    "expo": "~53.0.0",
+    "expo": "53.0.19",
     "expo-asset": "~11.1.6",
     "expo-constants": "~17.1.6",
     "expo-file-system": "~18.1.11",

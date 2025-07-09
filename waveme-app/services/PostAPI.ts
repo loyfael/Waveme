@@ -6,9 +6,33 @@ import { payloadToFormData } from "@/utils/formData";
 import { PostPageDto } from "../types/index";
 
 export async function createPost(payload: NewPost) {
+  console.log('=== CREATE POST DEBUG ===');
+  console.log('Payload:', payload);
+  console.log('File URI:', payload.file);
+  
   const formData = payloadToFormData(payload)
+  
+  console.log('FormData created, attempting upload...');
+  
   return refreshAuthIfNeeded(() => {
-    return axios.post(`${POST_URL}/upload-image`, formData)
+    return axios.post(`${POST_URL}/upload-image`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 30000, // 30 second timeout
+    })
+  }).then((response) => {
+    console.log('Upload successful:', response.status);
+    return response;
+  }).catch((error) => {
+    console.error('Upload failed:', {
+      message: error.message,
+      code: error.code,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data
+    });
+    throw error;
   })
 }
 

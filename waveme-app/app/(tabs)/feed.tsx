@@ -133,6 +133,7 @@ export default function FeedScreen() {
             }
           }}
           scrollEventThrottle={400}
+          contentContainerStyle={{ paddingBottom: 20 }}
         >
           <PostList 
             isLoading={false}

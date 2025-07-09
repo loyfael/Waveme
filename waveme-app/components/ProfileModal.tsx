@@ -24,7 +24,7 @@ type ProfileModalProps = {
 }
 
 export default function ProfileModal(props: ProfileModalProps) {
-  const [image, setImage] = useState<any>(null)
+  const [profileImageUri, setProfileImageUri] = useState<string | null>(null)
   const [loadedProfilePicture, setLoadedProfilePicture] = useState<string>("")
 
   const { user, setUser, reloadUser } = useContext(AuthContext)
@@ -43,7 +43,15 @@ export default function ProfileModal(props: ProfileModalProps) {
   })
 
   const handleChangeProfilePicture = async () => {
-    await pickImage(image, setImage)
+    console.log('=== PROFILE PICTURE CHANGE ===');
+    
+    // Create a temporary state object for pickImage
+    const tempState = { file: null };
+    
+    await pickImage(tempState, (newState: any) => {
+      console.log('New profile image selected:', newState.file);
+      setProfileImageUri(newState.file);
+    });
   }
 
   const handleLogout = async () => {
@@ -53,17 +61,22 @@ export default function ProfileModal(props: ProfileModalProps) {
   }
 
   useEffect(() => {
-    if (user && image) {
-      setProfileImage(user.id.toString(), image.file)
+    if (user && profileImageUri) {
+      console.log('Uploading profile image:', profileImageUri);
+      
+      setProfileImage(user.id.toString(), profileImageUri)
         .catch((err) => {
-          console.error(err)
+          console.error('Profile image upload error:', err)
         })
         .then((response) => {
-          setUser({ ...user, profileImg: response.data })
-          setImage(null)
+          console.log('Profile image upload success:', response?.data);
+          if (response?.data) {
+            setUser({ ...user, profileImg: response.data })
+          }
+          setProfileImageUri(null)
         })
     }
-  }, [image])
+  }, [profileImageUri])
 
   useEffect(() => {
     if (user && user.profileImg) {

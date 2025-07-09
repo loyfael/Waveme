@@ -21,11 +21,14 @@ export function ThemedTextInput({
     <TextInput style={[
       { backgroundColor },
       styles.themedTextInput,
+      style,
       // Ignore this error, it's lying to your face (code works as intended)
       Platform.OS === 'web' ? ({ outlineStyle: 'none' } as any) : {}
     ]}
       autoCorrect={false}
       placeholderTextColor={Colors.common.placeholderTextColor}
+      returnKeyType="done"
+      blurOnSubmit={true}
       {...rest}
     />
   )
