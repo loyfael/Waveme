@@ -2,14 +2,12 @@ import { ThemedText } from "@/components/theme/ThemedText";
 import { ThemedTextInput } from "@/components/theme/ThemedTextInput";
 import { useWebTitle } from "@/hooks/useWebTitle";
 import React, { useState } from "react";
-import { View, StyleSheet, Image, TouchableOpacity, Platform } from "react-native";
-import * as FileSystem from "expo-file-system"
+import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { genericButtonStyle } from "@/constants/commonStyles";
 import { NewPost } from "@/types";
 import { createPost } from "@/services/PostAPI";
 import { useRouter } from "expo-router";
-import { detectImageType, pickImage } from "@/utils/api";
-import { useResponsive } from "@/hooks/useResponsive";
+import { pickImage } from "@/utils/api";
 
 export default function NewPostScreen() {
   const [post, setPost] = useState<NewPost>({
@@ -20,7 +18,6 @@ export default function NewPostScreen() {
 
   useWebTitle("Nouveau post")
   const router = useRouter()
-  const { isVerySmallScreen } = useResponsive()
 
   const handleSendPost = async () => {
     await createPost(post)
@@ -35,13 +32,11 @@ export default function NewPostScreen() {
   return (
     <View style={styles.newPostWrapper}>
       <ThemedText type="title">Nouveau post</ThemedText>
-      <View style={isVerySmallScreen ? styles.postTitleSmallScreen : styles.postTitle}>
+      <View style={styles.postTitle}>
         <ThemedText type="subtitle">Description :</ThemedText>
         <ThemedTextInput
           value={post.description}
           onChangeText={(value) => { setPost({ ...post, description: value }) }}
-          multiline
-          numberOfLines={isVerySmallScreen ? 2 : 1}
         />
       </View>
       <TouchableOpacity onPress={() => { pickImage(post, setPost) }} style={styles.genericButton}>
@@ -68,12 +63,6 @@ const localStyles = StyleSheet.create({
 
   postTitle: {
     width: 600,
-    marginTop: 50,
-    marginBottom: 40,
-  },
-
-  postTitleSmallScreen: {
-    width: 250,
     marginTop: 50,
     marginBottom: 40,
   },
