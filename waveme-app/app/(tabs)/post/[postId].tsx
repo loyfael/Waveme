@@ -114,25 +114,42 @@ export default function PostScreen() {
   }
 
   const handleNewComment = () => {
+    console.log('=== ADDING COMMENT ===');
+    console.log('Comment content:', input);
+    console.log('Post ID:', postId);
+    
     addComment({ content: input }, postId)
-      .catch((error) => {
-        console.error(error)
-      })
-      .then(() => {
+      .then((response) => {
+        console.log('Comment added successfully:', response?.data);
         setInput("")
         setReloadPost(!reloadPost)
+      })
+      .catch((error) => {
+        console.error('Comment error:', error);
+        console.error('Error response:', error.response?.data);
+        console.error('Error status:', error.response?.status);
+        console.error('Error message:', error.message);
       })
   }
 
   const handleNewReply = (commentId: number) => {
+    console.log('=== ADDING REPLY ===');
+    console.log('Reply content:', replyInput);
+    console.log('Comment ID:', commentId);
+    
     addReply({ content: replyInput }, commentId)
-      .catch((error) => {
-        console.error(error)
-      })
-      .then(() => {
+      .then((response) => {
+        console.log('Reply added successfully:', response?.data);
         setReplyFocus(null)
         setReplyInput("")
         setReloadPost(!reloadPost)
+      })
+      .catch((error) => {
+        console.error('Reply error:', error);
+        console.error('Error response:', error.response?.data);
+        console.error('Error status:', error.response?.status);
+        console.error('Error message:', error.message);
+        // Ne pas vider l'input ni recharger si il y a une erreur
       })
   }
 

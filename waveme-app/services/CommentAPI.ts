@@ -5,16 +5,24 @@ import { NewMessage } from "@/types"
 import { payloadToFormData } from "@/utils/formData"
 
 export async function addComment(payload: NewMessage, postId: string | number) {
-  const formData = payloadToFormData(payload)
   return refreshAuthIfNeeded(() => {
-    return axios.post(`${COMMENT_URL}/${postId}`, formData)
+    console.log('Using axios params for comment');
+    return axios.post(`${COMMENT_URL}/${postId}`, null, {
+      params: {
+        content: payload.content
+      }
+    })
   })
 }
 
 export async function addReply(payload: NewMessage, commentId: string | number) {
-  const formData = payloadToFormData(payload)
   return refreshAuthIfNeeded(() => {
-    return axios.post(`${REPLIES_URL}/${commentId}`, formData)
+    console.log('Using axios params for reply');
+    return axios.post(`${REPLIES_URL}/${commentId}`, null, {
+      params: {
+        content: payload.content
+      }
+    })
   })
 }
 
@@ -32,7 +40,6 @@ export async function getReplyVotes(replyId: number) {
 
 export async function voteComment(commentId: number, upvote: boolean) {
   return refreshAuthIfNeeded(() => {
-    // We use the form-data header instead of the FormData class instance because the latter doesn't support boolean values
     return axios.post(
       `${COMMENT_URL}/${commentId}/vote`,
       { upvote },
@@ -43,7 +50,6 @@ export async function voteComment(commentId: number, upvote: boolean) {
 
 export async function voteReply(replyId: number, upvote: boolean) {
   return refreshAuthIfNeeded(() => {
-    // We use the form-data header instead of the FormData class instance because the latter doesn't support boolean values
     return axios.post(
       `${REPLIES_URL}/${replyId}/vote`,
       { upvote },
