@@ -2,9 +2,8 @@ import { Platform } from "react-native"
 
 // Yes, this is the real server IP. But i'm not sysadmin, i'm developer, and i'm too lazy to update this just for one day
 // NOTE: The second url is a temporary ngrok tunnel url, run `ngrok http 9998` and replace by the URL given on the 'Forwarding' line
-// IMPORTANT: Update this URL with your current ngrok tunnel URL
-export const BASE_SERVER_URL = Platform.OS === 'web' ? 'http://127.0.0.1:9998' : 'https://c07fe945a3c4.ngrok-free.app'
-//export const BASE_SERVER_URL = 'https://45.140.164.224'
+// export const BASE_SERVER_URL = Platform.OS === 'web' ? 'http://127.0.0.1:9998' : 'https://59412f0e1839.ngrok-free.app'
+export const BASE_SERVER_URL = 'https://45.140.164.224'
 
 export const API_URL = `${BASE_SERVER_URL}/api`
 

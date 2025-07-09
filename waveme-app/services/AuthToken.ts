@@ -73,5 +73,5 @@ export function setAxiosToken(token: string) {
 
 export async function clearTokens() {
   await removeLocalStorage('authToken')
-  axios.defaults.headers.common['Authorization'] = undefined  
+  axios.defaults.headers.common['Authorization'] = undefined
 }
