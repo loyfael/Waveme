@@ -264,7 +264,7 @@ cd waveme-backend
 # 📱 Frontend Setup
 
 ## � Prerequisites
-- �📱 Node.js 16+ and npm/yarn
+- �📱 Node.js 20+ and npm/yarn
 - 📲 Expo CLI (`npm install -g @expo/cli`)
 - 📱 Expo Go app (for mobile testing)
 - 🌐 Modern web browser (for web testing)
